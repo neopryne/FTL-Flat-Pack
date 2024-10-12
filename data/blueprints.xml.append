@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<FTL> <!--CREW BLUEPRINTS -->
+	<!--CREW
+	\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+	CREW
+	\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\	-->
+	
+	<crewBlueprint name="fff_f22">
+		<desc>For when one ship just isn't enough. *Veeew pew pew kaboom*</desc>
+		<title>F22</title>
+		<short>F22</short>
+		<cost>37</cost>
+		<bp>2</bp>
+		<rarity>1</rarity>
+		<powerList>
+			<power>Really, really fast.</power>
+			<power>Innaccurate when moving.</power>
+		</powerList>
+	</crewBlueprint>
+	
+</FTL>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<FTL><!-- F22 -->
+
+	<!--F22 ANIMATIONS-->
+
+	<animSheet name="fff_f22" w="360" h="540" fw="45" fh="45">people/fff_f22_base.png</animSheet>
+
+	<anim name="fff_f22_clone">
+		<sheet>fff_f22</sheet>
+		<desc length="8" x="0" y="6"/>
+		<time>1.0</time>
+	</anim>
+
+	<anim name="fff_f22_death_right">
+		<sheet>fff_f22</sheet>
+		<desc length="8" x="0" y="1"/>
+		<time>1.0</time>
+	</anim>
+
+	<anim name="fff_f22_death_left">
+		<sheet>fff_f22</sheet>
+		<desc length="8" x="0" y="8"/>
+		<time>1.0</time>
+	</anim>
+
+	<anim name="fff_f22_walk_down">
+		<sheet>fff_f22</sheet>
+		<desc length="4" x="4" y="10"/>
+		<time>1.0</time>
+	</anim>
+
+	<anim name="fff_f22_walk_right">
+		<sheet>fff_f22</sheet>
+		<desc length="4" x="0" y="11"/>
+		<time>1.0</time>
+	</anim>
+
+	<anim name="fff_f22_walk_up">
+		<sheet>fff_f22</sheet>
+		<desc length="4" x="0" y="10"/>
+		<time>1.0</time>
+	</anim>
+
+	<anim name="fff_f22_walk_left">
+		<sheet>fff_f22</sheet>
+		<desc length="4" x="4" y="11"/>
+		<time>1.0</time>
+	</anim>
+
+	<anim name="fff_f22_shoot_down">
+		<sheet>fff_f22</sheet>
+		<desc length="8" x="0" y="2"/>
+		<time>1.0</time>
+	</anim>
+
+	<anim name="fff_f22_shoot_right">
+		<sheet>fff_f22</sheet>
+		<desc length="8" x="0" y="5"/>
+		<time>1.0</time>
+	</anim>
+
+	<anim name="fff_f22_shoot_up">
+		<sheet>fff_f22</sheet>
+		<desc length="8" x="0" y="3"/>
+		<time>1.0</time>
+	</anim>
+
+	<anim name="fff_f22_shoot_left">
+		<sheet>fff_f22</sheet>
+		<desc length="8" x="0" y="4"/>
+		<time>1.0</time>
+	</anim>
+
+
+	<anim name="fff_f22_fire_down">
+		<sheet>fff_f22</sheet>
+		<desc length="4" x="4" y="10"/>
+		<time>1.0</time>
+	</anim>
+
+	<anim name="fff_f22_fire_right">
+		<sheet>fff_f22</sheet>
+		<desc length="4" x="0" y="11"/>
+		<time>1.0</time>
+	</anim>
+
+	<anim name="fff_f22_fire_up">
+		<sheet>fff_f22</sheet>
+		<desc length="4" x="0" y="10"/>
+		<time>1.0</time>
+	</anim>
+
+	<anim name="fff_f22_fire_left">
+		<sheet>fff_f22</sheet>
+		<desc length="4" x="4" y="11"/>
+		<time>1.0</time>
+	</anim>
+
+	<anim name="fff_f22_repair">
+		<sheet>fff_f22</sheet>
+		<desc length="6" x="0" y="9"/>
+		<time>1.0</time>
+	</anim>
+
+	<anim name="fff_f22_punch_up">
+		<sheet>fff_f22</sheet>
+		<desc length="8" x="0" y="3"/>
+		<time>1.0</time>
+	</anim>
+
+	<anim name="fff_f22_punch_down">
+		<sheet>fff_f22</sheet>
+		<desc length="8" x="0" y="2"/>
+		<time>1.0</time>
+	</anim>
+
+	<anim name="fff_f22_teleport">
+		<sheet>fff_f22</sheet>
+		<desc length="8" x="0" y="7"/>
+		<time>0.5</time>
+	</anim>
+
+
+	<anim name="fff_f22_type_right">
+		<sheet>fff_f22</sheet>
+		<desc length="4" x="0" y="11"/>
+		<time>1</time>
+	</anim>
+	<anim name="fff_f22_type_left">
+		<sheet>fff_f22</sheet>
+		<desc length="4" x="4" y="11"/>
+		<time>1</time>
+	</anim>
+	<anim name="fff_f22_type_up">
+		<sheet>fff_f22</sheet>
+		<desc length="4" x="0" y="10"/>
+		<time>1</time>
+	</anim>
+	<anim name="fff_f22_type_down">
+		<sheet>fff_f22</sheet>
+		<desc length="4" x="4" y="10"/>
+		<time>1</time>
+	</anim>
+	
+	<anim name="crewLaser">
+		<sheet>fff_f22</sheet>
+		<desc length="1" x="1" y="0"/>
+		<time>.5</time>
+	</anim>
+
+	<anim name="fff_f22_portrait">
+		<sheet>fff_f22</sheet>
+		<desc length="1" x="0" y="0"/>
+		<time>1</time>
+	</anim>
+
+</FTL>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<FTL>
+	<mod:findLike type="scripts">
+		<mod-append:script>data/flatpack_scripts/f22.lua</mod-append:script>
+	</mod:findLike>
+</FTL>
+
+<FTL> <!-- Crew Abilities and Crew -->
+	<!--Crew Abilities and Crew
+	\\\\\\\\\\\\\\\\\\\\\\\\\
+	Crew Abilities and Crew
+	CREW RELY ON:
+	blueprints-hyperspace-animations-sounds
+	\\\\\\\\\\\\\\\\\\\\\\\\\-->
+	<!--<mod:findLike type="crew" limit="1">
+	<mod-append:race name="fff_f22">-->
+		<crew> <!-- Flat Form Fighter: F22 -->
+			<race name="fff_f22">
+				<maxHealth>100</maxHealth>
+				<repairSpeed>1</repairSpeed>
+				<canFight>true</canFight>
+				<canRepair>true</canRepair>
+				<canSabotage>true</canSabotage>
+				<canSuffocate>true</canSuffocate>
+				<damageMultiplier>1</damageMultiplier>
+				<rangedDamageMultiplier>1</rangedDamageMultiplier>
+				<damageTakenMultiplier>1</damageTakenMultiplier>
+				<suffocationModifier>1</suffocationModifier>
+				<canBurn>true</canBurn>
+				<stunMultiplier>1</stunMultiplier>
+				<fireRepairMultiplier>1</fireRepairMultiplier>
+				<canMan>true</canMan>
+				<noClone>false</noClone>
+				<noSlot>false</noSlot>
+				<controllable>true</controllable>
+				<canPhaseThroughDoors>false</canPhaseThroughDoors>
+				<moveSpeedMultiplier>9</moveSpeedMultiplier>
+				<sabotageSpeedMultiplier>1</sabotageSpeedMultiplier>
+				<animBase>mantis</animBase>
+				<deathSounds>
+					<deathSound>fff_f22_death</deathSound>
+				</deathSounds>
+				<shootingSounds>
+					<shootingSound>fff_f22_shot</shootingSound>
+				</shootingSounds>
+				<repairSounds animSoundFrame="1">
+					<repairSound>fff_f22_repair</repairSound>
+				</repairSounds>
+			</race>
+		</crew>
+	<!--</mod-append:race>
+	</mod:findLike>-->
+</FTL>
