@@ -1,5 +1,6 @@
 local userdata_table = mods.multiverse.userdata_table
-
+local TILE_SIZE = 35
+local REDIRECT_RADIUS = TILE_SIZE * 2
 
 --wait, i probably need to make this only apply on your ship, for the lib version
 -- otherwise enemy crew will freak the fuck out.  shipid == 0 for your ship.
@@ -7,8 +8,6 @@ local userdata_table = mods.multiverse.userdata_table
 
 script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
   if (crewmem:GetSpecies() == "fff_f22") then
-    local TILE_SIZE = 35
-    local REDIRECT_RADIUS = TILE_SIZE * 2
     local new_room = 0
     local new_slot = 0
     --print(crewmem.currentSlot.roomId)
