@@ -1,73 +1,111 @@
 local userdata_table = mods.multiverse.userdata_table
+local vter = mods.multiverse.vter
+local get_room_at_location = mods.vertexutil.get_room_at_location
+local random_point_radius = mods.vertexutil.random_point_radius
 local TILE_SIZE = 35
 local REDIRECT_RADIUS = TILE_SIZE * 2
+local ENEMY_SHIP = 1
+local DASH_DAMAGE = 10
+local global = Hyperspace.Global.GetInstance()
+local soundControl = global:GetSoundControl()
+
+local function damage_enemy_helper(activeCrew, currentRoom, bystander)
+      --print(bystander:GetLongName(), "room ", bystander.iRoomId, " ", currentRoom, " ", bystander.currentShipId == activeCrew.currentShipId)
+    if bystander.iRoomId == currentRoom and bystander.iShipId == ENEMY_SHIP and bystander.currentShipId == activeCrew.currentShipId then
+        print(bystander:GetLongName(), " was in the same room!")
+        bystander:DirectModifyHealth(-DASH_DAMAGE)
+    end
+end
+
+local function damage_enemy_crew(activeCrew, currentRoom)
+        -- Modified from brightlord's modification of Arc's get_ship_crew_room(). Determines the crew of either team in a room.
+    if (Hyperspace.ships.enemy) then
+      for bystander in vter(Hyperspace.ships.enemy.vCrewList) do
+          damage_enemy_helper(activeCrew, currentRoom, bystander)
+      end
+    end
+    --do the same for friendly ship
+    for bystander in vter(Hyperspace.ships.player.vCrewList) do
+        damage_enemy_helper(activeCrew, currentRoom, bystander)
+    end
+end
+
+
+
+  
+
 
 --wait, i probably need to make this only apply on your ship, for the lib version
 -- otherwise enemy crew will freak the fuck out.  shipid == 0 for your ship.
 
+--next steps for this are make it use vertexUtils and pretty up the code.
+
 
 script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
   if (crewmem:GetSpecies() == "fff_f22") then
+    local shipManager = global:GetShipManager(crewmem.iShipId)
     local new_room = 0
     local new_slot = 0
     --print(crewmem.currentSlot.roomId)
     local crewTable = userdata_table(crewmem, "mods.flatpack.crewDestinationTracker")
-    --local shipManager = Global.GetShipManager(crewmem.iShipId)
     if crewTable.previousDestination and
         (crewmem.currentSlot.roomId ~= crewTable.previousDestination.roomId or crewmem.currentSlot.slotId ~= crewTable.previousDestination.slotId) then
-
+          crewTable.moving_to_new_dest = true
         --print("Crew ", crewmem:GetLongName(), " changed destination!  old ", crewTable.previousDestination.roomId, " ", crewTable.previousDestination.slotId, "new ", crewmem.currentSlot.roomId, " ", crewmem.currentSlot.slotId)
 
         --print(id)
         local x = crewmem.currentSlot.worldLocation.x
         local y = crewmem.currentSlot.worldLocation.y
-        --local new_dest_point = mods.vertexutil.random_point_radius(crewmem.currentSlot.worldLocation, REDIRECT_RADIUS)
+        radius = REDIRECT_RADIUS
+        local new_dest_point = random_point_radius(crewmem.currentSlot.worldLocation, radius)
         --inlining until I know how to depend on libs
-        local r = REDIRECT_RADIUS*math.random()
-        local theta = 2*math.pi*(math.random())
-        local new_dest_point = Hyperspace.Pointf(x + r*math.cos(theta), y + r*math.sin(theta))
         
-        
-        --check if point is valid, pulled from vertexutils because I don't have a shipmanager
-        local shunted = false
-        new_room = Hyperspace.ShipGraph.GetShipInfo(crewmem.iShipId):GetSelectedRoom(new_dest_point.x, new_dest_point.y, false)
+
+        crewTable.shunted = false
+        new_room = get_room_at_location(shipManager, new_dest_point, false)
+        --failed to land in a room, shunt loop towards original destination. reduce radius until it is zero.
         while new_room == -1 do
-          shunted = true
-          --redo circle stuff, but smaller
-          r = math.min(0, r - .5)
-          theta = 2*math.pi*(math.random())
-          new_dest_point = Hyperspace.Pointf(x + r*math.cos(theta), y + r*math.sin(theta))
-          new_room = Hyperspace.ShipGraph.GetShipInfo(crewmem.iShipId):GetSelectedRoom(new_dest_point.x, new_dest_point.y, false)
-          print("moved to non-room position, shunting closer")
+          crewTable.shunted = true
+          --redo circle stuff, but smaller.  You can upgrade the lab to reduce the circle size.
+          radius = math.min(0, radius - .5)
+          new_dest_point = random_point_radius(crewmem.currentSlot.worldLocation, radius)
+          new_room = get_room_at_location(shipManager, new_dest_point, false)
+          --print("moved to non-room position, shunting closer")
         end
         
-        --failed to land in a room, shunt loop towards original destination and inflict damage/stun.  reduce radius until it is zero.
-        --print("moved to new room position")
         --redirect crew to location.  Random slot for now due to limitations, will make it actually use the real position soon.
-        
         local shipGraph = Hyperspace.ShipGraph.GetShipInfo(crewmem.iShipId)
         local shape = shipGraph:GetRoomShape(new_room)
         local width = shape.w / TILE_SIZE
         local height = shape.h / TILE_SIZE
         local count_of_tiles_in_room = width * height
-        new_slot = math.floor(math.random() * count_of_tiles_in_room) --assumes zero-indexed
-        --print("old ", crewmem.currentSlot.roomId, " ", crewmem.currentSlot.slotId, "new ", new_room, " ", new_slot)
-        --crewmem:SetRoomPath(new_room, new_slot) --does this do anything? seems to not work.
-        --crewmem.currentSlot.roomId = new_room
-        --crewmem.currentSlot.slotId = new_slot
-        crewmem:MoveToRoom(new_room, new_slot, false)--doesn nothing. what's force do here?
-        
-        if shunted then
-          print("shunted xn combob")
-        end
-        crewTable.previousDestination = {roomId = new_room, slotId = new_slot}
+        new_slot = math.floor(math.random() * count_of_tiles_in_room) --zero indexed
 
-    else--need to check for updates and put them here.  Assumes SetRoomPath actually works, we can clobber it if it doesn't.
+        crewmem:MoveToRoom(new_room, new_slot, false)
+        soundControl:PlaySoundMix("fff_f22_dash", 3, false)
+        
+        crewTable.previousDestination = {roomId = new_room, slotId = new_slot}
+    else
         crewTable.previousDestination = {roomId = crewmem.currentSlot.roomId, slotId = crewmem.currentSlot.slotId}
     end
+    --Check if we've reached the end of movement
+    local current_room = get_room_at_location(shipManager, crewmem:GetPosition(), false)
+    --print("current_room: ", current_room, " position ", crewmem:GetPosition().x, " ", crewmem:GetPosition().y)
+    --print("moving to ", crewmem.currentSlot.roomId, " new? ", crewTable.moving_to_new_dest)
+    if (crewTable.moving_to_new_dest and current_room == crewmem.currentSlot.roomId) then
+        crewTable.moving_to_new_dest = false
+        soundControl:PlaySoundMix("fff_f22_boom", 3, false)
+        damage_enemy_crew(crewmem, current_room)
+        if crewTable.shunted then
+          --print("shunted xn combob")
+          crewmem.fStunTime = .5 + ((1 - (crewmem:GetIntegerHealth() / crewmem:GetMaxHealth())) * 8.5) -- scale stun with health loss
+          crewmem:ModifyHealth(-5)
+        end
+    end
   end
-  
 end)
+
+
 
 --LMC will have a check for f22 and exclude it to prevent double coverage.  until I can test both together.
 --also what if the spot i pick is occupied?  hmm maybe problem.

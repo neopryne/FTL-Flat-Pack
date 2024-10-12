@@ -3,3 +3,5 @@
 <fff_f22_shot volume="4">aliens/shoot0.ogg</fff_f22_shot>
 <fff_f22_death volume="4">aliens/die0.ogg</fff_f22_death>
 <fff_f22_repair volume="3">aliens/deflect.ogg</fff_f22_repair>
+<fff_f22_boom volume="3">aliens/blast0.ogg</fff_f22_boom>
+<fff_f22_dash volume="3">aliens/charge0.ogg</fff_f22_dash>

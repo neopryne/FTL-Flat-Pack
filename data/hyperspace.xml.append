@@ -23,8 +23,8 @@
 				<canRepair>true</canRepair>
 				<canSabotage>true</canSabotage>
 				<canSuffocate>true</canSuffocate>
-				<damageMultiplier>1</damageMultiplier>
-				<rangedDamageMultiplier>1</rangedDamageMultiplier>
+				<damageMultiplier>1.2</damageMultiplier>
+				<rangedDamageMultiplier>1.2</rangedDamageMultiplier>
 				<damageTakenMultiplier>1</damageTakenMultiplier>
 				<suffocationModifier>1</suffocationModifier>
 				<canBurn>true</canBurn>
@@ -35,8 +35,8 @@
 				<noSlot>false</noSlot>
 				<controllable>true</controllable>
 				<canPhaseThroughDoors>false</canPhaseThroughDoors>
-				<moveSpeedMultiplier>9</moveSpeedMultiplier>
-				<sabotageSpeedMultiplier>1</sabotageSpeedMultiplier>
+				<moveSpeedMultiplier>11</moveSpeedMultiplier>
+				<sabotageSpeedMultiplier>1.2</sabotageSpeedMultiplier>
 				<animBase>mantis</animBase>
 				<deathSounds>
 					<deathSound>fff_f22_death</deathSound>

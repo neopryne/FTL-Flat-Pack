@@ -9,14 +9,16 @@
 	
 	<crewBlueprint name="fff_f22">
 		<desc>For when one ship just isn't enough. *Veeew pew pew kaboom*</desc>
-		<title>F22</title>
+		<title>Lockheed Martin F-22 Raptor</title>
 		<short>F22</short>
 		<cost>37</cost>
 		<bp>2</bp>
-		<rarity>1</rarity>
+		<rarity>3</rarity>
 		<powerList>
 			<power>Really, really fast.</power>
-			<power>Innaccurate when moving.</power>
+			<power>1.2x damage and sabotage speed.</power>
+			<power>Moves erratically, may stun itself. Stun increases with damage taken.</power>
+			<power>Damages enemy crew in the rooms it moves to.</power>
 		</powerList>
 	</crewBlueprint>
 	
