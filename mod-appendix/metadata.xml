@@ -1,0 +1,21 @@
+<metadata>
+  <title><![CDATA[ The Flat Pack]]></title>
+  <threadUrl><![CDATA[https://ftlmultiverse.boards.net/thread/116/mv-5-4-ffftl-fff2lua]]></threadUrl>
+  <author><![CDATA[ Limrix ]]></author>
+  <version><![CDATA[ 0.1 ]]></version>
+  <description>
+<![CDATA[
+Requires hyperspace, multiverse, and VertexUtils to work.
+
+Adds characters from the game Flat Form Fighter as crew.
+Crew are at stores, or you can spawn them with CREW [crewname]
+
+Current cast:
+F22: fast boi
+name: fff_f22
+
+Thanks to Jail for the use of Flat Form Fighter
+Brightlord, Arc, and ChronoVortex for help coding the room detection and rerouting.
+]]>
+  </description>
+</metadata>
