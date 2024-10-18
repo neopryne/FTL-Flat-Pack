@@ -27,10 +27,10 @@ local TOP_EYE_Y = LEFT_EYE_Y + (math.tan(EYE_ANGLE / 2) * (TOP_EYE_X - LEFT_EYE_
 local BOTTOM_EYE_X = TOP_POINT_X
 local BOTTOM_EYE_Y = TOP_EYE_Y - LEFT_EYE_Y
 
-
-local INNER_EYE_RIGHT_X = TOP_EYE_X + (math.tan(IRIS_ANGLE) * (TOP_EYE_Y - LEFT_EYE_Y))
+local INNER_EYE_OFFSET_X = (math.tan(IRIS_ANGLE / 2) * (TOP_EYE_Y - LEFT_EYE_Y))
+local INNER_EYE_RIGHT_X = TOP_EYE_X + INNER_EYE_OFFSET_X
 local INNER_EYE_RIGHT_Y = LEFT_EYE_Y
-local INNER_EYE_LEFT_X = INNER_EYE_RIGHT_X - TOP_EYE_X 
+local INNER_EYE_LEFT_X = TOP_EYE_X - INNER_EYE_OFFSET_X
 local INNER_EYE_LEFT_Y = LEFT_EYE_Y
 
 --TODO calc this for the library version
@@ -39,7 +39,7 @@ print("c ", CENTER_POINT.x, CENTER_POINT.y, CENTER_POINT.z)
 
 local ROTATIONS = {x = .01, y = 0, z = .007}
 
-local COLOR = Graphics.GL_Color(.9, 0.9, .9, 1) --a
+local OMEN_BODY_COLOR = Graphics.GL_Color(.8, .8, .8, 1) --a
 local COLOR2 = Graphics.GL_Color(.8, .8, .8, 1) --a
 local GREY50 = Graphics.GL_Color(0, 0, 0, .5)
 local BLACK = Graphics.GL_Color(0, 0, 0, 1) --a
@@ -70,13 +70,13 @@ local prism = INITIAL_PRISM
 
 -- Faces of the triangular prism (each face is defined by a set of vertex indices)
 local faces = {
-    {1, 2, 3, color = COLOR, filled = true},        -- Front triangle
-    {4, 5, 6, color = COLOR, filled = true},        -- Back triangle
-    {1, 2, 5, 4, color = COLOR, filled = true},     -- Side connecting front and back (quad)
-    {2, 3, 6, 5, color = COLOR, filled = true},     -- Another side (quad)
-    {3, 1, 4, 6, color = COLOR, filled = true},      -- Third side (quad)
-    {7, 8, 9, 10, color = BLACK, filled = false},      -- Eye outline (quad)  need new render layer value for this on top
-    {11, 8, 12, 10, color = BLACK, filled = true}      -- Eye outline (quad)  need new render layer value for this on top
+    {1, 2, 3, fill_color = OMEN_BODY_COLOR, filled = true},        -- Front triangle
+    {4, 5, 6, fill_color = OMEN_BODY_COLOR, filled = true},        -- Back triangle
+    {1, 2, 5, 4, fill_color = OMEN_BODY_COLOR, filled = true},     -- Side connecting front and back (quad)
+    {2, 3, 6, 5, fill_color = OMEN_BODY_COLOR, filled = true},     -- Another side (quad)
+    {3, 1, 4, 6, fill_color = OMEN_BODY_COLOR, filled = true},      -- Third side (quad)
+    {7, 8, 9, 10, outline_color = BLACK, outline = true, line_width=2},      -- Eye outline (quad)  need new render layer value for this on top
+    {11, 8, 12, 10, fill_color = BLACK, filled = true}      -- Eye outline (quad)  
 }
 
 -- Helper function to rotate a point around a fixed point
@@ -164,7 +164,7 @@ local function relativeVertexByIndex(vertexIndex, position)
     return relativeVertex(prism[vertexIndex], position)
 end
 
-local function drawRelativeLine(vertex1, vertex2, position, color)
+local function drawRelativeLine(vertex1, vertex2, position, line_width, color)
     --Graphics.CSurface.GL_DrawLine(prism[vertex1].x + position.x,  prism[vertex1].y + position.y, prism[vertex2].x + position.x,  prism[vertex2].y + position.y, 2, BLACK)
     Graphics.CSurface.GL_DrawLine(relativeX(prism[vertex1].x, position),  relativeY(prism[vertex1].y, position), 
             relativeX(prism[vertex2].x, position),  relativeY(prism[vertex2].y, position), 1, GREY50)
@@ -196,18 +196,19 @@ end
 --requires that the face points are in order and a convex polygon
 --only works for three or four points
 local function drawFace(face, position)
-    local i
     for i = 3, #face do
         --print("drawing triangle ", i)
         if (face.filled) then
-            glDrawTriangle_Wrapper(face[1], face[i-1], face[i], position, face.color)
+            glDrawTriangle_Wrapper(face[1], face[i-1], face[i], position, face.fill_color)
         end
-        drawRelativeLine(face[i-1], face[i], position, COLOR)
+        if (face.outline) then
+            drawRelativeLine(face[i-1], face[i], position, face.line_width, face.outline_color)
+        end
     end
-    
-    --TODO this is broken but I kind of like it for omen
-    --drawRelativeLine(face[1], face[i], position, COLOR)
-    drawRelativeLine(face[1], face[2], position, COLOR)
+    if (face.outline) then
+        drawRelativeLine(face[1], face[#face], position, face.line_width, face.outline_color)
+        drawRelativeLine(face[1], face[2], position, face.line_width, face.outline_color)
+    end
 end
 
 
@@ -255,6 +256,8 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
     local shipManager = global:GetShipManager(ship.iShipId)
     for crewmem in vter(shipManager.vCrewList) do
         if (crewmem:GetSpecies() == "fff_omen") then
+            --todo only run if unpaused.  Breaking pause is for later.  extemporality upgrade in the lab disables this check.
+            
         --print("found omen")
         --all but the timer do what I want.  skilling is training skills, and tells you what room they are manning.
         --print("Shoot timer: ", crewmem.crewAnim.shootTimer, " shared spot: ", crewmem.bSharedSpot, " fighting: ", crewmem.bFighting, " maning: ", crewmem.bActiveManning, "skiling: ", crewmem.usingSkill)
