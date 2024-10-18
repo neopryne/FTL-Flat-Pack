@@ -23,9 +23,15 @@ local LEFT_EYE_Y = (TOP_POINT_Y / 3)
 local RIGHT_EYE_X = OUTER_SQUARE_SIZE - LEFT_EYE_X
 local RIGHT_EYE_Y = LEFT_EYE_Y
 local TOP_EYE_X = TOP_POINT_X
-local TOP_EYE_Y = LEFT_EYE_Y + (math.tan(IRIS_ANGLE) * (TOP_EYE_X - LEFT_EYE_X))
+local TOP_EYE_Y = LEFT_EYE_Y + (math.tan(EYE_ANGLE / 2) * (TOP_EYE_X - LEFT_EYE_X))
 local BOTTOM_EYE_X = TOP_POINT_X
 local BOTTOM_EYE_Y = TOP_EYE_Y - LEFT_EYE_Y
+
+
+local INNER_EYE_RIGHT_X = TOP_EYE_X + (math.tan(IRIS_ANGLE) * (TOP_EYE_Y - LEFT_EYE_Y))
+local INNER_EYE_RIGHT_Y = LEFT_EYE_Y
+local INNER_EYE_LEFT_X = INNER_EYE_RIGHT_X - TOP_EYE_X 
+local INNER_EYE_LEFT_Y = LEFT_EYE_Y
 
 --TODO calc this for the library version
 local CENTER_POINT = {x = TOP_POINT_X, y = TOP_POINT_X * math.tan(math.pi/6), z = OMEN_DEPTH / 2}
@@ -35,7 +41,8 @@ local ROTATIONS = {x = .01, y = 0, z = .007}
 
 local COLOR = Graphics.GL_Color(.9, 0.9, .9, 1) --a
 local COLOR2 = Graphics.GL_Color(.8, .8, .8, 1) --a
-local BLACK = Graphics.GL_Color(0, 0, 0, .5) --a
+local GREY50 = Graphics.GL_Color(0, 0, 0, .5)
+local BLACK = Graphics.GL_Color(0, 0, 0, 1) --a
 
 local INITIAL_PRISM = {
     -- Front triangle vertices (x, y, z)
@@ -52,8 +59,10 @@ local INITIAL_PRISM = {
     {x = LEFT_EYE_X, y = LEFT_EYE_Y, z = EYE_Z},
     {x = TOP_EYE_X, y = TOP_EYE_Y, z = EYE_Z},
     {x = RIGHT_EYE_X, y = RIGHT_EYE_Y, z = EYE_Z},
-    {x = BOTTOM_EYE_X, y = BOTTOM_EYE_Y, z = EYE_Z}
+    {x = BOTTOM_EYE_X, y = BOTTOM_EYE_Y, z = EYE_Z},
     --Inner Eye
+    {x = INNER_EYE_LEFT_X, y = INNER_EYE_LEFT_Y, z = EYE_Z},
+    {x = INNER_EYE_RIGHT_X, y = INNER_EYE_RIGHT_Y, z = EYE_Z}
 }
 
 local prism = INITIAL_PRISM
@@ -62,11 +71,12 @@ local prism = INITIAL_PRISM
 -- Faces of the triangular prism (each face is defined by a set of vertex indices)
 local faces = {
     {1, 2, 3, color = COLOR, filled = true},        -- Front triangle
-    --{4, 5, 6, color = COLOR, filled = true},        -- Back triangle
-    --{1, 2, 5, 4, color = COLOR, filled = true},     -- Side connecting front and back (quad)
-    --{2, 3, 6, 5, color = COLOR, filled = true},     -- Another side (quad)
-    --{3, 1, 4, 6, color = COLOR, filled = true},      -- Third side (quad)
-    {7, 8, 9, 10 color = BLACK, filled = true}      -- Eye outline (quad)
+    {4, 5, 6, color = COLOR, filled = true},        -- Back triangle
+    {1, 2, 5, 4, color = COLOR, filled = true},     -- Side connecting front and back (quad)
+    {2, 3, 6, 5, color = COLOR, filled = true},     -- Another side (quad)
+    {3, 1, 4, 6, color = COLOR, filled = true},      -- Third side (quad)
+    {7, 8, 9, 10, color = BLACK, filled = false},      -- Eye outline (quad)  need new render layer value for this on top
+    {11, 8, 12, 10, color = BLACK, filled = true}      -- Eye outline (quad)  need new render layer value for this on top
 }
 
 -- Helper function to rotate a point around a fixed point
@@ -157,7 +167,7 @@ end
 local function drawRelativeLine(vertex1, vertex2, position, color)
     --Graphics.CSurface.GL_DrawLine(prism[vertex1].x + position.x,  prism[vertex1].y + position.y, prism[vertex2].x + position.x,  prism[vertex2].y + position.y, 2, BLACK)
     Graphics.CSurface.GL_DrawLine(relativeX(prism[vertex1].x, position),  relativeY(prism[vertex1].y, position), 
-            relativeX(prism[vertex2].x, position),  relativeY(prism[vertex2].y, position), 2, BLACK)
+            relativeX(prism[vertex2].x, position),  relativeY(prism[vertex2].y, position), 1, GREY50)
 end
 
 --slightly different bc idk how to do overloading
