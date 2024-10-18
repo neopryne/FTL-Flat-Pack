@@ -173,7 +173,7 @@
 	<anim name="fff_omen_repair">
 		<sheet>fff_omen</sheet>
 		<desc length="9" x="0" y="18" />
-		<time>1.0</time>
+		<time>2</time>
 	</anim>
 	<anim name="fff_omen_type_down">
 		<sheet>fff_omen</sheet>

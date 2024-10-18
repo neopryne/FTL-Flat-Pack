@@ -80,7 +80,7 @@
 			<shootingSounds>
 				<shootingSound>nothing</shootingSound>
 			</shootingSounds>
-			<repairSounds animSoundFrame="1">
+			<repairSounds animSoundFrame="2">
 				<repairSound>fff_omen_repair</repairSound>
 			</repairSounds>
 		</mod-append:race>
