@@ -21,5 +21,26 @@
 			<power>Damages enemy crew in the rooms it moves to.</power>
 		</powerList>
 	</crewBlueprint>
+
+	<crewBlueprint name="fff_omen">
+		<desc> УФЦ G ЩHД ДИD УФЦ Γ
+		U+041x 	А 	Б 	В 	Г 	Д 	Е 	Ж 	З 	И 	Й 	К 	Л 	М 	Н 	О 	П
+		U+042x 	Р 	С 	Т 	У 	Ф 	Х 	Ц 	Ч 	Ш 	Щ 	Ъ 	Ы 	Ь 	Э 	Ю 	Я
+		U+043x 	а 	б 	в 	г 	д 	е 	ж 	з 	и 	й 	к 	л 	м 	н 	о 	п
+		U+044x 	р 	с 	т 	у 	ф 	х 	ц 	ч 	ш 	щ 	ъ 	ы 	ь 	э 	ю 	я
+		</desc>
+		<title>OMEN</title>
+		<short>OMEN</short>
+		<cost>48</cost>
+		<bp>2</bp>
+		<rarity>3</rarity>
+		<powerList>
+			<power>Does more damage the longer it spends in combat.</power>
+			<power>Beyond your comprehension.</power>
+			<power>~~~~~~~~~~~~~</power>
+			<power>Only the best survive. --British Narrator Guy</power>
+			<power>~~~~~~~~~~~~~</power>
+		</powerList>
+	</crewBlueprint>
 	
 </FTL>

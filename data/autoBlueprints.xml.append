@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<FTL>
+
+	<blueprintList name="LIST_CREW_F22"> 
+		<name>fff_f22</name>
+	</blueprintList>
+
+</FTL>

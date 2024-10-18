@@ -4,6 +4,9 @@
 	<mod:findLike type="scripts">
 		<mod-append:script>data/flatpack_scripts/f22.lua</mod-append:script>
 	</mod:findLike>
+	<mod:findLike type="scripts">
+		<mod-append:script>data/flatpack_scripts/omen.lua</mod-append:script>
+	</mod:findLike>
 </FTL>
 
 <FTL> <!-- Crew Abilities and Crew -->
@@ -13,42 +16,113 @@
 	CREW RELY ON:
 	blueprints-hyperspace-animations-sounds
 	\\\\\\\\\\\\\\\\\\\\\\\\\-->
-	<!--<mod:findLike type="crew" limit="1">
-	<mod-append:race name="fff_f22">-->
-		<crew> <!-- Flat Form Fighter: F22 -->
-			<race name="fff_f22">
-				<maxHealth>100</maxHealth>
-				<repairSpeed>1</repairSpeed>
-				<canFight>true</canFight>
-				<canRepair>true</canRepair>
-				<canSabotage>true</canSabotage>
-				<canSuffocate>true</canSuffocate>
-				<damageMultiplier>1.2</damageMultiplier>
-				<rangedDamageMultiplier>1.2</rangedDamageMultiplier>
-				<damageTakenMultiplier>1</damageTakenMultiplier>
-				<suffocationModifier>1</suffocationModifier>
-				<canBurn>true</canBurn>
-				<stunMultiplier>1</stunMultiplier>
-				<fireRepairMultiplier>1</fireRepairMultiplier>
-				<canMan>true</canMan>
-				<noClone>false</noClone>
-				<noSlot>false</noSlot>
-				<controllable>true</controllable>
-				<canPhaseThroughDoors>false</canPhaseThroughDoors>
-				<moveSpeedMultiplier>11</moveSpeedMultiplier>
-				<sabotageSpeedMultiplier>1.2</sabotageSpeedMultiplier>
-				<animBase>mantis</animBase>
-				<deathSounds>
-					<deathSound>fff_f22_death</deathSound>
-				</deathSounds>
-				<shootingSounds>
-					<shootingSound>fff_f22_shot</shootingSound>
-				</shootingSounds>
-				<repairSounds animSoundFrame="1">
-					<repairSound>fff_f22_repair</repairSound>
-				</repairSounds>
-			</race>
-		</crew>
-	<!--</mod-append:race>
-	</mod:findLike>-->
+	<mod:findLike type="crew" limit="1">
+		<mod-append:race name="fff_f22">
+			<maxHealth>100</maxHealth>
+			<repairSpeed>1</repairSpeed>
+			<canFight>true</canFight>
+			<canRepair>true</canRepair>
+			<canSabotage>true</canSabotage>
+			<canSuffocate>true</canSuffocate>
+			<damageMultiplier>1.2</damageMultiplier>
+			<rangedDamageMultiplier>1.2</rangedDamageMultiplier>
+			<damageTakenMultiplier>1</damageTakenMultiplier>
+			<suffocationModifier>1</suffocationModifier>
+			<canBurn>true</canBurn>
+			<stunMultiplier>1</stunMultiplier>
+			<fireRepairMultiplier>1</fireRepairMultiplier>
+			<canMan>true</canMan>
+			<noClone>false</noClone>
+			<noSlot>false</noSlot>
+			<controllable>true</controllable>
+			<canPhaseThroughDoors>false</canPhaseThroughDoors>
+			<moveSpeedMultiplier>11</moveSpeedMultiplier>
+			<sabotageSpeedMultiplier>1.2</sabotageSpeedMultiplier>
+			<animBase>mantis</animBase>
+			<deathSounds>
+				<deathSound>fff_f22_death</deathSound>
+			</deathSounds>
+			<shootingSounds>
+				<shootingSound>fff_f22_shot</shootingSound>
+			</shootingSounds>
+			<repairSounds animSoundFrame="1">
+				<repairSound>fff_f22_repair</repairSound>
+			</repairSounds>
+		</mod-append:race>
+	</mod:findLike>
+
+	<mod:findLike type="crew" limit="1">
+		<mod-append:race name="fff_omen">
+			<maxHealth>100</maxHealth>
+			<repairSpeed>1</repairSpeed>
+			<canFight>true</canFight>
+			<canRepair>true</canRepair>
+			<canSabotage>true</canSabotage>
+			<canSuffocate>false</canSuffocate>
+			<damageMultiplier>0</damageMultiplier>
+			<rangedDamageMultiplier>0</rangedDamageMultiplier>
+			<damageTakenMultiplier>1</damageTakenMultiplier>
+			<suffocationModifier>1</suffocationModifier>
+			<canBurn>true</canBurn>
+			<stunMultiplier>1</stunMultiplier>
+			<fireRepairMultiplier>1</fireRepairMultiplier>
+			<canMan>true</canMan>
+			<noClone>false</noClone>
+			<noSlot>false</noSlot>
+			<controllable>true</controllable>
+			<canPhaseThroughDoors>false</canPhaseThroughDoors>
+			<moveSpeedMultiplier>1</moveSpeedMultiplier>
+			<sabotageSpeedMultiplier>1</sabotageSpeedMultiplier>
+			<animBase>mantis</animBase>
+			<deathSounds>
+				<deathSound>fff_omen_death</deathSound>
+			</deathSounds>
+			<shootingSounds>
+				<shootingSound>nothing</shootingSound>
+			</shootingSounds>
+			<repairSounds animSoundFrame="1">
+				<repairSound>fff_omen_repair</repairSound>
+			</repairSounds>
+		</mod-append:race>
+	</mod:findLike>
+	
+	<mod-append:event name="INSTALL_LAB_FFF_F22_THERMAL_IMAGING">
+    	<hiddenAug>LAB_FFF_F22_THERMAL_IMAGING</hiddenAug>
+		<hiddenAug>LAB_FFF_F22_THERMAL_IMAGING_INSTALLED</hiddenAug>
+		<loadEvent>STORAGE_CHECK_LAB_FFF_F22</loadEvent>
+    </mod-append:event>
+	
+	<mod:findLike type="augments" limit="1">
+		<mod-append:aug name="LAB_FFF_F22_THERMAL_IMAGING">
+			<statBoosts>
+				<statBoost name="detectsLifeforms">
+					<boostType>SET</boostType>
+					<value>true</value>
+					<shipTarget>ALL</shipTarget>
+					<crewTarget>ALLIES</crewTarget>
+					<priority>999</priority>
+					<whiteList load="LIST_CREW_F22" />
+				</statBoost>	
+			</statBoosts>
+		</mod-append:aug>
+	</mod:findLike>
+
+	<!-- WALLACE BEACON -->
+	<mod:findLike type="store" limit="1">
+		<mod:findLike type="customStore">
+			<mod:selector id="STORE_ULTIMATE_SYLVAN"/>
+			<mod-append:category type="CREW">
+				<customTitle>Flat Crew (1/1)</customTitle>
+				<item>
+					<blueprint>fff_f22</blueprint>
+				</item>
+				<item>
+					<blueprint>fff_f22</blueprint>
+				</item>
+				<item>
+					<blueprint>fff_f22</blueprint>
+				</item>
+			</mod-append:category>
+		</mod:findLike>
+	</mod:findLike>
 </FTL>

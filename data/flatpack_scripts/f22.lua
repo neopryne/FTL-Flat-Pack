@@ -12,7 +12,7 @@ local soundControl = global:GetSoundControl()
 local function damage_enemy_helper(activeCrew, currentRoom, bystander)
       --print(bystander:GetLongName(), "room ", bystander.iRoomId, " ", currentRoom, " ", bystander.currentShipId == activeCrew.currentShipId)
     if bystander.iRoomId == currentRoom and bystander.iShipId == ENEMY_SHIP and bystander.currentShipId == activeCrew.currentShipId then
-        print(bystander:GetLongName(), " was in the same room!")
+        --print(bystander:GetLongName(), " was in the same room!")
         bystander:DirectModifyHealth(-DASH_DAMAGE)
     end
 end
@@ -29,16 +29,6 @@ local function damage_enemy_crew(activeCrew, currentRoom)
         damage_enemy_helper(activeCrew, currentRoom, bystander)
     end
 end
-
-
-
-  
-
-
---wait, i probably need to make this only apply on your ship, for the lib version
--- otherwise enemy crew will freak the fuck out.  shipid == 0 for your ship.
-
---next steps for this are make it use vertexUtils and pretty up the code.
 
 
 script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
@@ -58,8 +48,6 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
         local y = crewmem.currentSlot.worldLocation.y
         radius = REDIRECT_RADIUS
         local new_dest_point = random_point_radius(crewmem.currentSlot.worldLocation, radius)
-        --inlining until I know how to depend on libs
-        
 
         crewTable.shunted = false
         new_room = get_room_at_location(shipManager, new_dest_point, false)
@@ -104,8 +92,3 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
     end
   end
 end)
-
-
-
---LMC will have a check for f22 and exclude it to prevent double coverage.  until I can test both together.
---also what if the spot i pick is occupied?  hmm maybe problem.

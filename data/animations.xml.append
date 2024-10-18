@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<FTL><!-- F22 -->
+<FTL><!-- FFFTL -->
 
 	<!--F22 ANIMATIONS-->
-
 	<animSheet name="fff_f22" w="360" h="540" fw="45" fh="45">people/fff_f22_base.png</animSheet>
 
 	<anim name="fff_f22_clone">
@@ -146,6 +145,124 @@
 	<anim name="fff_f22_portrait">
 		<sheet>fff_f22</sheet>
 		<desc length="1" x="0" y="0"/>
+		<time>1</time>
+	</anim>
+	
+	<!--OMEN ANIMATIONS-->
+<animSheet name="fff_omen" w="490" h="805" fw="35" fh="35">people/fff_omen_base.png</animSheet>
+	<anim name="fff_omen_walk_down">
+	<sheet>fff_omen</sheet>
+	<desc length="4" x="0" y="22" />
+	<time>1.0</time>
+	</anim>
+	<anim name="fff_omen_walk_left">
+		<sheet>fff_omen</sheet>
+		<desc length="4" x="0" y="21" />
+		<time>1.0</time>
+	</anim>
+	<anim name="fff_omen_walk_right">
+		<sheet>fff_omen</sheet>
+		<desc length="4" x="0" y="20" />
+		<time>1.0</time>
+	</anim>
+	<anim name="fff_omen_walk_up">
+		<sheet>fff_omen</sheet>
+		<desc length="4" x="0" y="19" />
+		<time>1.0</time>
+	</anim>
+	<anim name="fff_omen_repair">
+		<sheet>fff_omen</sheet>
+		<desc length="9" x="0" y="18" />
+		<time>1.0</time>
+	</anim>
+	<anim name="fff_omen_type_down">
+		<sheet>fff_omen</sheet>
+		<desc length="4" x="0" y="17" />
+		<time>0.75</time>
+	</anim>
+	<anim name="fff_omen_type_left">
+		<sheet>fff_omen</sheet>
+		<desc length="4" x="0" y="16" />
+		<time>0.75</time>
+	</anim>
+	<anim name="fff_omen_type_right">
+		<sheet>fff_omen</sheet>
+		<desc length="4" x="0" y="15" />
+		<time>0.75</time>
+	</anim>
+	<anim name="fff_omen_type_up">
+		<sheet>fff_omen</sheet>
+		<desc length="4" x="0" y="14" />
+		<time>0.75</time>
+	</anim>
+	<anim name="fff_omen_fire_down">
+		<sheet>fff_omen</sheet>
+		<desc length="4" x="0" y="13" />
+		<time>1.0</time>
+	</anim>
+	<anim name="fff_omen_fire_left">
+		<sheet>fff_omen</sheet>
+		<desc length="4" x="0" y="12" />
+		<time>1.0</time>
+	</anim>
+	<anim name="fff_omen_fire_right">
+		<sheet>fff_omen</sheet>
+		<desc length="4" x="0" y="11" />
+		<time>1.0</time>
+	</anim>
+	<anim name="fff_omen_fire_up">
+		<sheet>fff_omen</sheet>
+		<desc length="4" x="0" y="10" />
+		<time>1.0</time>
+	</anim>
+	<anim name="fff_omen_punch_down">
+		<sheet>fff_omen</sheet>
+		<desc length="14" x="0" y="9" />
+		<time>2.0</time>
+	</anim>
+	<anim name="fff_omen_punch_up">
+		<sheet>fff_omen</sheet>
+		<desc length="14" x="0" y="8" />
+		<time>2.0</time>
+	</anim>
+	<anim name="fff_omen_shoot_down">
+		<sheet>fff_omen</sheet>
+		<desc length="5" x="0" y="7" />
+		<time>1.0</time>
+	</anim>
+	<anim name="fff_omen_shoot_left">
+		<sheet>fff_omen</sheet>
+		<desc length="5" x="0" y="6" />
+		<time>1.0</time>
+	</anim>
+	<anim name="fff_omen_shoot_right">
+		<sheet>fff_omen</sheet>
+		<desc length="5" x="0" y="5" />
+		<time>1.0</time>
+	</anim>
+	<anim name="fff_omen_shoot_up">
+		<sheet>fff_omen</sheet>
+		<desc length="5" x="0" y="4" />
+		<time>1.0</time>
+	</anim>
+	<anim name="fff_omen_teleport">
+		<sheet>fff_omen</sheet>
+		<desc length="9" x="0" y="3" />
+		<time>0.5</time>
+	</anim>
+	<anim name="fff_omen_death_right">
+		<sheet>fff_omen</sheet>
+		<desc length="9" x="0" y="2" />
+		<time>1.0</time>
+	</anim>
+	<anim name="fff_omen_clone">
+		<sheet>fff_omen</sheet>
+		<desc length="7" x="0" y="1" />
+		<time>0.75</time>
+	</anim>
+	<anim name="fff_omen_portrait">
+		<sheet>fff_omen</sheet>
+		<desc length="1" x="0" y="0" />
 		<time>1</time>
 	</anim>
 

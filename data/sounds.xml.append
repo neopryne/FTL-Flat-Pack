@@ -5,3 +5,5 @@
 <fff_f22_repair volume="3">aliens/deflect.ogg</fff_f22_repair>
 <fff_f22_boom volume="3">aliens/blast0.ogg</fff_f22_boom>
 <fff_f22_dash volume="3">aliens/charge0.ogg</fff_f22_dash>
+<fff_omen_death volume="3">aliens/die1.ogg</fff_omen_death>
+<fff_omen_repair volume="3">aliens/choose0.ogg</fff_omen_repair>
