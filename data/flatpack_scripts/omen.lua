@@ -14,6 +14,20 @@ local OMEN_DEPTH = 20
 local OUTER_SQUARE_SIZE = 30
 local TOP_POINT_X = OUTER_SQUARE_SIZE / 2 --top point of equilateral triangle
 local TOP_POINT_Y = TOP_POINT_X * math.tan(math.pi/3) --60 degrees
+
+local EYE_ANGLE = math.pi/6
+local IRIS_ANGLE = math.pi/3
+local EYE_Z = -1 --just on top of everything
+local LEFT_EYE_X = (TOP_POINT_X / 3)
+local LEFT_EYE_Y = (TOP_POINT_Y / 3)
+local RIGHT_EYE_X = OUTER_SQUARE_SIZE - LEFT_EYE_X
+local RIGHT_EYE_Y = LEFT_EYE_Y
+local TOP_EYE_X = TOP_POINT_X
+local TOP_EYE_Y = LEFT_EYE_Y + (math.tan(IRIS_ANGLE) * (TOP_EYE_X - LEFT_EYE_X))
+local BOTTOM_EYE_X = TOP_POINT_X
+local BOTTOM_EYE_Y = TOP_EYE_Y - LEFT_EYE_Y
+
+--TODO calc this for the library version
 local CENTER_POINT = {x = TOP_POINT_X, y = TOP_POINT_X * math.tan(math.pi/6), z = OMEN_DEPTH / 2}
 print("c ", CENTER_POINT.x, CENTER_POINT.y, CENTER_POINT.z)
 
@@ -32,7 +46,14 @@ local INITIAL_PRISM = {
     -- Back triangle vertices (offset in z)
     {x = 0, y = 0, z = OMEN_DEPTH},
     {x = TOP_POINT_X, y = TOP_POINT_Y, z = OMEN_DEPTH},
-    {x = OUTER_SQUARE_SIZE, y = 0, z = OMEN_DEPTH}
+    {x = OUTER_SQUARE_SIZE, y = 0, z = OMEN_DEPTH},
+    
+    --Eye points
+    {x = LEFT_EYE_X, y = LEFT_EYE_Y, z = EYE_Z},
+    {x = TOP_EYE_X, y = TOP_EYE_Y, z = EYE_Z},
+    {x = RIGHT_EYE_X, y = RIGHT_EYE_Y, z = EYE_Z},
+    {x = BOTTOM_EYE_X, y = BOTTOM_EYE_Y, z = EYE_Z}
+    --Inner Eye
 }
 
 local prism = INITIAL_PRISM
@@ -40,13 +61,13 @@ local prism = INITIAL_PRISM
 
 -- Faces of the triangular prism (each face is defined by a set of vertex indices)
 local faces = {
-    {1, 2, 3},        -- Front triangle
-    {4, 5, 6},        -- Back triangle
-    {1, 2, 5, 4},     -- Side connecting front and back (quad)
-    {2, 3, 6, 5},     -- Another side (quad)
-    {3, 1, 4, 6}      -- Third side (quad)
+    {1, 2, 3, color = COLOR, filled = true},        -- Front triangle
+    --{4, 5, 6, color = COLOR, filled = true},        -- Back triangle
+    --{1, 2, 5, 4, color = COLOR, filled = true},     -- Side connecting front and back (quad)
+    --{2, 3, 6, 5, color = COLOR, filled = true},     -- Another side (quad)
+    --{3, 1, 4, 6, color = COLOR, filled = true},      -- Third side (quad)
+    {7, 8, 9, 10 color = BLACK, filled = true}      -- Eye outline (quad)
 }
-
 
 -- Helper function to rotate a point around a fixed point
 function rotatePointAroundFixed(p, cx, cy, cz, angleX, angleY, angleZ)
@@ -84,12 +105,12 @@ function rotatePointAroundFixed(p, cx, cy, cz, angleX, angleY, angleZ)
 end
 
 --cs are values of center point of the prism.  Actually you can just calculate this.
-function rotatePrism(prism, cx, cy, cz, angleX, angleY, angleZ)
-    local rotatedPrism = {}
-    for i, vertex in ipairs(prism) do
-        rotatedPrism[i] = rotatePointAroundFixed(vertex, cx, cy, cz, angleX, angleY, angleZ)
+function rotateAround(object, cx, cy, cz, angleX, angleY, angleZ)
+    local rotatedObject = {}
+    for i, vertex in ipairs(object) do
+        rotatedObject[i] = rotatePointAroundFixed(vertex, cx, cy, cz, angleX, angleY, angleZ)
     end
-    return rotatedPrism
+    return rotatedObject
 end
 
 
@@ -155,38 +176,28 @@ local function glDrawTriangle_Wrapper(vertex1, vertex2, vertex3, position, color
     --print("rendering triangle", point1.x, ", ", point1.y, " -- ", point2.x, ", ", point2.y, " -- ", point3.x, ", ", point3.y)
     Graphics.CSurface.GL_DrawTriangle(relativeVertexByIndex(vertex1, position), relativeVertexByIndex(vertex2, position), relativeVertexByIndex(vertex3, position), color)
     --draw black lines
-    drawRelativeLine(vertex1, vertex2, position, color)
-    drawRelativeLine(vertex2, vertex3, position, color)
-    drawRelativeLine(vertex1, vertex3, position, color)
+    --drawRelativeLine(vertex1, vertex2, position, color)
+    --drawRelativeLine(vertex2, vertex3, position, color)
+    --drawRelativeLine(vertex1, vertex3, position, color)
     --print("c2 ", CENTER_POINT.x, CENTER_POINT.y, CENTER_POINT.z)
     --drawRelativeLine2(vertex1, CENTER_POINT, position)
 end
 
---requires that the face points are in order
+--requires that the face points are in order and a convex polygon
 --only works for three or four points
 local function drawFace(face, position)
+    local i
     for i = 3, #face do
-        print("drawing triangle ", i)
-        glDrawTriangle_Wrapper(face[1], face[i-1], face[i], position, COLOR)
+        --print("drawing triangle ", i)
+        if (face.filled) then
+            glDrawTriangle_Wrapper(face[1], face[i-1], face[i], position, face.color)
+        end
         drawRelativeLine(face[i-1], face[i], position, COLOR)
     end
     
-    drawRelativeLine(face[1], face[i], position, COLOR)
+    --TODO this is broken but I kind of like it for omen
+    --drawRelativeLine(face[1], face[i], position, COLOR)
     drawRelativeLine(face[1], face[2], position, COLOR)
-
-    --[[if (#face == 3) then
-        --print("rendering triangle ", face[1], face[2], face[3], " at ", position.x, ", ", position.y)
-        glDrawTriangle_Wrapper(face[1], face[2], face[3], position, COLOR)
-    else
-        --I should move the line rendering code here so that I don't draw them on the unused diagonals
-        --also make this general.
-        --print("rendering rectangle ", face[1], face[2], face[3], face[4])
-        --split face into triangles and render the triangles.
-        --assume 1,2,3;1,4,3
-        glDrawTriangle_Wrapper(face[1], face[2], face[3], position, COLOR2)
-        glDrawTriangle_Wrapper(face[1], face[4], face[3], position, COLOR2)
-    end--]]
-    --draw the last two lines
 end
 
 
@@ -199,7 +210,6 @@ function drawOmen(position)
     -- Draw faces (filled polygons)
     Graphics.CSurface.GL_PushMatrix()
     for i, face in ipairs(faces) do
-        --print("draw face")
         drawFace(face, position)
     end
     Graphics.CSurface.GL_PopMatrix()
@@ -230,8 +240,8 @@ end
 --]]
 
 --only functions on player ship
-script.on_render_event(Defines.RenderEvents.SHIP, function() end, function(ship)
-    local crewTable = userdata_table(crewmem, "mods.flatpack.fatespinner")
+script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, function(ship)
+    --local crewTable = userdata_table(crewmem, "mods.flatpack.fatespinner")
     local shipManager = global:GetShipManager(ship.iShipId)
     for crewmem in vter(shipManager.vCrewList) do
         if (crewmem:GetSpecies() == "fff_omen") then
@@ -248,7 +258,7 @@ script.on_render_event(Defines.RenderEvents.SHIP, function() end, function(ship)
       --actually just the rotation and the rotation speed?
             pos = crewmem:GetPosition()
             drawOmen(pos)
-            prism = rotatePrism(prism, CENTER_POINT.x, CENTER_POINT.y, CENTER_POINT.z, ROTATIONS.x, ROTATIONS.y, ROTATIONS.z)
+            prism = rotateAround(prism, CENTER_POINT.x, CENTER_POINT.y, CENTER_POINT.z, ROTATIONS.x, ROTATIONS.y, ROTATIONS.z)
         end
     end
 end)
