@@ -20,8 +20,9 @@ local soundControl = global:GetSoundControl()
 
 --from fishing
 local function isPaused() --todo this doesn't seem to work for me.  At all.
-    local cmdGui = Hyperspace.Global.GetInstance():GetCApp().gui
-    return cmdGui.event_pause or cmdGui.menu_pause
+    local commandGui = Hyperspace.Global.GetInstance():GetCApp().gui
+    return false
+    --return commandGui.bPaused or commandGui.bAutoPaused or commandGui.event_pause or commandGui.menu_pause
 end
 
 --deep copy of t1 and t2 to t3
@@ -45,7 +46,7 @@ local function damage_enemy_helper(activeCrew, amount, currentRoom, bystander)
     --print("bystander in helper: " bystander)
     --print(bystander:GetLongName(), "room ", bystander.iRoomId, " ", currentRoom, " ", bystander.currentShipId == activeCrew.currentShipId)
     if bystander.iRoomId == currentRoom and bystander.iShipId == ENEMY_SHIP and bystander.currentShipId == activeCrew.currentShipId then
-        print(bystander:GetLongName(), " was in the same room!")
+        print(bystander:GetLongName(), " was in the same room!  Hit for ", amount, " damage!")
         bystander:DirectModifyHealth(-amount)
     end
 end
@@ -323,26 +324,23 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                 if (not prism_model) then
                     prism_model = INITIAL_PRISM
                 end
-                
                 local rotations = crewTable.rotations
                 if not (rotations) then
                     rotations = randomRotation()
                 end
-                
-                --CRUNCHY STUFF, maybe goes in its own method
-                local omen_power
-                if not (crewTable.omen_power) then --if undefined
-                    omen_power = 1
-                else
-                    omen_power = crewTable.omen_power
-                end
-                
                 local beam_render_time
                 if not (crewTable.beam_render_time) then --if undefined
                     beam_render_time = 0
                 else
                     beam_render_time = crewTable.beam_render_time
                 end
+                local omen_power
+                if not (crewTable.omen_power) then --if undefined
+                    omen_power = 1
+                else
+                    omen_power = crewTable.omen_power
+                end
+                --VARIABLE DEFINITIONS END
                 
                 --when entering combat, pick new rotation direction and scale it up by POWER until the total power is MAX_POWER
                 local is_combat = crewmem.bFighting
