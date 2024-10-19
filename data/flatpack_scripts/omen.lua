@@ -19,9 +19,21 @@ local global = Hyperspace.Global.GetInstance()
 local soundControl = global:GetSoundControl()
 
 --from fishing
-local function isPaused()
+local function isPaused() --todo this doesn't seem to work for me.  At all.
     local cmdGui = Hyperspace.Global.GetInstance():GetCApp().gui
     return cmdGui.event_pause or cmdGui.menu_pause
+end
+
+--deep copy of t1 and t2 to t3
+function deepTableMerge(t1, t2)
+    local t3 = {}
+    for i=1,#t1 do
+        t3[#t3+1] = t1[i]
+    end
+    for i=1,#t2 do
+        t3[#t3+1] = t2[i]
+    end
+    return t3
 end
 
 local function get_room_at_crewmember(crewmem)
@@ -30,9 +42,10 @@ local function get_room_at_crewmember(crewmem)
 end
 
 local function damage_enemy_helper(activeCrew, amount, currentRoom, bystander)
-      --print(bystander:GetLongName(), "room ", bystander.iRoomId, " ", currentRoom, " ", bystander.currentShipId == activeCrew.currentShipId)
+    --print("bystander in helper: " bystander)
+    --print(bystander:GetLongName(), "room ", bystander.iRoomId, " ", currentRoom, " ", bystander.currentShipId == activeCrew.currentShipId)
     if bystander.iRoomId == currentRoom and bystander.iShipId == ENEMY_SHIP and bystander.currentShipId == activeCrew.currentShipId then
-        --print(bystander:GetLongName(), " was in the same room!")
+        print(bystander:GetLongName(), " was in the same room!")
         bystander:DirectModifyHealth(-amount)
     end
 end
@@ -43,19 +56,20 @@ local function damage_enemy_crew_in_same_room(activeCrew, amount)
         -- Modified from brightlord's modification of Arc's get_ship_crew_room().
     if (Hyperspace.ships.enemy) then
       for bystander in vter(Hyperspace.ships.enemy.vCrewList) do
-          damage_enemy_helper(activeCrew, currentRoom, bystander)
+            --print(bystander:GetLongName(), " was in the same room!")
+          damage_enemy_helper(activeCrew, amount, currentRoom, bystander)
       end
     end
     --do the same for friendly ship
     for bystander in vter(Hyperspace.ships.player.vCrewList) do
-        damage_enemy_helper(activeCrew, currentRoom, bystander)
+        damage_enemy_helper(activeCrew, amount, currentRoom, bystander)
     end
 end
 
 local MAX_POWER = 100
 local BASE_BEAM_DAMAGE = 25
 local BASE_BLAST_DAMAGE = 20
-local BEAM_TIME = 76
+local BEAM_TIME = 52
 
 local X_RENDER_OFFSET = -15
 local Y_RENDER_OFFSET = -15
@@ -275,6 +289,10 @@ local function drawFace(prism, face, position)
     end
 end
 
+--right now laser is always behind because there's no way to sort the faces of both together.
+--I think I have to put everything into a big face list for any given object and render it like that.
+--still only works well for one object, but it's something.
+
 function drawObject(position, object_points, object_faces)
     sortFacesByDepth(object_points, object_faces)
     --all rendering must be done between pop/push actions it seems?  Actually I have no idea what these do.
@@ -284,14 +302,6 @@ function drawObject(position, object_points, object_faces)
         drawFace(object_points, face, position)
     end
     Graphics.CSurface.GL_PopMatrix()
-end
-
-function drawBeam(position, prism)
-    drawObject(position, prism, beam_faces)
-end
-
-function drawOmen(position, prism)
-    drawObject(position, prism, faces)
 end
 
 function randomRotation()
@@ -347,47 +357,48 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                     if (omen_power >= MAX_POWER) then --go off!
                         if (crewmem.bSharedSpot) then
                             print("OMEN BLAST TRIGGERED")
-                            soundControl:PlaySoundMix("fff_omen_blast", 3, false)
+                            soundControl:PlaySoundMix("fff_omen_blast", 6, false)
                             --melee
                             damage_enemy_crew_in_same_room(crewmem, BASE_BLAST_DAMAGE)
                             --brightness particle stuff
+                            omen_power = 50
                         else
                             --ranged
                             print("OMEN BEAM TRIGGERED")
                             soundControl:PlaySoundMix("fff_omen_shoot", 3, false)
                             crewTable.beam_render_time = BEAM_TIME
                             --draw a random triangle/hyperbola and damage in it.
+                            omen_power = MAX_POWER - 1 --idk hacky solution
                         end
-                        omen_power = 50
                     end
                 else
                     omen_power = math.max(omen_power - .05, 1)
                 end
                 
                 
-                 
-                 
-                 
-                 
+                
                 if (crewmem.bActiveManning) then
                     --render some particles based on skiling value
                 end
+
+                --todo only run if unpaused.  Breaking pause is for later.  extemporality upgrade in the lab disables this check.
+
+                local renderFaces = faces
+                if (beam_render_time > 0) then
+                    beam_render_time = beam_render_time - 1
+                    crewTable.beam_render_time = beam_render_time
+                    omen_power = omen_power - .45
+                    renderFaces = deepTableMerge(renderFaces, beam_faces)
+                end
                 
+                drawObject(pos, prism_model, renderFaces)
+                prism_model = rotateAround(prism_model, CENTER_POINT.x, CENTER_POINT.y, CENTER_POINT.z, rotations.x * omen_power, rotations.y * omen_power, rotations.z * omen_power)
                 
-                
+                --FINALLY, write back to crewTable
+                crewTable.prism_model = prism_model
                 crewTable.was_combat = is_combat
                 crewTable.omen_power = omen_power
                 crewTable.rotations = rotations
-                --todo only run if unpaused.  Breaking pause is for later.  extemporality upgrade in the lab disables this check.
-                if (beam_render_time > 0) then
-                    drawBeam(pos, prism_model)
-                    beam_render_time = beam_render_time - 1
-                    crewTable.beam_render_time = beam_render_time
-                end
-                
-                drawOmen(pos, prism_model)
-                prism_model = rotateAround(prism_model, CENTER_POINT.x, CENTER_POINT.y, CENTER_POINT.z, rotations.x * omen_power, rotations.y * omen_power, rotations.z * omen_power)
-                crewTable.prism_model = prism_model
             end
         end
     end
