@@ -10,19 +10,24 @@ local get_room_at_location = mods.vertexutil.get_room_at_location
         
         big laser
         
+        --grab that print for current room always from falcon
+        
         stretch goal: green/white outlines when selected/manning while selected
         This is a slightly larger green/yellow prism on its own face scene
         uniqueing this for omen name?
+        No just have a yellow/green color that you logical and with the current one to make a filter
+        Works better with omen cause its white but should work decently in general.
+        teleport thing, just get transparent.  And then untransparent.
 --]]
-
+local ENEMY_SHIP = 1 --seriously move this to lib
 local global = Hyperspace.Global.GetInstance()
 local soundControl = global:GetSoundControl()
 
 --from fishing
 local function isPaused() --todo this doesn't seem to work for me.  At all.
     local commandGui = Hyperspace.Global.GetInstance():GetCApp().gui
-    return false
-    --return commandGui.bPaused or commandGui.bAutoPaused or commandGui.event_pause or commandGui.menu_pause
+    --return false
+    return commandGui.bPaused or commandGui.bAutoPaused or commandGui.event_pause or commandGui.menu_pause
 end
 
 --deep copy of t1 and t2 to t3
@@ -37,14 +42,19 @@ function deepTableMerge(t1, t2)
     return t3
 end
 
+--returns 0. why.
 local function get_room_at_crewmember(crewmem)
-    local shipManager = global:GetShipManager(crewmem.iShipId)
-    return get_room_at_location(shipManager, crewmem:GetPosition(), false)
+    local shipManager = global:GetShipManager(crewmem.currentShipId)
+    room = get_room_at_location(shipManager, crewmem:GetPosition(), true)
+    print(crewmem:GetLongName(), ", Room: ", room, " at ", crewmem:GetPosition().x, crewmem:GetPosition().y)
+    return room
 end
+
 
 local function damage_enemy_helper(activeCrew, amount, currentRoom, bystander)
     --print("bystander in helper: " bystander)
     --print(bystander:GetLongName(), "room ", bystander.iRoomId, " ", currentRoom, " ", bystander.currentShipId == activeCrew.currentShipId)
+    --print(bystander:GetLongName(), "room ", bystander.iRoomId == currentRoom, " ", bystander.iShipId == ENEMY_SHIP, " ", bystander.currentShipId == activeCrew.currentShipId)
     if bystander.iRoomId == currentRoom and bystander.iShipId == ENEMY_SHIP and bystander.currentShipId == activeCrew.currentShipId then
         print(bystander:GetLongName(), " was in the same room!  Hit for ", amount, " damage!")
         bystander:DirectModifyHealth(-amount)
@@ -69,7 +79,7 @@ end
 
 local MAX_POWER = 100
 local BASE_BEAM_DAMAGE = 25
-local BASE_BLAST_DAMAGE = 20
+local BASE_BLAST_DAMAGE = 0--TODO 20
 local BEAM_TIME = 52
 
 local X_RENDER_OFFSET = -15
@@ -139,7 +149,7 @@ local INITIAL_PRISM = {
 }
 
 -- Faces of the triangular prism (each face is defined by a set of vertex indices)
-local faces = {
+local prism_faces = {
     {1, 2, 3, fill_color = OMEN_BODY_COLOR, filled = true},        -- Front triangle
     {4, 5, 6, fill_color = OMEN_BODY_COLOR, filled = true},        -- Back triangle
     {1, 2, 5, 4, fill_color = OMEN_BODY_COLOR, filled = true},     -- Side connecting front and back (quad)
@@ -306,6 +316,7 @@ function drawObject(position, object_points, object_faces)
 end
 
 function randomRotation()
+    soundControl:PlaySoundMix("fff_omen_spinup", 2, false)
     return {x = math.random() * .01, y = math.random() * .01, z = math.random() * .01}
 end
 
@@ -314,41 +325,50 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
     local shipManager = global:GetShipManager(ship.iShipId)
     for crewmem in vter(shipManager.vCrewList) do
         if (crewmem:GetSpecies() == "fff_omen") then
-            if (not isPaused()) then --this doesn't seem to do anything
-                local crewTable = userdata_table(crewmem, "mods.flatpack.fatespinner")
-                pos = crewmem:GetPosition()
-
-                
-                --VARIABLE DEFINITIONS
-                local prism_model = crewTable.prism_model
-                if (not prism_model) then
-                    prism_model = INITIAL_PRISM
-                end
-                local rotations = crewTable.rotations
-                if not (rotations) then
+             --this doesn't seem to do anything
+            local crewTable = userdata_table(crewmem, "mods.flatpack.fatespinner")
+            pos = crewmem:GetPosition()
+            --local current_room = get_room_at_location(shipManager, pos, false)--todo is vertexUtils buggfy?  does it only work on my ship?  f22 def worked on both.
+            --local current_room_crewmember = get_room_at_crewmember(crewmem)
+            --print("current_room: ", current_room, " position ", crewmem:GetPosition().x, " ", crewmem:GetPosition().y, "  crw: ", current_room_crewmember)
+            
+            --VARIABLE DEFINITIONS
+            local prism_model = crewTable.prism_model
+            if (not prism_model) then
+                prism_model = INITIAL_PRISM
+            end
+            local rotations = crewTable.rotations
+            if not (rotations) then
+                rotations = randomRotation()
+            end
+            local beam_render_time = crewTable.beam_render_time
+            if not (crewTable.beam_render_time) then --if undefined
+                beam_render_time = -1
+            end
+            local omen_power = crewTable.omen_power
+            if not (crewTable.omen_power) then --if undefined
+                omen_power = 1
+            end
+            --VARIABLE DEFINITIONS END
+            --always render prism faces
+            local renderFaces = prism_faces
+            local is_combat = crewmem.bFighting
+            
+            print("omen power ", omen_power)
+            if (not isPaused()) then
+                if (beam_render_time == 0) then
+                    print("BEAM RESET ")
                     rotations = randomRotation()
+                    beam_render_time = -1
+                    omen_power = omen_power + 5
                 end
-                local beam_render_time
-                if not (crewTable.beam_render_time) then --if undefined
-                    beam_render_time = 0
-                else
-                    beam_render_time = crewTable.beam_render_time
-                end
-                local omen_power
-                if not (crewTable.omen_power) then --if undefined
-                    omen_power = 1
-                else
-                    omen_power = crewTable.omen_power
-                end
-                --VARIABLE DEFINITIONS END
                 
                 --when entering combat, pick new rotation direction and scale it up by POWER until the total power is MAX_POWER
-                local is_combat = crewmem.bFighting
                 if (is_combat) then
                     if (not (is_combat == crewTable.was_combat)) then
                         --rerandomize direction on entering combat
                         rotations = randomRotation()
-                        soundControl:PlaySoundMix("fff_omen_spinup", 2, false)
+                        omen_power = omen_power + 7
                     end
                     --99 MOB CHORUS
                     omen_power = omen_power + .1, MAX_POWER
@@ -359,12 +379,13 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                             --melee
                             damage_enemy_crew_in_same_room(crewmem, BASE_BLAST_DAMAGE)
                             --brightness particle stuff
+                            rotations = randomRotation()
                             omen_power = 50
                         else
                             --ranged
                             print("OMEN BEAM TRIGGERED")
                             soundControl:PlaySoundMix("fff_omen_shoot", 3, false)
-                            crewTable.beam_render_time = BEAM_TIME
+                            beam_render_time = BEAM_TIME
                             --draw a random triangle/hyperbola and damage in it.
                             omen_power = MAX_POWER - 1 --idk hacky solution
                         end
@@ -373,31 +394,25 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                     omen_power = math.max(omen_power - .05, 1)
                 end
                 
-                
-                
-                if (crewmem.bActiveManning) then
-                    --render some particles based on skiling value
-                end
-
-                --todo only run if unpaused.  Breaking pause is for later.  extemporality upgrade in the lab disables this check.
-
-                local renderFaces = faces
                 if (beam_render_time > 0) then
                     beam_render_time = beam_render_time - 1
-                    crewTable.beam_render_time = beam_render_time
                     omen_power = omen_power - .45
                     renderFaces = deepTableMerge(renderFaces, beam_faces)
                 end
                 
-                drawObject(pos, prism_model, renderFaces)
                 prism_model = rotateAround(prism_model, CENTER_POINT.x, CENTER_POINT.y, CENTER_POINT.z, rotations.x * omen_power, rotations.y * omen_power, rotations.z * omen_power)
-                
-                --FINALLY, write back to crewTable
-                crewTable.prism_model = prism_model
-                crewTable.was_combat = is_combat
-                crewTable.omen_power = omen_power
-                crewTable.rotations = rotations
             end
+            
+            if (crewmem.bActiveManning) then
+                --render some particles based on skiling value
+            end
+            drawObject(pos, prism_model, renderFaces)
+            --FINALLY, write back to crewTable
+            crewTable.prism_model = prism_model
+            crewTable.was_combat = is_combat
+            crewTable.omen_power = omen_power
+            crewTable.rotations = rotations
+            crewTable.beam_render_time = beam_render_time
         end
     end
 end)
