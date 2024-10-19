@@ -8,9 +8,7 @@ local get_room_at_location = mods.vertexutil.get_room_at_location
         anything else
         add the EYE
         
-        big laser
-        
-        --grab that print for current room always from falcon
+        figure out how the laser does damage
         
         stretch goal: green/white outlines when selected/manning while selected
         This is a slightly larger green/yellow prism on its own face scene
@@ -18,6 +16,8 @@ local get_room_at_location = mods.vertexutil.get_room_at_location
         No just have a yellow/green color that you logical and with the current one to make a filter
         Works better with omen cause its white but should work decently in general.
         teleport thing, just get transparent.  And then untransparent.
+        also dying.
+        the more I can do in 3D the better.
 --]]
 local ENEMY_SHIP = 1 --seriously move this to lib
 local global = Hyperspace.Global.GetInstance()
@@ -30,8 +30,21 @@ local function isPaused() --todo this doesn't seem to work for me.  At all.
     return commandGui.bPaused or commandGui.bAutoPaused or commandGui.event_pause or commandGui.menu_pause
 end
 
+function dumpObject(o)
+   if type(o) == 'table' then
+      local s = '{ '
+      for k,v in pairs(o) do
+         if type(k) ~= 'number' then k = '"'..k..'"' end
+         s = s .. '['..k..'] = ' .. dumpObject(v) .. ','
+      end
+      return s .. '} '
+   else
+      return tostring(o)
+   end
+end
+
 --deep copy of t1 and t2 to t3
-function deepTableMerge(t1, t2)
+function tableMerge(t1, t2)
     local t3 = {}
     for i=1,#t1 do
         t3[#t3+1] = t1[i]
@@ -42,9 +55,33 @@ function deepTableMerge(t1, t2)
     return t3
 end
 
+function deepCopyTable(t)
+    if type(t) ~= "table" then
+        return t  -- Return the value directly if it's not a table (base case)
+    end
+
+    local copy = {}
+    for k, v in pairs(t) do
+        if type(v) == "table" then
+            copy[k] = deepCopyTable(v)  -- Recursively copy nested tables
+        else
+            copy[k] = v  -- Directly copy non-table values
+        end
+    end
+
+    return copy
+end
+
+function deepTableMerge(t1, t2)
+    t1Copy = deepCopyTable(t1)
+    t2Copy = deepCopyTable(t2)
+    return tableMerge(t1Copy, t2Copy)
+end
+
 --returns 0. why.
 local function get_room_at_crewmember(crewmem)
     local shipManager = global:GetShipManager(crewmem.currentShipId)
+    --need to call this with the shipManager of the ship you want to look at.
     room = get_room_at_location(shipManager, crewmem:GetPosition(), true)
     print(crewmem:GetLongName(), ", Room: ", room, " at ", crewmem:GetPosition().x, crewmem:GetPosition().y)
     return room
@@ -116,6 +153,10 @@ print("c ", CENTER_POINT.x, CENTER_POINT.y, CENTER_POINT.z)
 local ROTATIONS = {x = .01, y = 0, z = .007}
 
 local OMEN_BODY_COLOR = Graphics.GL_Color(.8, .8, .8, 1)
+local OMEN_BODY_YELLOW = Graphics.GL_Color(.8, .8, .3, 1)
+local OMEN_BODY_GREEN = Graphics.GL_Color(.3, .8, .3, 1)
+local HIGHLIGHT_YELLOW = Graphics.GL_Color(.8, .8, .0, 1)
+local HIGHLIGHT_GREEN = Graphics.GL_Color(.0, .8, .0, 1)
 local WHITE = Graphics.GL_Color(.9, .9, .9, 1) 
 local GREY50 = Graphics.GL_Color(0, 0, 0, .5)
 local BLACK = Graphics.GL_Color(0, 0, 0, 1) 
@@ -149,15 +190,23 @@ local INITIAL_PRISM = {
 }
 
 -- Faces of the triangular prism (each face is defined by a set of vertex indices)
-local prism_faces = {
+local PRISM_FACES = {
     {1, 2, 3, fill_color = OMEN_BODY_COLOR, filled = true},        -- Front triangle
     {4, 5, 6, fill_color = OMEN_BODY_COLOR, filled = true},        -- Back triangle
     {1, 2, 5, 4, fill_color = OMEN_BODY_COLOR, filled = true},     -- Side connecting front and back (quad)
     {2, 3, 6, 5, fill_color = OMEN_BODY_COLOR, filled = true},     -- Another side (quad)
-    {3, 1, 4, 6, fill_color = OMEN_BODY_COLOR, filled = true},      -- Third side (quad)
-    {7, 8, 9, 10, outline_color = BLACK, outline = true, line_width=2},      -- Eye outline (quad)  need new render layer value for this on top
-    {11, 8, 12, 10, fill_color = BLACK, filled = true}      -- Eye outline (quad)  
+    {3, 1, 4, 6, fill_color = OMEN_BODY_COLOR, filled = true}      -- Third side (quad)
 }
+
+local eye_faces = {
+    {7, 8, 9, 10, outline_color = BLACK, outline = true, line_width=2},     -- Eye outline (quad)  need new render layer value for this on top
+    {11, 8, 12, 10, fill_color = BLACK, filled = true}                      -- Iris (quad)
+}
+
+--Lines when selected
+--Fill when hovering
+--Yellow lines when manning
+--Green fill when not 0 unselected 2 hovering 1 selected
 
 local beam_faces = {
     {13, 14, 15, 16, fill_color = WHITE, filled = true}, -- endcap
@@ -320,6 +369,52 @@ function randomRotation()
     return {x = math.random() * .01, y = math.random() * .01, z = math.random() * .01}
 end
 
+
+--[[ 
+Gives you a new face table with all color rendering info replaced by the given recolor info.
+if filled is true, must have a fill_color.  If outline is true, must have an outline_color and line_width.
+Unless you know those already exist and are sure you did it right.
+example:
+    recolor_info = { fill_color = Graphics.GL_Color(.9, .9, .9, 1), outline_color = BLACK, outline = true, line_width=2 }
+    (requires that you defined BLACK earlier)
+--]]
+function recolorFaces(object_faces, recolor_info)
+    print("before ", object_faces[1].fill_color)
+    local deep_copy_faces = deepCopyTable(object_faces)
+    for i = 1, #deep_copy_faces do
+        local face = deep_copy_faces[i]
+        if (recolor_info.filled ~= nil) then
+            face.filled = recolor_info.filled
+        end
+        if (recolor_info.fill_color ~= nil) then
+            face.fill_color = recolor_info.fill_color
+        end
+        if (recolor_info.outline ~= nil) then
+            face.outline = recolor_info.outline
+        end
+        if (recolor_info.outline_color ~= nil) then
+            face.outline_color = recolor_info.outline_color
+        end
+        if (recolor_info.line_width ~= nil) then
+            face.line_width = recolor_info.line_width
+        end
+    end
+    print("after ", object_faces[1].fill_color)
+    return deep_copy_faces
+end
+
+--changes the faces to match the crewmember's selected status
+--TODO the fill color should logical and with the base color instead of this hardcoded nonsense.
+function recolorForHighlight(object_faces, crewmem)
+    if (crewmem.selectionState == 0) then--not selected
+        return object_faces
+    elseif (crewmem.selectionState == 1) then --selected, green fill
+        return recolorFaces(object_faces, {filled=true, fill_color = OMEN_BODY_GREEN})
+    elseif (crewmem.selectionState == 2) then --hover, green edges
+        return recolorFaces(object_faces, {outline=true, outline_color=HIGHLIGHT_GREEN, line_width=2})
+    end
+end
+
 --only functions on player ship
 script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, function(ship)
     local shipManager = global:GetShipManager(ship.iShipId)
@@ -351,10 +446,11 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
             end
             --VARIABLE DEFINITIONS END
             --always render prism faces
-            local renderFaces = prism_faces
+            local renderFaces = recolorForHighlight(PRISM_FACES, crewmem)
+            renderFaces = deepTableMerge(renderFaces, eye_faces)
             local is_combat = crewmem.bFighting
             
-            print("omen power ", omen_power)
+            print("omen power ", omen_power, " selection state: ", crewmem.selectionState)
             if (not isPaused()) then
                 if (beam_render_time == 0) then
                     print("BEAM RESET ")
@@ -380,7 +476,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                             damage_enemy_crew_in_same_room(crewmem, BASE_BLAST_DAMAGE)
                             --brightness particle stuff
                             rotations = randomRotation()
-                            omen_power = 50
+                            omen_power = 55
                         else
                             --ranged
                             print("OMEN BEAM TRIGGERED")
