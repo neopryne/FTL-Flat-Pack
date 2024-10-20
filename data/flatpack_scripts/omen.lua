@@ -1,6 +1,7 @@
 local userdata_table = mods.multiverse.userdata_table
 local vter = mods.multiverse.vter
 local get_room_at_location = mods.vertexutil.get_room_at_location
+local Brightness = mods.brightness
 
 local get_ship_crew_point = mods.lightweight_lua.get_ship_crew_point
 local drawObject = mods.lightweight_lua.drawObject
@@ -26,6 +27,7 @@ local mergeColors = mods.lightweight_lua.mergeColors
 local recolorFaces = mods.lightweight_lua.recolorFaces
 local recolorForHighlight = mods.lightweight_lua.recolorForHighlight
 local applyAlternateAnimations = mods.lightweight_lua.applyAlternateAnimations
+local random_point_circle = mods.lightweight_lua.random_point_circle
 
 --[[next:
         stretch goal:
@@ -241,6 +243,14 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                         if (crewmem.bSharedSpot) then
                             --print("OMEN BLAST TRIGGERED")
                             soundControl:PlaySoundMix("fff_omen_blast", 6, false)
+                            for i = 1, 40 do
+                                local circle_pos = random_point_circle(pos, 24)
+                                circle_pos.y = circle_pos.y - 5
+                                blastParticle = Brightness.create_particle("particles/blast", 4, .4,
+                                        circle_pos, math.random(0,3)*90, ship.iShipId, "SHIP_MANAGER")
+                                blastParticle.heading = math.random(0, 359)
+                                blastParticle.movementSpeed = 160
+                            end
                             --melee
                             damageEnemyCrewInSameRoom(crewmem, BASE_BLAST_DAMAGE, 3)
                             --brightness particle stuff
@@ -270,7 +280,19 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
             end
             
             if (crewmem.bActiveManning) then
-                --render some particles based on skiling value
+                if (math.random() > .975) then
+                    currentSkill = math.floor(crewmem.iManningId) -- 3 weapons 8 doors 02 2 piloting 6 sensors 7 shields 0 engines 1 temporal 20 drones 4 hacking 15 cloaking 10 MC 14 arty 11
+                    --print(" particles/manning_"..currentSkill)
+                    local circle_pos = random_point_circle(pos, 15)
+                    --circle_pos.x = circle_pos.x - 5
+                    circle_pos.y = circle_pos.y - 5
+                    --render some particles based on skiling value
+                    manningParticle = Brightness.create_particle("particles/manning_"..currentSkill, 4, 2,
+                            circle_pos, 0, ship.iShipId, "SHIP_MANAGER")
+                    manningParticle.heading = 0
+                    manningParticle.movementSpeed = 3
+                    manningParticle.loops = 2
+                end
             end
             drawObject(pos, prism_model, renderFaces)
             --FINALLY, write back to crewTable

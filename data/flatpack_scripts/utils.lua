@@ -356,3 +356,11 @@ function mods.lightweight_lua.applyAlternateAnimations(object_faces, crewmem, cr
     return copy_faces
 end
 
+-- Generate a random point within the radius of a given point
+--modified from vertexUtils random_point_radius
+function mods.lightweight_lua.random_point_circle(origin, radius)
+    local r = radius
+    local theta = 2*math.pi*(math.random())
+    return Hyperspace.Pointf(origin.x + r*math.cos(theta), origin.y + r*math.sin(theta))
+end
+
