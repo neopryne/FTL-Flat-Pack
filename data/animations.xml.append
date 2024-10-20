@@ -152,8 +152,8 @@
 <animSheet name="fff_omen" w="490" h="805" fw="35" fh="35">people/fff_omen_base.png</animSheet>
 	<anim name="fff_omen_walk_down">
 	<sheet>fff_omen</sheet>
-	<desc length="4" x="0" y="22" />
-	<time>1.0</time>
+	<desc length="" x="14" y="22" />
+	<time>60.0</time>
 	</anim>
 	<anim name="fff_omen_walk_left">
 		<sheet>fff_omen</sheet>

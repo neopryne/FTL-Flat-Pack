@@ -23,11 +23,8 @@
 	</crewBlueprint>
 
 	<crewBlueprint name="fff_omen">
-		<desc> УФЦ G ЩHД ДИD УФЦ Γ
-		U+041x 	А 	Б 	В 	Г 	Д 	Е 	Ж 	З 	И 	Й 	К 	Л 	М 	Н 	О 	П
-		U+042x 	Р 	С 	Т 	У 	Ф 	Х 	Ц 	Ч 	Ш 	Щ 	Ъ 	Ы 	Ь 	Э 	Ю 	Я
-		U+043x 	а 	б 	в 	г 	д 	е 	ж 	з 	и 	й 	к 	л 	м 	н 	о 	п
-		U+044x 	р 	с 	т 	у 	ф 	х 	ц 	ч 	ш 	щ 	ъ 	ы 	ь 	э 	ю 	я
+		<desc> УФЦ GЕT ЩHДΓ УФЦ GET ДИD УФЦ DOИ'Γ GЕT ЦPSET
+		[He/Him]
 		</desc>
 		<title>OMEN</title>
 		<short>OMEN</short>
@@ -35,8 +32,11 @@
 		<bp>2</bp>
 		<rarity>3</rarity>
 		<powerList>
-			<power>Does more damage the longer it spends in combat.</power>
+			<power>Takes less damage, does no* damage.</power>
+			<power>Immune to suffocation and mind control.</power>
+			<power>Portent of massive power.</power>
 			<power>Beyond your comprehension.</power>
+			<power>...</power>
 			<power>~~~~~~~~~~~~~</power>
 			<power>Only the best survive. --British Narrator Guy</power>
 			<power>~~~~~~~~~~~~~</power>

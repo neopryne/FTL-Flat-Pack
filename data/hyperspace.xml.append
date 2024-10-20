@@ -2,6 +2,9 @@
 
 <FTL>
 	<mod:findLike type="scripts">
+		<mod-append:script>data/flatpack_scripts/utils.lua</mod-append:script>
+	</mod:findLike>
+	<mod:findLike type="scripts">
 		<mod-append:script>data/flatpack_scripts/f22.lua</mod-append:script>
 	</mod:findLike>
 	<mod:findLike type="scripts">
@@ -59,6 +62,7 @@
 			<canRepair>true</canRepair>
 			<canSabotage>true</canSabotage>
 			<canSuffocate>false</canSuffocate>
+			<resistsMindControl>true</resistsMindControl>
 			<damageMultiplier>0</damageMultiplier>
 			<rangedDamageMultiplier>0</rangedDamageMultiplier>
 			<damageTakenMultiplier>.75</damageTakenMultiplier>
