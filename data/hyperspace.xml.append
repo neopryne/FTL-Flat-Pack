@@ -61,7 +61,7 @@
 			<canSuffocate>false</canSuffocate>
 			<damageMultiplier>0</damageMultiplier>
 			<rangedDamageMultiplier>0</rangedDamageMultiplier>
-			<damageTakenMultiplier>0</damageTakenMultiplier>
+			<damageTakenMultiplier>.75</damageTakenMultiplier>
 			<suffocationModifier>1</suffocationModifier>
 			<canBurn>true</canBurn>
 			<stunMultiplier>1</stunMultiplier>

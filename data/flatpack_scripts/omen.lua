@@ -2,19 +2,12 @@ local userdata_table = mods.multiverse.userdata_table
 local vter = mods.multiverse.vter
 local get_room_at_location = mods.vertexutil.get_room_at_location
 --[[next:
-        checking what omen's doing
-        adjusting rotations based on that
-        fighting
         anything else
         add the EYE
         
         figure out how the laser does damage
         
-        stretch goal: green/white outlines when selected/manning while selected
-        This is a slightly larger green/yellow prism on its own face scene
-        uniqueing this for omen name?
-        No just have a yellow/green color that you logical and with the current one to make a filter
-        Works better with omen cause its white but should work decently in general.
+        stretch goal:
         teleport thing, just get transparent.  And then untransparent.
         also dying.
         the more I can do in 3D the better.
@@ -44,6 +37,7 @@ function dumpObject(o)
 end
 
 --deep copy of t1 and t2 to t3
+--only one level deep though, it's not recursive.  For that, use deepTableMerge
 function tableMerge(t1, t2)
     local t3 = {}
     for i=1,#t1 do
@@ -55,6 +49,7 @@ function tableMerge(t1, t2)
     return t3
 end
 
+--note: does not copy objects in the table.
 function deepCopyTable(t)
     if type(t) ~= "table" then
         return t  -- Return the value directly if it's not a table (base case)
@@ -83,7 +78,7 @@ local function get_room_at_crewmember(crewmem)
     local shipManager = global:GetShipManager(crewmem.currentShipId)
     --need to call this with the shipManager of the ship you want to look at.
     room = get_room_at_location(shipManager, crewmem:GetPosition(), true)
-    print(crewmem:GetLongName(), ", Room: ", room, " at ", crewmem:GetPosition().x, crewmem:GetPosition().y)
+    --print(crewmem:GetLongName(), ", Room: ", room, " at ", crewmem:GetPosition().x, crewmem:GetPosition().y)
     return room
 end
 
@@ -116,7 +111,7 @@ end
 
 local MAX_POWER = 100
 local BASE_BEAM_DAMAGE = 25
-local BASE_BLAST_DAMAGE = 0--TODO 20
+local BASE_BLAST_DAMAGE = 20
 local BEAM_TIME = 52
 
 local X_RENDER_OFFSET = -15
@@ -148,7 +143,6 @@ local INNER_EYE_LEFT_Y = LEFT_EYE_Y
 
 --TODO calc this for the library version
 local CENTER_POINT = {x = TOP_POINT_X, y = TOP_POINT_X * math.tan(math.pi/6), z = OMEN_DEPTH / 2}
-print("c ", CENTER_POINT.x, CENTER_POINT.y, CENTER_POINT.z)
 
 local ROTATIONS = {x = .01, y = 0, z = .007}
 
@@ -304,7 +298,7 @@ end
 local function drawRelativeLine(prism, vertex1, vertex2, position, line_width, color)
     --Graphics.CSurface.GL_DrawLine(prism[vertex1].x + position.x,  prism[vertex1].y + position.y, prism[vertex2].x + position.x,  prism[vertex2].y + position.y, 2, BLACK)
     Graphics.CSurface.GL_DrawLine(relativeX(prism[vertex1].x, position),  relativeY(prism[vertex1].y, position), 
-            relativeX(prism[vertex2].x, position),  relativeY(prism[vertex2].y, position), line_width, GREY50)
+            relativeX(prism[vertex2].x, position),  relativeY(prism[vertex2].y, position), line_width, color)
 end
 
 --slightly different bc idk how to do overloading
@@ -322,16 +316,9 @@ local function glDrawTriangle_Wrapper(prism, vertex1, vertex2, vertex3, position
     
     --print("rendering triangle", point1.x, ", ", point1.y, " -- ", point2.x, ", ", point2.y, " -- ", point3.x, ", ", point3.y)
     Graphics.CSurface.GL_DrawTriangle(point1, point2, point3, color)
-    --draw black lines
-    --drawRelativeLine(vertex1, vertex2, position, color)
-    --drawRelativeLine(vertex2, vertex3, position, color)
-    --drawRelativeLine(vertex1, vertex3, position, color)
-    --print("c2 ", CENTER_POINT.x, CENTER_POINT.y, CENTER_POINT.z)
-    --drawRelativeLine2(vertex1, CENTER_POINT, position)
 end
 
 --requires that the face points are in order and a convex polygon
---only works for three or four points
 --maybe call this prism the mesh in lib
 local function drawFace(prism, face, position)
     for i = 3, #face do
@@ -369,6 +356,69 @@ function randomRotation()
     return {x = math.random() * .01, y = math.random() * .01, z = math.random() * .01}
 end
 
+-- Returns a table of all crew belonging to the given ship's crew on the room tile at the given point
+--maxCount is optional
+local function get_ship_crew_point(shipManager, x, y, maxCount)
+    res = {}
+    x = x//35
+    y = y//35
+    for crewmem in vter(shipManager.vCrewList) do
+        if crewmem.iShipId == shipManager.iShipId and x == crewmem.x//35 and y == crewmem.y//35 then
+            table.insert(res, crewmem)
+            if maxCount and #res >= maxCount then
+                return res
+            end
+        end
+    end
+    return res
+end
+
+--you have to pass in the rotated matrix
+--which means I have to move things around some
+--should be crewmem.iCurrentShipId manager
+--returns a list of crew that are immune this round
+--this must be reset externally
+function beamAttack(rotated_mesh, position, shipManager, crewTable)
+    immuneCrewIds = crewTable.immuneCrewIds
+    if not immuneCrewIds then
+        immuneCrewIds = {}
+    end
+    
+    swept_points = {}
+    --points were' tracking are 16 and 13, the bottom line of the beam
+    point1 = relativeVertexByIndex(rotated_mesh, 16, position)
+    point2 = relativeVertexByIndex(rotated_mesh, 13, position)
+    local x = point1.x
+    local y = point1.y
+    local delta_x = point2.x - point1.x
+    local delta_y = point2.y - point1.y
+    local partitions = 10
+    for i = 0, partitions do
+        ix = point1.x + (delta_x / partitions * i)
+        iy = point1.y + (delta_y / partitions * i)
+        foes_at_point = get_ship_crew_point(shipManager, ix, iy)
+        for j = 1, #foes_at_point do
+            local foe = foes_at_point[j]
+            --print("Found foe", foe.selfId)
+            should_exclude = false
+            for k = 1, #immuneCrewIds do
+                if (foe.extend.selfId == immuneCrewIds[k]) then
+                    should_exclude = true
+                end
+            end
+            
+            if (not should_exclude) then
+                --apply .1s stun before damage to kill Things
+                foe.fStunTime = .1
+                foe:DirectModifyHealth(-BASE_BEAM_DAMAGE)
+                immuneCrewIds = tableMerge(immuneCrewIds, {foe.extend.selfId})
+            end
+        end
+    end
+    crewTable.immuneCrewIds = immuneCrewIds
+end
+
+
 
 --[[ 
 Gives you a new face table with all color rendering info replaced by the given recolor info.
@@ -379,7 +429,6 @@ example:
     (requires that you defined BLACK earlier)
 --]]
 function recolorFaces(object_faces, recolor_info)
-    print("before ", object_faces[1].fill_color)
     local deep_copy_faces = deepCopyTable(object_faces)
     for i = 1, #deep_copy_faces do
         local face = deep_copy_faces[i]
@@ -399,9 +448,9 @@ function recolorFaces(object_faces, recolor_info)
             face.line_width = recolor_info.line_width
         end
     end
-    print("after ", object_faces[1].fill_color)
     return deep_copy_faces
 end
+
 
 --changes the faces to match the crewmember's selected status
 --TODO the fill color should logical and with the base color instead of this hardcoded nonsense.
@@ -413,6 +462,51 @@ function recolorForHighlight(object_faces, crewmem)
     elseif (crewmem.selectionState == 2) then --hover, green edges
         return recolorFaces(object_faces, {outline=true, outline_color=HIGHLIGHT_GREEN, line_width=2})
     end
+end
+
+--Only call this once per frame, after you've assembled the entire mesh you're going to render
+--crewTable is the table for crewmem.
+--Always returns a deep copy
+--todo this is correct with the current animation values I have for omen, I can probably get the blueprint to calc this for a more general case.
+function applyAlternateAnimations(object_faces, crewmem, crewTable)
+    local tele_level = crewTable.tele_level
+    if not tele_level then
+        tele_level = 0
+    end
+    local initial_ship = crewTable.initial_ship
+    if not initial_ship then
+        initial_ship = crewmem.currentShipId
+    end
+    local copy_faces = deepCopyTable(object_faces)
+    --print("initial alpha: ", object_faces[1].fill_color.a, "initial ship, ", initial_ship, "current ship", crewmem.currentShipId)
+
+    
+    copy_faces = recolorForHighlight(copy_faces, crewmem)
+    if (crewmem.extend.customTele.teleporting) then --teleporting
+        local departing
+        if (crewmem.currentShipId == initial_ship) then
+            departing = 1
+        else
+            departing = -1
+        end
+        --print("departing ", departing, "tele_level ", tele_level, 0 - (tele_level * departing))
+        tele_level = tele_level + (.03 * departing)
+        for i = 1, #copy_faces do
+            copy_faces[i].fill_color = Graphics.GL_Color(copy_faces[i].fill_color.r, --have to manually copy objects.  TODO add this to the copy util.
+                copy_faces[i].fill_color.g, copy_faces[i].fill_color.b,
+                math.min(1, math.max(0, copy_faces[i].fill_color.a - tele_level))) 
+        end
+    else
+        --reset teleport
+        tele_level = 0
+        crewTable.initial_ship = crewmem.currentShipId
+    end
+    if (crewmem.health.first <= 0 and not crewmem.bDead) then --dying
+        return {} --just make it go away right away
+    end
+    --print("after alpha: ", copy_faces[1].fill_color.a)
+    crewTable.tele_level = tele_level
+    return copy_faces
 end
 
 --only functions on player ship
@@ -446,11 +540,12 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
             end
             --VARIABLE DEFINITIONS END
             --always render prism faces
-            local renderFaces = recolorForHighlight(PRISM_FACES, crewmem)
+            local renderFaces = applyAlternateAnimations(PRISM_FACES, crewmem, crewTable)--TODO I can add the eye back in if I do the color merging code properly
             renderFaces = deepTableMerge(renderFaces, eye_faces)
             local is_combat = crewmem.bFighting
             
-            print("omen power ", omen_power, " selection state: ", crewmem.selectionState)
+            --crewmem.bDead this is true only on the frame the crew dies.  And maybe when it's cloned but idk.
+            --print("omen power ", omen_power, " teleport: ", crewmem.extend.customTele.teleporting, " dying: ", crewmem.health.first, crewmem.health.second)
             if (not isPaused()) then
                 if (beam_render_time == 0) then
                     print("BEAM RESET ")
@@ -490,13 +585,17 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                     omen_power = math.max(omen_power - .05, 1)
                 end
                 
+                prism_model = rotateAround(prism_model, CENTER_POINT.x, CENTER_POINT.y, CENTER_POINT.z, rotations.x * omen_power, rotations.y * omen_power, rotations.z * omen_power)
+                
                 if (beam_render_time > 0) then
+                    beamAttack(prism_model, pos, shipManager, crewTable)
                     beam_render_time = beam_render_time - 1
                     omen_power = omen_power - .45
                     renderFaces = deepTableMerge(renderFaces, beam_faces)
+                else
+                    --reset immunities
+                    crewTable.immuneCrewIds = {}
                 end
-                
-                prism_model = rotateAround(prism_model, CENTER_POINT.x, CENTER_POINT.y, CENTER_POINT.z, rotations.x * omen_power, rotations.y * omen_power, rotations.z * omen_power)
             end
             
             if (crewmem.bActiveManning) then
