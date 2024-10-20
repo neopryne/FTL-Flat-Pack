@@ -201,8 +201,6 @@ function mods.lightweight_lua.drawObject(position, object_points, object_faces)
 end
 
 -- Returns a table of all crew on shipManager ship's belonging to crewShipManager's crew on the room tile at the given point
-
---the original was wrong, you need two managers, one for the ship you want to get crew on, and one for the ship's crew you want to get.
 --booleans getDrones and getNonDrones are optional, but you have to include both if you include one or it calls wrong
 --default is returning all crew if not specified.
 --maxCount is optional, but you must specify both getDrones and getNonDrones if you use it
@@ -223,7 +221,6 @@ function mods.lightweight_lua.get_ship_crew_point(shipManager, crewShipManager, 
     return res
 end
 
---returns 0. why.
 function mods.lightweight_lua.getRoomAtCrewmember(crewmem)
     local shipManager = global:GetShipManager(crewmem.currentShipId)
     --need to call this with the shipManager of the ship you want to look at.
