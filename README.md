@@ -12,3 +12,8 @@ Adds a number of characters from [Flat Form Fighter](https://flatformfighter.com
 Out of control.  Goes super fast at the risk of collateral damage.
 
 spawn with \CREW fff_f22
+
+### OMEN
+A strange being from another dimension.  Harness his power to sculpt your designs.
+
+spawn with \CREW fff_omen
