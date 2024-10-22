@@ -13,6 +13,6 @@
 <fff_buffer_input volume="3">aliens/buffer_input.ogg</fff_buffer_input>
 <fff_buffer_launch volume="4">aliens/buffer_launch.ogg</fff_buffer_launch>
 <fff_buffer_punch volume="3">aliens/blast2.ogg</fff_buffer_punch>
-<fff_buffer_laser volume="3">aliens/blast2.ogg</fff_buffer_laser>
+<fff_buffer_shot volume="3">aliens/blast2.ogg</fff_buffer_shot>
 <fff_buffer_blitz volume="4">aliens/blast0.ogg</fff_buffer_blitz>
 <fff_buffer_death volume="4">aliens/die0.ogg</fff_buffer_death>

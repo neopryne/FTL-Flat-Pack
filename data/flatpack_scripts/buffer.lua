@@ -12,7 +12,7 @@ local FIRST_SYMBOL_RELATIVE_X = -2
 local FIRST_SYMBOL_RELATIVE_Y = 0 
 local SYMBOL_OFFSET_X = 6
 local SYMBOL_OFFSET_Y = 5
-local INPUT_DELAY = 40--120 --frames?
+local INPUT_DELAY = 120 --frames?
 local OUTPUT_DELAY = 30
 local TAU = math.pi * 2
 local MOTION_SEED = math.random() --maybe have this different for all buffers?
@@ -21,18 +21,19 @@ local BROWNIAN_RANGE = 1
 local LAYER_LAG = .3
 local SHOT_DAMAGE = 4
 local SHOT_BURST = 3
+local SHOT_SPEED = 612
+local SHOT_DISPERSION = 10
 local PUNCH_DAMAGE = 4 --but it stuns
 local PUNCH_STUN= .45 --but it stuns
 local BLITZ_DAMAGE = 10
+local CAPPED_FPS = 60
+local BLACK = Graphics.GL_Color(0, 0, 0, 1) 
 
 --[[
     buffer
     
-    needs to modify the positions of all its particles each tick
-    when firing, needs to iterate through its particles and move their positions up one, removing the latest
-    
-    blitz doesnt move anymore
-    shots arent firing
+    try giving ability really long cooldown and then force-ending it when the stack is empty, that would let me use the attribute modifiers there for immutable stuff
+    --keep track of particles, they expire after OUTPUT_DELAY frames.  Draw a line towards them, and then two points perp to that, black triangle between you and those, SHIP_SPARKS
 --]]
 
 local ID_PUNCH = 0
@@ -42,25 +43,33 @@ local TYPE_PUNCH = {name="punch", id=ID_PUNCH}
 local TYPE_BLITZ = {name="blitz", id=ID_BLITZ}
 local TYPE_SHOOT = {name="shoot", id=ID_SHOOT}
 
-local function damageFoesInSameSpace(crewmem, damage, stunTime, directDamage)
-    currentShipManager = global:GetShipManager(crewmem.currentShipId)
-    foeShipManager = global:GetShipManager(1 - crewmem.iShipId)
+--returns true if it did anything and false otherwise
+local function damageFoesAtSpace(crewmem, location, damage, stunTime, directDamage)
+    local foundFoe = false
+    local currentShipManager = global:GetShipManager(crewmem.currentShipId)
+    local foeShipManager = global:GetShipManager(1 - crewmem.iShipId)
     if (currentShipManager) then --null if not in combat
-        foes_at_point = lwl.get_ship_crew_point(currentShipManager, foeShipManager, crewmem:GetPosition().x, crewmem:GetPosition().y)
+        foes_at_point = lwl.get_ship_crew_point(currentShipManager, foeShipManager, location.x, location.y)
         for j = 1, #foes_at_point do
             local foe = foes_at_point[j]
             foe.fStunTime = foe.fStunTime + stunTime
             foe:ModifyHealth(-damage)
             foe:DirectModifyHealth(-directDamage)
+            foundFoe = true
         end
     end
+    return foundFoe
+end
+
+local function damageFoesInSameSpace(crewmem, damage, stunTime, directDamage)
+    damageFoesAtSpace(crewmem, crewmem:GetPosition(), damage, stunTime, directDamage)
 end
 
 local function blitz(crewmem)
-    currentShipManager = global:GetShipManager(crewmem.currentShipId)
-    foeShipManager = global:GetShipManager(1 - crewmem.iShipId)
-    soundControl:PlaySoundMix("fff_buffer_input", 3, false)
-    newPoint = lwl.random_valid_space_point_adjacent(crewmem:GetPosition(), currentShipManager)
+    local currentShipManager = global:GetShipManager(crewmem.currentShipId)
+    local foeShipManager = global:GetShipManager(1 - crewmem.iShipId)
+    soundControl:PlaySoundMix("fff_buffer_blitz", 3, false)
+    local newPoint = lwl.random_valid_space_point_adjacent(crewmem:GetPosition(), currentShipManager)
     if (newPoint ~= nil) then
         crewmem:SetPosition(newPoint)
     end
@@ -68,15 +77,32 @@ local function blitz(crewmem)
     --animate stuff
 end
 
-local function fireShot()
+--shots have to check colision in loop/render triangle
+local function fireShot(crewmem, heading)
+    local crewTable = userdata_table(crewmem, "mods.flatpack.biderman")
     print("BUFFER SHOT!")
-    soundControl:PlaySoundMix("fff_buffer_shoot", 4, false)
-    damageFoesInSameSpace(crewmem, SHOT_DAMAGE, 0, 0)
+    soundControl:PlaySoundMix("fff_buffer_shot", 4, false)
+    local shotParticle = Brightness.create_particle("particles/buffer/shot", 1, (OUTPUT_DELAY / CAPPED_FPS), crewmem:GetPosition(), 0, crewmem.currentShipId, "SHIP_MANAGER")
+    shotParticle.heading = (heading + math.random(0, SHOT_DISPERSION)) % 360
+    shotParticle.movementSpeed = SHOT_SPEED
+    shotParticle.shotOrigin = crewmem:GetPosition()
+    local shotsFired = crewTable.shotsFired
+    table.insert(shotsFired, shotParticle)
+
+    --damageFoesInSameSpace(crewmem, SHOT_DAMAGE, 0, 0)
+    --you know what?
+    --actually create damaging, fast moving particles.
+    --upon hitting something, said particles deal damage and destroy themselves
 end
 
-local function shoot(crewTable)
+local function shoot(crewmem)
    --this has to call back into the main loop to proc the delayed effects.
-    crewTable.shots = SHOT_BURST
+    local crewTable = userdata_table(crewmem, "mods.flatpack.biderman")
+    local heading = math.random() * 360
+    for i = 1, SHOT_BURST do
+        table.insert(crewTable.shotHeadings, heading)
+    end
+    --print(lwl.dumpObject(crewTable))
 end
 
 local function punch(crewmem)
@@ -85,16 +111,19 @@ local function punch(crewmem)
     --animate stuff
 end
 
-local function executeCommand(particleId, crewmem, crewTable)
+local function executeCommand(particleId, crewmem)
     if (particleId == ID_SHOOT) then
         print("BUFFER SHOOT!")
-        shoot(crewTable)
+        shoot(crewmem)
+        return (OUTPUT_DELAY * 4 / 3)
     elseif (particleId == ID_PUNCH) then
         print("BUFFER PUNCH!")
         punch(crewmem)
+        return OUTPUT_DELAY
     elseif (particleId == ID_BLITZ) then
         print("BUFFER BLITZ!")
         blitz(crewmem)
+        return OUTPUT_DELAY
     else
         print("Invalid particle id ", particleId)
     end
@@ -102,8 +131,8 @@ end
 
 --floatInPeriodicRange(0, 9, -1, 1, number)
 local function floatInPeriodicRange(inputMin, inputMax, outputMin, outputMax, number)
-    theta = TAU * number / (inputMax - inputMin)
-    unscaledLength = math.sin(theta)
+    local theta = TAU * number / (inputMax - inputMin)
+    local unscaledLength = math.sin(theta)
     if (unscaledLength > 0) then
         return unscaledLength * outputMax
     else
@@ -149,7 +178,7 @@ end
 local function addParticle(crewmem, bufferParticles)
     soundControl:PlaySoundMix("fff_buffer_input", 3, false)
     
-    rand = math.random(0, 2)
+    local rand = math.random(0, 2)
     if (rand >= 2) then
         addParticleInner(TYPE_SHOOT, crewmem, bufferParticles)
     elseif (rand >= 1) then
@@ -160,20 +189,19 @@ local function addParticle(crewmem, bufferParticles)
 end
 
 --return updated list of particles
-local function fireParticle(crewmem, bufferParticles, crewTable)
+local function fireParticle(crewmem, bufferParticles)
     local particle = bufferParticles[1]
     if (particle == nil) then
         print("fired nil!")
-        return bufferParticles
     end
-    executeCommand(particle.fff_buffer_id, crewmem, crewTable)
+    local commandDelay = executeCommand(particle.fff_buffer_id, crewmem)
     --pull the stack down
     for j = #bufferParticles, 2, -1 do
         bufferParticles[j].position = bufferParticles[j - 1].position
     end
     Brightness.destroy_particle(particle)
     table.remove(bufferParticles, 1)
-    return bufferParticles
+    return commandDelay
 end
 
 script.on_internal_event(Defines.InternalEvents.ACTIVATE_POWER, function(power, ship)
@@ -215,14 +243,10 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
         if (shotTimer == nil) then
             shotTimer = 0
         end
-        local shots = crewTable.shots
-        if (shots == nil) then
-            shots = 0
-        end
         --end load vars
         
         if (goingOff) then
-            --shouldn't be controlable, stun immune, immune to death? --lab upgrade
+            --shouldn't be controlable, stun immune, immune to death? --lab upgrade , can't man systems
             lwl.dumpObject(bufferParticles)
             if #bufferParticles == 0 then
                 goingOff = false
@@ -230,8 +254,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
             else
                 outputTimer = outputTimer - 1
                 if (outputTimer <= 0) then
-                    bufferParticles = fireParticle(crewmem, bufferParticles, crewTable)
-                    outputTimer = OUTPUT_DELAY
+                    outputTimer = fireParticle(crewmem, bufferParticles)
                 end
             end
         else
@@ -249,24 +272,32 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
                 end
             end
         end
+        print(outputTimer)
         
-        if (shots > 0) then
+        --this is modified in the loop, so we have to load it here.
+        local shotHeadings = crewTable.shotHeadings
+        if (shotHeadings == nil) then
+            shotHeadings = {}
+        end
+        --print("shotHeadings", lwl.dumpObject(crewTable))
+        if (#shotHeadings > 0) then
             shotTimer = shotTimer - 1
+            --print("shotTimer", shotTimer)
             if (shotTimer <= 0) then
-                shotTimer = OUTPUT_DELAY / SHOT_BURST
-                shots = shots - 1
-                fireShot()
+                shotTimer = OUTPUT_DELAY / 2
+                fireShot(crewmem, shotHeadings[1])
+                table.remove(shotHeadings, 1)
             end
         end
-        
-        
+        --Once I figure out how to get reality to run arbitrary commands, I;ll have true magic.  Magic is telling reality what to do.
+
         --print(crewmem.bActiveManning, crewmem:Repairing(), crewmem.bDead)
         
     
         repositionBufferStack(crewmem, bufferParticles, brownianTime)
         brownianTime = brownianTime + 1 --could be less
         --Finally write back to table
-        crewTable.shots = shots
+        crewTable.shotHeadings = shotHeadings
         crewTable.shotTimer = shotTimer
         crewTable.brownianTime = brownianTime
         crewTable.bufferParticles = bufferParticles
@@ -282,14 +313,37 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
     local shipManager = global:GetShipManager(ship.iShipId) --Manager for current ship
     for crewmem in vter(shipManager.vCrewList) do
         if (crewmem:GetSpecies() == "fff_buffer") then
-            crewShipManager = global:GetShipManager(1 - crewmem.iShipId) --Manager for enemy crew
             local crewTable = userdata_table(crewmem, "mods.flatpack.biderman")
-            pos = crewmem:GetPosition()
             
-
-            local is_combat = crewmem.bFighting --i don't think this matters here.
-
-                
+            local shotsFired = crewTable.shotsFired
+            if (shotsFired == nil) then
+                shotsFired = {}
+            end
+            --handle shots
+            for i = #shotsFired, 1, -1 do
+                local particle = shotsFired[i]
+                if (damageFoesAtSpace(crewmem, particle.position, SHOT_DAMAGE, 0, 0)) then
+                    Brightness.destroy_particle(particle)
+                    table.remove(shotsFired, i)
+                end
+                --print("shots fired", lwl.dumpObject(shotsFired))todo
+                --draw triangle
+                local particleRadius = 2
+                local deltaX = particle.position.x - crewmem:GetPosition().x
+                local deltaY = particle.position.y - crewmem:GetPosition().y
+                local innerAngle = math.atan(deltaY/deltaX)
+                local x1 = particle.position.x - 2*math.sin(innerAngle)
+                local y1 = particle.position.y + 2*math.cos(innerAngle)
+                local x2 = particle.position.x + 2*math.sin(innerAngle)
+                local y2 = particle.position.y - 2*math.cos(innerAngle)
+                local point1 = Hyperspace.Point(x1, y1)
+                local point2 = Hyperspace.Point(x2, y2)
+                Graphics.CSurface.GL_DrawTriangle(point1, point2, particle.shotOrigin, BLACK)
+                if (particle.remainingDuration <= .05) then --idek what's happening here, TODO fix this maybe
+                    table.remove(shotsFired, i)
+                end
+            end
+            crewTable.shotsFired = shotsFired
         end--end of buffer
     end
 end)
