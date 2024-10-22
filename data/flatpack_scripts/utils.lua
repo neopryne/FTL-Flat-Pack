@@ -4,11 +4,13 @@ local get_room_at_location = mods.vertexutil.get_room_at_location
 
 local global = Hyperspace.Global.GetInstance()
 
+local TAU = math.pi * 2
 local ENEMY_SHIP = 1
 local X_RENDER_OFFSET = -15
 local Y_RENDER_OFFSET = -15
 local HIGHLIGHT_YELLOW = Graphics.GL_Color(.8, .8, .0, 1)
 local HIGHLIGHT_GREEN = Graphics.GL_Color(.0, .8, .0, 1)
+local SPACE_SIZE = 35
 
 function mods.lightweight_lua.isPaused()
     local commandGui = Hyperspace.Global.GetInstance():GetCApp().gui
@@ -21,7 +23,7 @@ function mods.lightweight_lua.dumpObject(o)
       local s = '{ '
       for k,v in pairs(o) do
          if type(k) ~= 'number' then k = '"'..k..'"' end
-         s = s .. '['..k..'] = ' .. dumpObject(v) .. ','
+         s = s .. '['..k..'] = ' .. mods.lightweight_lua.dumpObject(v) .. ','
       end
       return s .. '} '
    else
@@ -360,7 +362,30 @@ end
 --modified from vertexUtils random_point_radius
 function mods.lightweight_lua.random_point_circle(origin, radius)
     local r = radius
-    local theta = 2*math.pi*(math.random())
+    local theta = TAU*(math.random())
     return Hyperspace.Pointf(origin.x + r*math.cos(theta), origin.y + r*math.sin(theta))
 end
+
+-- Generate a random point within the radius of a given point
+--modified from vertexUtils random_point_radius
+function mods.lightweight_lua.random_point_adjacent(origin)
+    local r = SPACE_SIZE
+    local theta = math.pi*(math.floor(math.random(0, 4))) / 2
+    return Hyperspace.Pointf(origin.x + r*math.cos(theta), origin.y + r*math.sin(theta))
+end
+
+function mods.lightweight_lua.random_valid_space_point_adjacent(origin, shipManager)
+    local r = SPACE_SIZE
+    local theta = math.pi*(math.floor(math.random(0, 4))) / 2
+    for i = 0,3 do
+        new_angle = theta + (i * math.pi / 2)
+        point = Hyperspace.Pointf(origin.x + r*math.cos(new_angle), origin.y + r*math.sin(new_angle))
+        if (not (get_room_at_location(shipManager, point, true) == -1)) then
+            return point
+        end
+    end
+    return nil
+end
+
+
 

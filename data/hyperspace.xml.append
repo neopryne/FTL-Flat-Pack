@@ -88,7 +88,7 @@
 				<repairSound>nothing</repairSound>
 			</repairSounds>
 			<powerEffect>
-				<cooldown>1</cooldown>
+				<cooldown>.01</cooldown>
 				<jumpCooldown>full</jumpCooldown>
 				<powerSounds>
 					<powerSound>fff_buffer_launch</powerSound>
@@ -102,7 +102,7 @@
 				<cooldownColor r="125" g="125" b="125"/>
 
 				<temporaryEffect>
-					<duration>1</duration>
+					<duration>.2</duration>
 					<cooldownColor r="45" g="45" b="45"/>
 					<moveSpeedMultiplier>0</moveSpeedMultiplier>
 					<canFight>false</canFight>
