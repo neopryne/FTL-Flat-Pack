@@ -379,7 +379,7 @@ function mods.lightweight_lua.random_valid_space_point_adjacent(origin, shipMana
     local theta = math.pi*(math.floor(math.random(0, 4))) / 2
     for i = 0,3 do
         new_angle = theta + (i * math.pi / 2)
-        point = Hyperspace.Pointf(origin.x + r*math.cos(new_angle), origin.y + r*math.sin(new_angle))
+        point = Hyperspace.Point(origin.x + r*math.cos(new_angle), origin.y + r*math.sin(new_angle))
         if (not (get_room_at_location(shipManager, point, true) == -1)) then
             return point
         end

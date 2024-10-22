@@ -19,6 +19,11 @@ local MOTION_SEED = math.random() --maybe have this different for all buffers?
 local BROWNIAN_PERIOD = 210
 local BROWNIAN_RANGE = 1
 local LAYER_LAG = .3
+local SHOT_DAMAGE = 4
+local SHOT_BURST = 3
+local PUNCH_DAMAGE = 4 --but it stuns
+local PUNCH_STUN= .45 --but it stuns
+local BLITZ_DAMAGE = 10
 
 --[[
     buffer
@@ -26,14 +31,8 @@ local LAYER_LAG = .3
     needs to modify the positions of all its particles each tick
     when firing, needs to iterate through its particles and move their positions up one, removing the latest
     
-    buffer shoot --just a gun, does normal attack damage to a random in the room
-    buffer punch --normal attack damage to whoever's in the same space
-    buffer blitz --moves spaces  --randomly select one of the four directions and do it again without replacement if that isn't a room.
-                                 34
-    the stack is two wide, going 12
-    Each layer sways back and forth slightly beyond its normal xpos.
-    The first layer like like zero pixels above his head
-    The second is one above the first.
+    blitz doesnt move anymore
+    shots arent firing
 --]]
 
 local ID_PUNCH = 0
@@ -42,6 +41,64 @@ local ID_SHOOT = 2
 local TYPE_PUNCH = {name="punch", id=ID_PUNCH}
 local TYPE_BLITZ = {name="blitz", id=ID_BLITZ}
 local TYPE_SHOOT = {name="shoot", id=ID_SHOOT}
+
+local function damageFoesInSameSpace(crewmem, damage, stunTime, directDamage)
+    currentShipManager = global:GetShipManager(crewmem.currentShipId)
+    foeShipManager = global:GetShipManager(1 - crewmem.iShipId)
+    if (currentShipManager) then --null if not in combat
+        foes_at_point = lwl.get_ship_crew_point(currentShipManager, foeShipManager, crewmem:GetPosition().x, crewmem:GetPosition().y)
+        for j = 1, #foes_at_point do
+            local foe = foes_at_point[j]
+            foe.fStunTime = foe.fStunTime + stunTime
+            foe:ModifyHealth(-damage)
+            foe:DirectModifyHealth(-directDamage)
+        end
+    end
+end
+
+local function blitz(crewmem)
+    currentShipManager = global:GetShipManager(crewmem.currentShipId)
+    foeShipManager = global:GetShipManager(1 - crewmem.iShipId)
+    soundControl:PlaySoundMix("fff_buffer_input", 3, false)
+    newPoint = lwl.random_valid_space_point_adjacent(crewmem:GetPosition(), currentShipManager)
+    if (newPoint ~= nil) then
+        crewmem:SetPosition(newPoint)
+    end
+    damageFoesInSameSpace(crewmem, BLITZ_DAMAGE, 0, 0)
+    --animate stuff
+end
+
+local function fireShot()
+    print("BUFFER SHOT!")
+    soundControl:PlaySoundMix("fff_buffer_shoot", 4, false)
+    damageFoesInSameSpace(crewmem, SHOT_DAMAGE, 0, 0)
+end
+
+local function shoot(crewTable)
+   --this has to call back into the main loop to proc the delayed effects.
+    crewTable.shots = SHOT_BURST
+end
+
+local function punch(crewmem)
+    soundControl:PlaySoundMix("fff_buffer_punch", 4, false)
+    damageFoesInSameSpace(crewmem, PUNCH_DAMAGE, PUNCH_STUN, 0)
+    --animate stuff
+end
+
+local function executeCommand(particleId, crewmem, crewTable)
+    if (particleId == ID_SHOOT) then
+        print("BUFFER SHOOT!")
+        shoot(crewTable)
+    elseif (particleId == ID_PUNCH) then
+        print("BUFFER PUNCH!")
+        punch(crewmem)
+    elseif (particleId == ID_BLITZ) then
+        print("BUFFER BLITZ!")
+        blitz(crewmem)
+    else
+        print("Invalid particle id ", particleId)
+    end
+end 
 
 --floatInPeriodicRange(0, 9, -1, 1, number)
 local function floatInPeriodicRange(inputMin, inputMax, outputMin, outputMax, number)
@@ -53,28 +110,6 @@ local function floatInPeriodicRange(inputMin, inputMax, outputMin, outputMax, nu
         return -1 * unscaledLength * outputMin
     end
 end
-
---uh fails if you tele to a one space room.
-local function blitz(crewmem, shipManager)
-    soundControl:PlaySoundMix("fff_buffer_input", 3, false)
-    newPoint = lwl.random_valid_space_point_adjacent(crewmem:GetPosition(), global:GetShipManager(crewmem.currentShipId))
-    if (newPoint ~= nil) then
-        crewmem:SetPosition(newPoint)
-    end
-    --animate stuff, damage enemy crew in space
-end
-
-local function executeCommand(particleId)
-    if (particleId == ID_SHOOT) then
-        print("BUFFER SHOOT!")
-    elseif (particleId == ID_PUNCH) then
-        print("BUFFER PUNCH!")
-    elseif (particleId == ID_BLITZ) then
-        print("BUFFER BLITZ!")
-    else
-        print("Invalid particle id ", particleId)
-    end
-end 
 
 --call every move tick after doing all other logic
 local function repositionBufferStack(crewmem, bufferParticles, brownianTime)
@@ -114,7 +149,7 @@ end
 local function addParticle(crewmem, bufferParticles)
     soundControl:PlaySoundMix("fff_buffer_input", 3, false)
     
-    rand = math.random(0, 1) * 3
+    rand = math.random(0, 2)
     if (rand >= 2) then
         addParticleInner(TYPE_SHOOT, crewmem, bufferParticles)
     elseif (rand >= 1) then
@@ -125,13 +160,13 @@ local function addParticle(crewmem, bufferParticles)
 end
 
 --return updated list of particles
-local function fireParticle(crewmem, bufferParticles)
+local function fireParticle(crewmem, bufferParticles, crewTable)
     local particle = bufferParticles[1]
     if (particle == nil) then
         print("fired nil!")
         return bufferParticles
     end
-    executeCommand(particle.fff_buffer_id)
+    executeCommand(particle.fff_buffer_id, crewmem, crewTable)
     --pull the stack down
     for j = #bufferParticles, 2, -1 do
         bufferParticles[j].position = bufferParticles[j - 1].position
@@ -176,10 +211,18 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
         if (brownianTime == nil) then
             brownianTime = 0
         end
+        local shotTimer = crewTable.shotTimer
+        if (shotTimer == nil) then
+            shotTimer = 0
+        end
+        local shots = crewTable.shots
+        if (shots == nil) then
+            shots = 0
+        end
         --end load vars
         
         if (goingOff) then
-            --shouldn't be controlable
+            --shouldn't be controlable, stun immune, immune to death? --lab upgrade
             lwl.dumpObject(bufferParticles)
             if #bufferParticles == 0 then
                 goingOff = false
@@ -187,7 +230,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
             else
                 outputTimer = outputTimer - 1
                 if (outputTimer <= 0) then
-                    bufferParticles = fireParticle(crewmem, bufferParticles)
+                    bufferParticles = fireParticle(crewmem, bufferParticles, crewTable)
                     outputTimer = OUTPUT_DELAY
                 end
             end
@@ -195,7 +238,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
             --not going off
             if (crewmem.bActiveManning or crewmem.bDead or crewmem:Repairing()) then
                 --if doing stuff clear the buffer
-                clear_particles()
+                clear_particles(bufferParticles)
                 bufferParticles = {}
                 inputTimer = 0
             else
@@ -207,12 +250,24 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
             end
         end
         
+        if (shots > 0) then
+            shotTimer = shotTimer - 1
+            if (shotTimer <= 0) then
+                shotTimer = OUTPUT_DELAY / SHOT_BURST
+                shots = shots - 1
+                fireShot()
+            end
+        end
+        
+        
         --print(crewmem.bActiveManning, crewmem:Repairing(), crewmem.bDead)
         
     
         repositionBufferStack(crewmem, bufferParticles, brownianTime)
         brownianTime = brownianTime + 1 --could be less
         --Finally write back to table
+        crewTable.shots = shots
+        crewTable.shotTimer = shotTimer
         crewTable.brownianTime = brownianTime
         crewTable.bufferParticles = bufferParticles
         crewTable.goingOff = goingOff

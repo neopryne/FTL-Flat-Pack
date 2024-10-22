@@ -217,17 +217,17 @@
 	</anim>
 	<anim name="fff_omen_punch_down">
 		<sheet>fff_omen</sheet>
-		<desc length="1" x="0" y="22" />
+		<desc length="1" x="0" y="10" />
 		<time>2.0</time>
 	</anim>
 	<anim name="fff_omen_punch_up">
 		<sheet>fff_omen</sheet>
-		<desc length="1" x="0" y="19" />
+		<desc length="1" x="0" y="10" />
 		<time>2.0</time>
 	</anim>
 	<anim name="fff_omen_shoot_down">
 		<sheet>fff_omen</sheet>
-		<desc length="1" x="0" y="22" />
+		<desc length="1" x="0" y="10" />
 		<time>1.0</time>
 	</anim>
 	<anim name="fff_omen_shoot_left">
@@ -316,52 +316,52 @@
 	</anim>
 	<anim name="fff_buffer_fire_down">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="13" />
+		<desc length="1" x="0" y="22" />
 		<time>1.0</time>
 	</anim>
 	<anim name="fff_buffer_fire_left">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="12" />
+		<desc length="1" x="0" y="21" />
 		<time>1.0</time>
 	</anim>
 	<anim name="fff_buffer_fire_right">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="11" />
+		<desc length="1" x="0" y="20" />
 		<time>1.0</time>
 	</anim>
 	<anim name="fff_buffer_fire_up">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="10" />
+		<desc length="1" x="0" y="19" />
 		<time>1.0</time>
 	</anim>
 	<anim name="fff_buffer_punch_down">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="9" />
+		<desc length="1" x="0" y="22" />
 		<time>2.0</time>
 	</anim>
 	<anim name="fff_buffer_punch_up">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="8" />
+		<desc length="1" x="0" y="21" />
 		<time>2.0</time>
 	</anim>
 	<anim name="fff_buffer_shoot_down">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="7" />
+		<desc length="1" x="0" y="22" />
 		<time>1.0</time>
 	</anim>
 	<anim name="fff_buffer_shoot_left">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="6" />
+		<desc length="1" x="0" y="21" />
 		<time>1.0</time>
 	</anim>
 	<anim name="fff_buffer_shoot_right">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="5" />
+		<desc length="1" x="0" y="20" />
 		<time>1.0</time>
 	</anim>
 	<anim name="fff_buffer_shoot_up">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="4" />
+		<desc length="1" x="0" y="19" />
 		<time>1.0</time>
 	</anim>
 	<anim name="fff_buffer_teleport">
@@ -372,7 +372,7 @@
 	<anim name="fff_buffer_death_right">
 		<sheet>fff_buffer</sheet>
 		<desc length="12" x="0" y="2" />
-		<time>1.44</time>
+		<time>2</time>
 	</anim>
 	<anim name="fff_buffer_clone">
 		<sheet>fff_buffer</sheet>

@@ -155,7 +155,7 @@ local function beamAttack(rotated_mesh, position, shipManager, crewShipManager, 
     for i = 0, partitions do
         ix = point1.x + (delta_x / partitions * i)
         iy = point1.y + (delta_y / partitions * i)
-        foes_at_point = get_ship_crew_point(shipManager, crewShipManager, ix, iy)
+        foes_at_point = get_ship_crew_point(shipManager, crewShipManager, ix, iy)--no need to check if in combat, because this requires enemy crew to exist.
         for j = 1, #foes_at_point do
             local foe = foes_at_point[j]
             --print("Found foe", foe.selfId)
