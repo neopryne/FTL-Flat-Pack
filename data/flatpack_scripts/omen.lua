@@ -34,7 +34,7 @@ local random_point_circle = mods.lightweight_lua.random_point_circle
         better dying animation
         blast particles
 --]]
-local ENEMY_SHIP = 1 --seriously move this to lib
+local ENEMY_SHIP = 1
 local global = Hyperspace.Global.GetInstance()
 local soundControl = global:GetSoundControl()
 
@@ -188,7 +188,6 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
     for crewmem in vter(shipManager.vCrewList) do
         if (crewmem:GetSpecies() == "fff_omen") then
             crewShipManager = global:GetShipManager(1 - crewmem.iShipId) --Manager for enemy crew
-             --this doesn't seem to do anything
             local crewTable = userdata_table(crewmem, "mods.flatpack.fatespinner")
             pos = crewmem:GetPosition()
             --local current_room = get_room_at_location(shipManager, pos, false)--todo is vertexUtils buggfy?  does it only work on my ship?  f22 def worked on both.
@@ -246,7 +245,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                             for i = 1, 40 do
                                 local circle_pos = random_point_circle(pos, 24)
                                 circle_pos.y = circle_pos.y - 5
-                                blastParticle = Brightness.create_particle("particles/blast", 4, .4,
+                                blastParticle = Brightness.create_particle("particles/omen/blast", 4, .4,
                                         circle_pos, math.random(0,3)*90, ship.iShipId, "SHIP_MANAGER")
                                 blastParticle.heading = math.random(0, 359)
                                 blastParticle.movementSpeed = 160

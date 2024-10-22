@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- PLEASURE PODS -->
 <mod:findName type="event" name="STORAGE_CHECK_AUG_SLUG_DUPLICATOR" panic="true"> <!-- SLUG_DUPLICATOR -->
     <mod-append:choice req="fff_f22" lvl="2" hidden="true">
 		<text>Breed two Lockheed Martin F-22 Raptors.</text>
@@ -39,6 +40,27 @@
 		</event>
     </mod-append:choice>
 </mod:findName>
+
+<mod:findName type="event" name="STORAGE_CHECK_AUG_SLUG_DUPLICATOR" panic="true"> <!-- SLUG_DUPLICATOR -->
+    <mod-append:choice req="fff_buffer" lvl="2" hidden="true">
+		<text>Breed two Buffers.</text>
+		<event>
+			<text>The Buffers shuffle off into the pleasure pods. Time passes. You're starting to wonder if they're actually doing anything when you hear an indescribable cacophony and shortly after, are greeted by three Buffers.</text>
+			<crewMember amount="1" class="fff_buffer"/>
+		</event>
+    </mod-append:choice>
+</mod:findName>
+
+<mod:findName type="event" name="STORAGE_CHECK_AUG_SLUG_DUPLICATOR_GHOST" panic="true"> <!-- SLUG_DUPLICATOR_GHOST -->
+    <mod-append:choice req="fff_buffer" lvl="2" hidden="true">
+		<text>Breed two Buffers.</text>
+		<event>
+			<text>The Buffers shuffle off into the pleasure pods. Time passes. You're starting to wonder if they're actually doing anything when you hear an indescribable cacophony and shortly after, are greeted by three Buffers.</text>
+			<crewMember amount="1" class="fff_buffer"/>
+		</event>
+    </mod-append:choice>
+</mod:findName>
+<!-- END PLEASURE PODS -->
 
 <mod:findName type="event" name="STORAGE_CHECK_INVENTORY_LAB">	
 	<mod-append:choice hidden="true" req="LAB_FFF_F22_THERMAL_IMAGING" lvl="1" blue="false">

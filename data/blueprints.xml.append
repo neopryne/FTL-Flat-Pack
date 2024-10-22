@@ -43,4 +43,18 @@
 		</powerList>
 	</crewBlueprint>
 	
+	<crewBlueprint name="fff_buffer">
+		<desc> Spends its free time in quiet contemplation of how to best kick your ass.</desc>
+		<title>Buffer</title>
+		<short>Buffer</short>
+		<cost>50</cost>
+		<bp>2</bp>
+		<rarity>3</rarity>
+		<powerList>
+			<power>Cannot fight.</power>
+			<power>When not otherwise occupied, generate a queue of whoopass to dish out.</power>
+			<power>Active ability: Start the pain train.  There are no brakes.</power>
+		</powerList>
+	</crewBlueprint>
+	
 </FTL>
