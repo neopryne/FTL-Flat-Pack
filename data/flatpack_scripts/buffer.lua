@@ -12,20 +12,20 @@ local FIRST_SYMBOL_RELATIVE_X = -2
 local FIRST_SYMBOL_RELATIVE_Y = 0 
 local SYMBOL_OFFSET_X = 6
 local SYMBOL_OFFSET_Y = 5
-local INPUT_DELAY = 40 --120 --frames?
+local INPUT_DELAY = 80 --frames?
 local OUTPUT_DELAY = 30
 local TAU = math.pi * 2
 local MOTION_SEED = math.random() --maybe have this different for all buffers?
 local BROWNIAN_PERIOD = 210
 local BROWNIAN_RANGE = 1
 local LAYER_LAG = .3
-local SHOT_DAMAGE = 2
+local SHOT_DAMAGE = 1.5
 local SHOT_BURST = 3
 local SHOT_SPEED = 500
 local SHOT_DISPERSION = 10
 local PUNCH_DAMAGE = 4 --but it stuns
 local PUNCH_STUN= .45
-local BLITZ_DAMAGE = 0--10
+local BLITZ_DAMAGE = 4
 local CAPPED_FPS = 60
 local BLACK = Graphics.GL_Color(0, 0, 0, 1) 
 
@@ -121,10 +121,12 @@ local function shoot(crewmem)
     --print(lwl.dumpObject(crewTable))
 end
 
-local function punch(crewmem)
+local function punch(crewmem) 
     soundControl:PlaySoundMix("fff_buffer_punch", 4, false)
     damageFoesInSameSpace(crewmem, 0, PUNCH_STUN, PUNCH_DAMAGE)
-    --animate stuff
+    particle = Brightness.create_particle("particles/buffer/fist", 1, (OUTPUT_DELAY / (CAPPED_FPS * 2)), crewmem:GetPosition(), 0, crewmem.currentShipId, "SHIP_MANAGER")
+    particle.movementSpeed = 40
+    particle.heading = 270
 end
 
 local function executeCommand(particleId, crewmem)
