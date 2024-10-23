@@ -286,7 +286,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                     --circle_pos.x = circle_pos.x - 5
                     circle_pos.y = circle_pos.y - 5
                     --render some particles based on skiling value
-                    manningParticle = Brightness.create_particle("particles/manning_"..currentSkill, 4, 2,
+                    local manningParticle = Brightness.create_particle("particles/manning_"..currentSkill, 4, 2,
                             circle_pos, 0, ship.iShipId, "SHIP_MANAGER")
                     manningParticle.heading = 0
                     manningParticle.movementSpeed = 3

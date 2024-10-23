@@ -291,47 +291,47 @@
 	</anim>
 	<anim name="fff_buffer_repair">
 		<sheet>fff_buffer</sheet>
-		<desc length="9" x="0" y="18" />
+		<desc length="1" x="0" y="18" />
 		<time>2</time>
 	</anim>
 	<anim name="fff_buffer_type_down">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="17" />
-		<time>0.75</time>
+		<desc length="4" x="0" y="17" />
+		<time>1</time>
 	</anim>
 	<anim name="fff_buffer_type_left">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="16" />
-		<time>0.75</time>
+		<desc length="4" x="0" y="14" />
+		<time>1</time>
 	</anim>
 	<anim name="fff_buffer_type_right">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="15" />
-		<time>0.75</time>
+		<desc length="4" x="0" y="15" />
+		<time>1</time>
 	</anim>
 	<anim name="fff_buffer_type_up">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="14" />
-		<time>0.75</time>
+		<desc length="4" x="0" y="16" />
+		<time>1</time>
 	</anim>
 	<anim name="fff_buffer_fire_down">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="22" />
+		<desc length="1" x="0" y="13" />
 		<time>1.0</time>
 	</anim>
 	<anim name="fff_buffer_fire_left">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="21" />
+		<desc length="1" x="0" y="10" />
 		<time>1.0</time>
 	</anim>
 	<anim name="fff_buffer_fire_right">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="20" />
+		<desc length="1" x="0" y="11" />
 		<time>1.0</time>
 	</anim>
 	<anim name="fff_buffer_fire_up">
 		<sheet>fff_buffer</sheet>
-		<desc length="1" x="0" y="19" />
+		<desc length="1" x="0" y="12" />
 		<time>1.0</time>
 	</anim>
 	<anim name="fff_buffer_punch_down">

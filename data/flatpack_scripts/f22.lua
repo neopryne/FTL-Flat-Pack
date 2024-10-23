@@ -1,5 +1,6 @@
 local userdata_table = mods.multiverse.userdata_table
 local vter = mods.multiverse.vter
+local lwl = mods.lightweight_lua
 local get_room_at_location = mods.vertexutil.get_room_at_location
 local random_point_radius = mods.vertexutil.random_point_radius
 local TILE_SIZE = 35
@@ -33,7 +34,7 @@ end
 
 script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
   if (crewmem:GetSpecies() == "fff_f22") then
-    local shipManager = global:GetShipManager(crewmem.iShipId)
+    local shipManager = global:GetShipManager(crewmem.currentShipId)
     local new_room = 0
     local new_slot = 0
     --print(crewmem.currentSlot.roomId)
@@ -62,14 +63,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
         end
         
         --redirect crew to location.  Random slot for now due to limitations, will make it actually use the real position soon.
-        local shipGraph = Hyperspace.ShipGraph.GetShipInfo(crewmem.iShipId)
-        local shape = shipGraph:GetRoomShape(new_room)
-        local width = shape.w / TILE_SIZE
-        local height = shape.h / TILE_SIZE
-        local count_of_tiles_in_room = width * height
-        new_slot = math.floor(math.random() * count_of_tiles_in_room) --zero indexed
-
-        crewmem:MoveToRoom(new_room, new_slot, false)
+        crewmem:MoveToRoom(new_room, lwl.randomSlotRoom(new_room, crewmem.currentShipId), false)
         soundControl:PlaySoundMix("fff_f22_dash", 3, false)
         
         crewTable.previousDestination = {roomId = new_room, slotId = new_slot}

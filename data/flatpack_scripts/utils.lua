@@ -1,4 +1,9 @@
 mods.lightweight_lua = {}
+
+--[[Usage:
+    local lwl = mods.lightweight_lua
+    lwl.isPaused()
+]]--
 local vter = mods.multiverse.vter
 local get_room_at_location = mods.vertexutil.get_room_at_location
 
@@ -10,7 +15,7 @@ local X_RENDER_OFFSET = -15
 local Y_RENDER_OFFSET = -15
 local HIGHLIGHT_YELLOW = Graphics.GL_Color(.8, .8, .0, 1)
 local HIGHLIGHT_GREEN = Graphics.GL_Color(.0, .8, .0, 1)
-local SPACE_SIZE = 35
+local TILE_SIZE = 35
 
 function mods.lightweight_lua.isPaused()
     local commandGui = Hyperspace.Global.GetInstance():GetCApp().gui
@@ -202,6 +207,17 @@ function mods.lightweight_lua.drawObject(position, object_points, object_faces)
     Graphics.CSurface.GL_PopMatrix()
 end
 
+
+function mods.lightweight_lua.getCrewOnSameShip(shipManager, crewShipManager)
+    crewList = {}
+    for crewmem in vter(shipManager.vCrewList) do
+        if (crewmem.iShipId == crewShipManager.iShipId) then
+            table.insert(crewList, crewmem)
+        end
+    end
+    return crewList
+end
+
 -- Returns a table of all crew on shipManager ship's belonging to crewShipManager's crew on the room tile at the given point
 --booleans getDrones and getNonDrones are optional, but you have to include both if you include one or it calls wrong
 --default is returning all crew if not specified.
@@ -369,13 +385,13 @@ end
 -- Generate a random point within the radius of a given point
 --modified from vertexUtils random_point_radius
 function mods.lightweight_lua.random_point_adjacent(origin)
-    local r = SPACE_SIZE
+    local r = TILE_SIZE
     local theta = math.pi*(math.floor(math.random(0, 4))) / 2
     return Hyperspace.Pointf(origin.x + r*math.cos(theta), origin.y + r*math.sin(theta))
 end
 
 function mods.lightweight_lua.random_valid_space_point_adjacent(origin, shipManager)
-    local r = SPACE_SIZE
+    local r = TILE_SIZE
     local theta = math.pi*(math.floor(math.random(0, 4))) / 2
     for i = 0,3 do
         new_angle = theta + (i * math.pi / 2)
@@ -387,5 +403,13 @@ function mods.lightweight_lua.random_valid_space_point_adjacent(origin, shipMana
     return nil
 end
 
-
+function mods.lightweight_lua.randomSlotRoom(roomNumber, shipId)
+    local shipGraph = Hyperspace.ShipGraph.GetShipInfo(shipId)
+    local shape = shipGraph:GetRoomShape(roomNumber)
+    local width = shape.w / TILE_SIZE
+    local height = shape.h / TILE_SIZE
+    local count_of_tiles_in_room = width * height
+    return math.floor(math.random() * count_of_tiles_in_room) --zero indexed
+end
+    
 

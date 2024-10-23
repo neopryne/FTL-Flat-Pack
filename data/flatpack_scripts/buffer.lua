@@ -12,20 +12,20 @@ local FIRST_SYMBOL_RELATIVE_X = -2
 local FIRST_SYMBOL_RELATIVE_Y = 0 
 local SYMBOL_OFFSET_X = 6
 local SYMBOL_OFFSET_Y = 5
-local INPUT_DELAY = 120 --frames?
+local INPUT_DELAY = 40 --120 --frames?
 local OUTPUT_DELAY = 30
 local TAU = math.pi * 2
 local MOTION_SEED = math.random() --maybe have this different for all buffers?
 local BROWNIAN_PERIOD = 210
 local BROWNIAN_RANGE = 1
 local LAYER_LAG = .3
-local SHOT_DAMAGE = 4
+local SHOT_DAMAGE = 0--4
 local SHOT_BURST = 3
 local SHOT_SPEED = 612
 local SHOT_DISPERSION = 10
-local PUNCH_DAMAGE = 4 --but it stuns
-local PUNCH_STUN= .45 --but it stuns
-local BLITZ_DAMAGE = 10
+local PUNCH_DAMAGE = 0--4 --but it stuns
+local PUNCH_STUN= .45
+local BLITZ_DAMAGE = 0--10
 local CAPPED_FPS = 60
 local BLACK = Graphics.GL_Color(0, 0, 0, 1) 
 
@@ -33,7 +33,8 @@ local BLACK = Graphics.GL_Color(0, 0, 0, 1)
     buffer
     
     try giving ability really long cooldown and then force-ending it when the stack is empty, that would let me use the attribute modifiers there for immutable stuff
-    --keep track of particles, they expire after OUTPUT_DELAY frames.  Draw a line towards them, and then two points perp to that, black triangle between you and those, SHIP_SPARKS
+    --I can prepare and cancel powers, so I can do this there.
+    --speed 0, immune to stun, not controllable
 --]]
 
 local ID_PUNCH = 0
@@ -88,17 +89,31 @@ local function fireShot(crewmem, heading)
     shotParticle.shotOrigin = crewmem:GetPosition()
     local shotsFired = crewTable.shotsFired
     table.insert(shotsFired, shotParticle)
-
-    --damageFoesInSameSpace(crewmem, SHOT_DAMAGE, 0, 0)
-    --you know what?
-    --actually create damaging, fast moving particles.
-    --upon hitting something, said particles deal damage and destroy themselves
 end
+
 
 local function shoot(crewmem)
    --this has to call back into the main loop to proc the delayed effects.
     local crewTable = userdata_table(crewmem, "mods.flatpack.biderman")
-    local heading = math.random() * 360
+    local currentShipManager = global:GetShipManager(crewmem.currentShipId) --Manager for current ship
+    local enemyShipManager = global:GetShipManager(1 - crewmem.iShipId) --Manager for current ship
+    local heading
+    if (enemyShipManager == nil) then
+        heading = math.random() * 360
+    else
+        local enemyCrewOnSameShip = lwl.getCrewOnSameShip(currentShipManager, enemyShipManager)
+        if (#enemyCrewOnSameShip > 0) then
+        -- aim at a random enemy on the same ship, if there are any.
+            local target = enemyCrewOnSameShip[math.random(1, #enemyCrewOnSameShip)]
+            local targetPos = target:GetPosition()
+            local crewPos = crewmem:GetPosition()
+            heading = ((math.atan((targetPos.x - crewPos.x) / (crewPos.y - targetPos.y)) * (180/math.pi))) % 360 --degrees
+            print("Targeting ", target:GetLongName(), " at ", targetPos.x, targetPos.y, " heading ", heading)
+        else
+            heading = math.random() * 360
+        end
+    end
+    
     for i = 1, SHOT_BURST do
         table.insert(crewTable.shotHeadings, heading)
     end
@@ -144,6 +159,7 @@ end
 local function repositionBufferStack(crewmem, bufferParticles, brownianTime)
     for i = 1, #bufferParticles do
         particle = bufferParticles[i]
+        particle.space = crewmem.currentShipId
         offsetIndex = (((MOTION_SEED * (10^(math.ceil(i / 2)))) % 10) + ((brownianTime % (BROWNIAN_PERIOD * 10)) / BROWNIAN_PERIOD)) % 10
         brownianOffset = floatInPeriodicRange(0, 10, -BROWNIAN_RANGE, BROWNIAN_RANGE, offsetIndex)
         --print(offsetIndex, " obro ", brownianOffset)
@@ -208,7 +224,9 @@ script.on_internal_event(Defines.InternalEvents.ACTIVATE_POWER, function(power, 
     print("Power used!")
     if power.crew:GetSpecies() == "fff_buffer" then
         print("Was buffer!")
-        userdata_table(power.crew, "mods.flatpack.biderman").goingOff = true
+        if (power.crew.fStunTime <= 0) then --can't act if stunned
+            userdata_table(power.crew, "mods.flatpack.biderman").goingOff = true
+        end
         soundControl:PlaySoundMix("fff_buffer_launch", 5, false)
     end
 end)
@@ -217,6 +235,7 @@ end)
 script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
     if (crewmem:GetSpecies() == "fff_buffer") then
         local shipManager = global:GetShipManager(crewmem.iShipId)
+        local currentShipManager = global:GetShipManager(crewmem.currentShipId)
         local crewTable = userdata_table(crewmem, "mods.flatpack.biderman")
         --load vars
         local inputTimer = crewTable.inputTimer
@@ -251,6 +270,22 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
             if #bufferParticles == 0 then
                 goingOff = false
                 outputTimer = 0
+                for bufferPower in vter(crewmem.extend.crewPowers) do
+                    bufferPower:CancelPower(false)
+                end
+                local currentRoom = get_room_at_location(currentShipManager, crewmem:GetPosition(), true)
+                --redirect crew to location.  Random slot for now due to limitations, will make it actually use the real position soon.
+                --onced fixed, call after every dash instead of here.
+                if (currentRoom ~= nil) then
+                    newSlot = lwl.randomSlotRoom(currentRoom, crewmem.currentShipId)
+                    if (newSlot ~= nil) then
+                        crewmem:MoveToRoom(currentRoom, newSlot, false)
+                    else
+                        print("Slot was nil! Room ", currentRoom)
+                    end
+                else
+                    print("Room was nil! Room ", currentRoom)
+                end
             else
                 outputTimer = outputTimer - 1
                 if (outputTimer <= 0) then
@@ -259,7 +294,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
             end
         else
             --not going off
-            if (crewmem.bActiveManning or crewmem.bDead or crewmem:Repairing()) then
+            if (crewmem.bActiveManning or crewmem.bDead or (crewmem:Repairing() and not crewmem:Sabotaging())) then
                 --if doing stuff clear the buffer
                 clear_particles(bufferParticles)
                 bufferParticles = {}
@@ -272,7 +307,6 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
                 end
             end
         end
-        print(outputTimer)
         
         --this is modified in the loop, so we have to load it here.
         local shotHeadings = crewTable.shotHeadings
@@ -289,9 +323,8 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
                 table.remove(shotHeadings, 1)
             end
         end
-        --Once I figure out how to get reality to run arbitrary commands, I;ll have true magic.  Magic is telling reality what to do.
 
-        --print(crewmem.bActiveManning, crewmem:Repairing(), crewmem.bDead)
+        --print("manning", crewmem.bActiveManning, "repair", crewmem:Repairing(), "sabot", crewmem:Sabotaging(), "tele", crewmem.extend.customTele.teleporting,  "dead", crewmem.bDead, crewmem:GetPosition().x, crewmem:GetPosition().y)--asdf
         
     
         repositionBufferStack(crewmem, bufferParticles, brownianTime)
@@ -319,6 +352,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
             if (shotsFired == nil) then
                 shotsFired = {}
             end
+                    --Once I figure out how to get reality to run arbitrary commands, I;ll have true magic.  Magic is telling reality what to do.
             --handle shots
             for i = #shotsFired, 1, -1 do
                 local particle = shotsFired[i]

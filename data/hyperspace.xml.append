@@ -102,13 +102,15 @@
 				<cooldownColor r="125" g="125" b="125"/>
 
 				<temporaryEffect>
-					<duration>.2</duration>
+					<duration>999999</duration>
 					<cooldownColor r="45" g="45" b="45"/>
 					<moveSpeedMultiplier>0</moveSpeedMultiplier>
+					<controllable>false</controllable>
 					<canFight>false</canFight>
 					<canMan>false</canMan>
 					<canRepair>false</canRepair>
 					<canSabotage>false</canSabotage>
+					<stunMultiplier>0</stunMultiplier>
 				</temporaryEffect>
 
 			</powerEffect>
