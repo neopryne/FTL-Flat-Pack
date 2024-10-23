@@ -21,4 +21,4 @@ spawn with \CREW fff_omen
 ### Buffer
 A lil guy with a lot on his mind.  Let him cook, and shove that stew all over the ship!
 
-spawn with \CREW fff_omen
+spawn with \CREW fff_buffer
