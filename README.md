@@ -17,3 +17,8 @@ spawn with \CREW fff_f22
 A strange being from another dimension.  Harness his power to sculpt your designs.
 
 spawn with \CREW fff_omen
+
+### Buffer
+A lil guy with a lot on his mind.  Let him cook, and shove that stew all over the ship!
+
+spawn with \CREW fff_omen
