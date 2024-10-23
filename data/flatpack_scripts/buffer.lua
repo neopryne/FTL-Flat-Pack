@@ -19,11 +19,11 @@ local MOTION_SEED = math.random() --maybe have this different for all buffers?
 local BROWNIAN_PERIOD = 210
 local BROWNIAN_RANGE = 1
 local LAYER_LAG = .3
-local SHOT_DAMAGE = 0--4
+local SHOT_DAMAGE = 2
 local SHOT_BURST = 3
-local SHOT_SPEED = 612
+local SHOT_SPEED = 500
 local SHOT_DISPERSION = 10
-local PUNCH_DAMAGE = 0--4 --but it stuns
+local PUNCH_DAMAGE = 4 --but it stuns
 local PUNCH_STUN= .45
 local BLITZ_DAMAGE = 0--10
 local CAPPED_FPS = 60
@@ -74,14 +74,14 @@ local function blitz(crewmem)
     if (newPoint ~= nil) then
         crewmem:SetPosition(newPoint)
     end
-    damageFoesInSameSpace(crewmem, BLITZ_DAMAGE, 0, 0)
+    damageFoesInSameSpace(crewmem, 0, 0, BLITZ_DAMAGE)
     --animate stuff
 end
 
 --shots have to check colision in loop/render triangle
 local function fireShot(crewmem, heading)
     local crewTable = userdata_table(crewmem, "mods.flatpack.biderman")
-    print("BUFFER SHOT!")
+    --print("BUFFER SHOT!")
     soundControl:PlaySoundMix("fff_buffer_shot", 4, false)
     local shotParticle = Brightness.create_particle("particles/buffer/shot", 1, (OUTPUT_DELAY / CAPPED_FPS), crewmem:GetPosition(), 0, crewmem.currentShipId, "SHIP_MANAGER")
     shotParticle.heading = (heading + math.random(0, SHOT_DISPERSION)) % 360
@@ -107,8 +107,9 @@ local function shoot(crewmem)
             local target = enemyCrewOnSameShip[math.random(1, #enemyCrewOnSameShip)]
             local targetPos = target:GetPosition()
             local crewPos = crewmem:GetPosition()
-            heading = ((math.atan((targetPos.x - crewPos.x) / (crewPos.y - targetPos.y)) * (180/math.pi))) % 360 --degrees
-            print("Targeting ", target:GetLongName(), " at ", targetPos.x, targetPos.y, " heading ", heading)
+            
+            heading = ((math.atan((targetPos.x - crewPos.x), (crewPos.y - targetPos.y)) * (180/math.pi))) % 360 --degrees
+            --print("Targeting ", target:GetLongName(), " at ", targetPos.x, targetPos.y, " heading ", heading)
         else
             heading = math.random() * 360
         end
@@ -122,21 +123,21 @@ end
 
 local function punch(crewmem)
     soundControl:PlaySoundMix("fff_buffer_punch", 4, false)
-    damageFoesInSameSpace(crewmem, PUNCH_DAMAGE, PUNCH_STUN, 0)
+    damageFoesInSameSpace(crewmem, 0, PUNCH_STUN, PUNCH_DAMAGE)
     --animate stuff
 end
 
 local function executeCommand(particleId, crewmem)
     if (particleId == ID_SHOOT) then
-        print("BUFFER SHOOT!")
+        --print("BUFFER SHOOT!")
         shoot(crewmem)
         return (OUTPUT_DELAY * 4 / 3)
     elseif (particleId == ID_PUNCH) then
-        print("BUFFER PUNCH!")
+        --print("BUFFER PUNCH!")
         punch(crewmem)
         return OUTPUT_DELAY
     elseif (particleId == ID_BLITZ) then
-        print("BUFFER BLITZ!")
+        --print("BUFFER BLITZ!")
         blitz(crewmem)
         return OUTPUT_DELAY
     else
@@ -221,9 +222,9 @@ local function fireParticle(crewmem, bufferParticles)
 end
 
 script.on_internal_event(Defines.InternalEvents.ACTIVATE_POWER, function(power, ship)
-    print("Power used!")
+    --print("Power used!")
     if power.crew:GetSpecies() == "fff_buffer" then
-        print("Was buffer!")
+        --print("Was buffer!")
         if (power.crew.fStunTime <= 0) then --can't act if stunned
             userdata_table(power.crew, "mods.flatpack.biderman").goingOff = true
         end
@@ -356,7 +357,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
             --handle shots
             for i = #shotsFired, 1, -1 do
                 local particle = shotsFired[i]
-                if (damageFoesAtSpace(crewmem, particle.position, SHOT_DAMAGE, 0, 0)) then
+                if (damageFoesAtSpace(crewmem, particle.position, 0, 0, SHOT_DAMAGE)) then
                     Brightness.destroy_particle(particle)
                     table.remove(shotsFired, i)
                 end
