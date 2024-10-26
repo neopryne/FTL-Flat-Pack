@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <FTL>
-
+	<blueprintList name="LIST_CREW_FFFTL"> 
+		<name>fff_f22</name>
+		<name>fff_omen</name>
+		<name>fff_buffer</name>
+	</blueprintList>
 	<blueprintList name="LIST_CREW_F22"> 
 		<name>fff_f22</name>
 	</blueprintList>

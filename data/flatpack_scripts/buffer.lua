@@ -8,6 +8,8 @@ local ENEMY_SHIP = 1
 local global = Hyperspace.Global.GetInstance()
 local soundControl = global:GetSoundControl()
 
+local TABLE_NAME_BUFFER = "mods.flatpack.biderman"
+
 local FIRST_SYMBOL_RELATIVE_X = -2  
 local FIRST_SYMBOL_RELATIVE_Y = 0 
 local SYMBOL_OFFSET_X = 6
@@ -44,38 +46,22 @@ local TYPE_PUNCH = {name="punch", id=ID_PUNCH}
 local TYPE_BLITZ = {name="blitz", id=ID_BLITZ}
 local TYPE_SHOOT = {name="shoot", id=ID_SHOOT}
 
---returns true if it did anything and false otherwise
-local function damageFoesAtSpace(crewmem, location, damage, stunTime, directDamage)
-    local foundFoe = false
-    local currentShipManager = global:GetShipManager(crewmem.currentShipId)
-    local foeShipManager = global:GetShipManager(1 - crewmem.iShipId)
-    if (currentShipManager) then --null if not in combat
-        foes_at_point = lwl.get_ship_crew_point(currentShipManager, foeShipManager, location.x, location.y)
-        for j = 1, #foes_at_point do
-            local foe = foes_at_point[j]
-            foe.fStunTime = foe.fStunTime + stunTime
-            foe:ModifyHealth(-damage)
-            foe:DirectModifyHealth(-directDamage)
-            foundFoe = true
-        end
-    end
-    return foundFoe
-end
-
-local function damageFoesInSameSpace(crewmem, damage, stunTime, directDamage)
-    damageFoesAtSpace(crewmem, crewmem:GetPosition(), damage, stunTime, directDamage)
-end
-
 local function blitz(crewmem)
     local currentShipManager = global:GetShipManager(crewmem.currentShipId)
-    local foeShipManager = global:GetShipManager(1 - crewmem.iShipId)
     soundControl:PlaySoundMix("fff_buffer_blitz", 3, false)
     local newPoint = lwl.random_valid_space_point_adjacent(crewmem:GetPosition(), currentShipManager)
     if (newPoint ~= nil) then
         crewmem:SetPosition(newPoint)
     end
-    damageFoesInSameSpace(crewmem, 0, 0, BLITZ_DAMAGE)
-    --animate stuff
+    lwl.damageFoesInSameSpace(crewmem, 0, 0, BLITZ_DAMAGE)
+    local newSlot = lwl.slotIdAtPoint(crewmem:GetPosition(), currentShipManager)
+    local currentRoom = get_room_at_location(currentShipManager, crewmem:GetPosition(), false)
+    --redirect crew to new location so it actually counts as being in that room.
+    if (newSlot ~= -1) then
+        crewmem:MoveToRoom(currentRoom, newSlot, false)
+    else
+        print("Found no slot at ", crewmem:GetPosition().x, ", ", crewmem:GetPosition().y, "!")
+    end
 end
 
 --shots have to check colision in loop/render triangle
@@ -123,7 +109,7 @@ end
 
 local function punch(crewmem) 
     soundControl:PlaySoundMix("fff_buffer_punch", 4, false)
-    damageFoesInSameSpace(crewmem, 0, PUNCH_STUN, PUNCH_DAMAGE)
+    lwl.damageFoesInSameSpace(crewmem, 0, PUNCH_STUN, PUNCH_DAMAGE)
     particle = Brightness.create_particle("particles/buffer/fist", 1, (OUTPUT_DELAY / (CAPPED_FPS * 2)), crewmem:GetPosition(), 0, crewmem.currentShipId, "SHIP_MANAGER")
     particle.movementSpeed = 40
     particle.heading = 270
@@ -147,7 +133,7 @@ local function executeCommand(particleId, crewmem)
     end
 end
 
---floatInPeriodicRange(0, 9, -1, 1, number)
+--floatInPeriodicRange(0, 9, -1, 1, number). Turns a circular input into a linear oscilator.
 local function floatInPeriodicRange(inputMin, inputMax, outputMin, outputMax, number)
     local theta = TAU * number / (inputMax - inputMin)
     local unscaledLength = math.sin(theta)
@@ -223,23 +209,34 @@ local function fireParticle(crewmem, bufferParticles)
     return commandDelay
 end
 
+local function resetActivePower(crewmem)
+    local crewTable = userdata_table(crewmem, TABLE_NAME_BUFFER)
+    crewTable.goingOff = false
+    crewTable.outputTimer = 0
+    for bufferPower in vter(crewmem.extend.crewPowers) do
+        bufferPower:CancelPower(false)
+    end
+end
+
 script.on_internal_event(Defines.InternalEvents.ACTIVATE_POWER, function(power, ship)
     --print("Power used!")
     if power.crew:GetSpecies() == "fff_buffer" then
         --print("Was buffer!")
         if (power.crew.fStunTime <= 0) then --can't act if stunned
-            userdata_table(power.crew, "mods.flatpack.biderman").goingOff = true
+            userdata_table(power.crew, TABLE_NAME_BUFFER).goingOff = true
         end
         soundControl:PlaySoundMix("fff_buffer_launch", 5, false)
     end
 end)
+
+local BUFFERS_RESETTING = true --set to false after all buffers reset.
 
 --on-tick mechanical logic goes here.
 script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
     if (crewmem:GetSpecies() == "fff_buffer") then
         local shipManager = global:GetShipManager(crewmem.iShipId)
         local currentShipManager = global:GetShipManager(crewmem.currentShipId)
-        local crewTable = userdata_table(crewmem, "mods.flatpack.biderman")
+        local crewTable = userdata_table(crewmem, TABLE_NAME_BUFFER)
         --load vars
         local inputTimer = crewTable.inputTimer
         if (inputTimer == nil) then
@@ -265,29 +262,30 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
         if (shotTimer == nil) then
             shotTimer = 0
         end
+        local hasBeenReset = crewTable.hasBeenReset
+        if (hasBeenReset == nil) then
+            hasBeenReset = false
+        end
         --end load vars
+        --reset active powers on load.
+        if (BUFFERS_RESETTING) then
+            if (hasBeenReset) then
+                --It's the second time around, we don't need to do this anymore.
+                BUFFERS_RESETTING = false
+            else
+                resetActivePower(crewmem)
+                hasBeenReset = true
+            end
+        end
         
         if (goingOff) then
-            --shouldn't be controlable, stun immune, immune to death? --lab upgrade , can't man systems
+            --not controlable, stun immune, immune to death
             lwl.dumpObject(bufferParticles)
             if #bufferParticles == 0 then
                 goingOff = false
                 outputTimer = 0
                 for bufferPower in vter(crewmem.extend.crewPowers) do
                     bufferPower:CancelPower(false)
-                end
-                local currentRoom = get_room_at_location(currentShipManager, crewmem:GetPosition(), true)
-                --redirect crew to location.  Random slot for now due to limitations, will make it actually use the real position soon.
-                --onced fixed, call after every dash instead of here.
-                if (currentRoom ~= nil) then
-                    newSlot = lwl.randomSlotRoom(currentRoom, crewmem.currentShipId)
-                    if (newSlot ~= nil) then
-                        crewmem:MoveToRoom(currentRoom, newSlot, false)
-                    else
-                        print("Slot was nil! Room ", currentRoom)
-                    end
-                else
-                    print("Room was nil! Room ", currentRoom)
                 end
             else
                 outputTimer = outputTimer - 1
@@ -340,6 +338,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
         crewTable.goingOff = goingOff
         crewTable.inputTimer = inputTimer
         crewTable.outputTimer = outputTimer
+        crewTable.hasBeenReset = hasBeenReset
     end--end buffer
 end)
 
@@ -349,7 +348,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
     local shipManager = global:GetShipManager(ship.iShipId) --Manager for current ship
     for crewmem in vter(shipManager.vCrewList) do
         if (crewmem:GetSpecies() == "fff_buffer") then
-            local crewTable = userdata_table(crewmem, "mods.flatpack.biderman")
+            local crewTable = userdata_table(crewmem, TABLE_NAME_BUFFER)
             
             local shotsFired = crewTable.shotsFired
             if (shotsFired == nil) then
@@ -359,7 +358,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
             --handle shots
             for i = #shotsFired, 1, -1 do
                 local particle = shotsFired[i]
-                if (damageFoesAtSpace(crewmem, particle.position, 0, 0, SHOT_DAMAGE)) then
+                if (lwl.damageFoesAtSpace(crewmem, particle.position, 0, 0, SHOT_DAMAGE)) then
                     Brightness.destroy_particle(particle)
                     table.remove(shotsFired, i)
                 end

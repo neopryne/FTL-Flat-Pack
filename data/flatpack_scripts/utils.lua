@@ -3,6 +3,7 @@ mods.lightweight_lua = {}
 --[[Usage:
     local lwl = mods.lightweight_lua
     lwl.isPaused()
+    --pull 3d into own file.
 ]]--
 local vter = mods.multiverse.vter
 local get_room_at_location = mods.vertexutil.get_room_at_location
@@ -17,12 +18,15 @@ local HIGHLIGHT_YELLOW = Graphics.GL_Color(.8, .8, .0, 1)
 local HIGHLIGHT_GREEN = Graphics.GL_Color(.0, .8, .0, 1)
 local TILE_SIZE = 35
 
+mods.lightweight_lua.TILE_SIZE = 35
+
 function mods.lightweight_lua.isPaused()
     local commandGui = Hyperspace.Global.GetInstance():GetCApp().gui
     --return false
     return commandGui.bPaused or commandGui.bAutoPaused or commandGui.event_pause or commandGui.menu_pause
 end
 
+--for use in printing all of a table
 function mods.lightweight_lua.dumpObject(o)
    if type(o) == 'table' then
       local s = '{ '
@@ -63,10 +67,10 @@ function mods.lightweight_lua.deepCopyTable(t)
             copy[k] = v  -- Directly copy non-table values
         end
     end
-
     return copy
 end
 
+--returns a merged deep copy of both tables.  Non-table objects will not be deep-copied.
 function mods.lightweight_lua.deepTableMerge(t1, t2)
     t1Copy = mods.lightweight_lua.deepCopyTable(t1)
     t2Copy = mods.lightweight_lua.deepCopyTable(t2)
@@ -108,7 +112,7 @@ function mods.lightweight_lua.rotatePointAroundFixed(p, cx, cy, cz, angleX, angl
     return {x = x + cx, y = y + cy, z = z + cz}
 end
 
---cs are values of center point of the prism.
+--cs are values of center point of the mesh.
 function mods.lightweight_lua.rotateAround(object, cx, cy, cz, angleX, angleY, angleZ)
     local rotatedObject = {}
     for i, vertex in ipairs(object) do
@@ -117,7 +121,7 @@ function mods.lightweight_lua.rotateAround(object, cx, cy, cz, angleX, angleY, a
     return rotatedObject
 end
 
-    -- Sort faces by their average z-depth (for simple face culling)
+-- Sort faces by their average z-depth for simple face culling
 function mods.lightweight_lua.sortFacesByDepth(multifacedObject, active_faces)
     table.sort(active_faces, function(f1, f2)
         -- Compute average z for face f1
@@ -138,10 +142,12 @@ function mods.lightweight_lua.sortFacesByDepth(multifacedObject, active_faces)
     end)
 end
 
+--zeros the location for rendering
 function mods.lightweight_lua.relativeX(xPos, position)
     return xPos + position.x + X_RENDER_OFFSET
 end
 
+--zeros the location for rendering
 function mods.lightweight_lua.relativeY(yPos, position)
     return yPos + position.y + Y_RENDER_OFFSET
 end
@@ -151,46 +157,39 @@ function mods.lightweight_lua.relativeVertex(vertex, position)
     return Hyperspace.Point(mods.lightweight_lua.relativeX(vertex.x, position), mods.lightweight_lua.relativeY(vertex.y, position))
 end
 
-function mods.lightweight_lua.relativeVertexByIndex(prism, vertexIndex, position)
-    return mods.lightweight_lua.relativeVertex(prism[vertexIndex], position)
+function mods.lightweight_lua.relativeVertexByIndex(mesh, vertexIndex, position)
+    return mods.lightweight_lua.relativeVertex(mesh[vertexIndex], position)
 end
 
-function mods.lightweight_lua.drawRelativeLine(prism, vertex1, vertex2, position, line_width, color)
-    --Graphics.CSurface.GL_DrawLine(prism[vertex1].x + position.x,  prism[vertex1].y + position.y, prism[vertex2].x + position.x,  prism[vertex2].y + position.y, 2, BLACK)
-    Graphics.CSurface.GL_DrawLine(mods.lightweight_lua.relativeX(prism[vertex1].x, position),  mods.lightweight_lua.relativeY(prism[vertex1].y, position), 
-            mods.lightweight_lua.relativeX(prism[vertex2].x, position),  mods.lightweight_lua.relativeY(prism[vertex2].y, position), line_width, color)
+function mods.lightweight_lua.drawRelativeLine(mesh, vertex1, vertex2, position, line_width, color)
+    --Graphics.CSurface.GL_DrawLine(mesh[vertex1].x + position.x,  mesh[vertex1].y + position.y, mesh[vertex2].x + position.x,  mesh[vertex2].y + position.y, 2, BLACK)
+    Graphics.CSurface.GL_DrawLine(mods.lightweight_lua.relativeX(mesh[vertex1].x, position),  mods.lightweight_lua.relativeY(mesh[vertex1].y, position), 
+            mods.lightweight_lua.relativeX(mesh[vertex2].x, position),  mods.lightweight_lua.relativeY(mesh[vertex2].y, position), line_width, color)
 end
 
---slightly different bc idk how to do overloading.  unused, move to library and forget about it.
-function mods.lightweight_lua.drawRelativeLine2(vertex1, point1, position)
-    Graphics.CSurface.GL_DrawLine(prism[vertex1].x + position.x,  prism[vertex1].y + position.y, point1.x + position.x,  point1.y + position.y, 2, BLACK)
-end
-
-
-function mods.lightweight_lua.glDrawTriangle_Wrapper(prism, vertex1, vertex2, vertex3, position, color)
-    point1 = mods.lightweight_lua.relativeVertexByIndex(prism, vertex1, position)
-    point2 = mods.lightweight_lua.relativeVertexByIndex(prism, vertex2, position)
-    point3 = mods.lightweight_lua.relativeVertexByIndex(prism, vertex3, position)
+function mods.lightweight_lua.glDrawTriangle_Wrapper(mesh, vertex1, vertex2, vertex3, position, color)
+    point1 = mods.lightweight_lua.relativeVertexByIndex(mesh, vertex1, position)
+    point2 = mods.lightweight_lua.relativeVertexByIndex(mesh, vertex2, position)
+    point3 = mods.lightweight_lua.relativeVertexByIndex(mesh, vertex3, position)
     
     --print("rendering triangle", point1.x, ", ", point1.y, " -- ", point2.x, ", ", point2.y, " -- ", point3.x, ", ", point3.y)
     Graphics.CSurface.GL_DrawTriangle(point1, point2, point3, color)
 end
 
---requires that the face points are in order and a convex polygon
---maybe call this prism the mesh in lib
-function mods.lightweight_lua.drawFace(prism, face, position)
+--requires that the face points are in order and are a convex polygon
+function mods.lightweight_lua.drawFace(mesh, face, position)
     for i = 3, #face do
         --print("drawing triangle ", i)
         if (face.filled) then
-            mods.lightweight_lua.glDrawTriangle_Wrapper(prism, face[1], face[i-1], face[i], position, face.fill_color)
+            mods.lightweight_lua.glDrawTriangle_Wrapper(mesh, face[1], face[i-1], face[i], position, face.fill_color)
         end
         if (face.outline) then
-            mods.lightweight_lua.drawRelativeLine(prism, face[i-1], face[i], position, face.line_width, face.outline_color)
+            mods.lightweight_lua.drawRelativeLine(mesh, face[i-1], face[i], position, face.line_width, face.outline_color)
         end
     end
     if (face.outline) then
-        mods.lightweight_lua.drawRelativeLine(prism, face[1], face[#face], position, face.line_width, face.outline_color)
-        mods.lightweight_lua.drawRelativeLine(prism, face[1], face[2], position, face.line_width, face.outline_color)
+        mods.lightweight_lua.drawRelativeLine(mesh, face[1], face[#face], position, face.line_width, face.outline_color)
+        mods.lightweight_lua.drawRelativeLine(mesh, face[1], face[2], position, face.line_width, face.outline_color)
     end
 end
 
@@ -207,7 +206,7 @@ function mods.lightweight_lua.drawObject(position, object_points, object_faces)
     Graphics.CSurface.GL_PopMatrix()
 end
 
-
+--returns all crew on ship that belong to crewShip.
 function mods.lightweight_lua.getCrewOnSameShip(shipManager, crewShipManager)
     crewList = {}
     for crewmem in vter(shipManager.vCrewList) do
@@ -224,10 +223,10 @@ end
 --maxCount is optional, but you must specify both getDrones and getNonDrones if you use it
 function mods.lightweight_lua.get_ship_crew_point(shipManager, crewShipManager, x, y, getDrones, getNonDrones, maxCount)
     res = {}
-    x = x//35
-    y = y//35
+    x = x//TILE_SIZE
+    y = y//TILE_SIZE
     for crewmem in vter(shipManager.vCrewList) do
-        if crewmem.iShipId == crewShipManager.iShipId and x == crewmem.x//35 and y == crewmem.y//35 then
+        if crewmem.iShipId == crewShipManager.iShipId and x == crewmem.x//TILE_SIZE and y == crewmem.y//TILE_SIZE then
             if ((crewmem:IsDrone() and (getDrones == nil or getDrones) or ((not crewmem:IsDrone()) and (getNonDrones == nil or getNonDrones)))) then
                 table.insert(res, crewmem)
                 if maxCount and #res >= maxCount then
@@ -239,12 +238,36 @@ function mods.lightweight_lua.get_ship_crew_point(shipManager, crewShipManager, 
     return res
 end
 
+-- -1 in the unlikely event no room is found
 function mods.lightweight_lua.getRoomAtCrewmember(crewmem)
     local shipManager = global:GetShipManager(crewmem.currentShipId)
     --need to call this with the shipManager of the ship you want to look at.
     room = get_room_at_location(shipManager, crewmem:GetPosition(), true)
     --print(crewmem:GetLongName(), ", Room: ", room, " at ", crewmem:GetPosition().x, crewmem:GetPosition().y)
     return room
+end
+
+--returns true if it did anything and false otherwise
+function mods.lightweight_lua.damageFoesAtSpace(crewmem, location, damage, stunTime, directDamage)
+    local foundFoe = false
+    local currentShipManager = global:GetShipManager(crewmem.currentShipId)
+    local foeShipManager = global:GetShipManager(1 - crewmem.iShipId)
+    if (currentShipManager and foeShipManager) then --null if not in combat
+        foes_at_point = mods.lightweight_lua.get_ship_crew_point(currentShipManager, foeShipManager, location.x, location.y)
+        for j = 1, #foes_at_point do
+            local foe = foes_at_point[j]
+            foe.fStunTime = foe.fStunTime + stunTime
+            foe:ModifyHealth(-damage)
+            foe:DirectModifyHealth(-directDamage)
+            foundFoe = true
+        end
+    end
+    return foundFoe
+end
+
+--returns true if it did anything and false otherwise
+function mods.lightweight_lua.damageFoesInSameSpace(crewmem, damage, stunTime, directDamage)
+    return mods.lightweight_lua.damageFoesAtSpace(crewmem, crewmem:GetPosition(), damage, stunTime, directDamage)
 end
 
 function mods.lightweight_lua.damageEnemyHelper(activeCrew, amount, stunTime, currentRoom, bystander)
@@ -260,7 +283,7 @@ function mods.lightweight_lua.damageEnemyHelper(activeCrew, amount, stunTime, cu
     end
 end
 
---optional stun time
+--Does direct damage to all foes in the room. optional stun time
 function mods.lightweight_lua.damageEnemyCrewInSameRoom(activeCrew, amount, stunTime)
     local currentRoom = mods.lightweight_lua.getRoomAtCrewmember(activeCrew)
         -- Modified from brightlord's modification of Arc's get_ship_crew_room().
@@ -276,6 +299,7 @@ function mods.lightweight_lua.damageEnemyCrewInSameRoom(activeCrew, amount, stun
     end
 end
 
+--Returns the average of two colors.
 function mods.lightweight_lua.mergeColors(c1, c2)
     return Graphics.GL_Color((c1.r + c2.r) / 2, (c1.g + c2.g) / 2, (c1.b + c2.b) / 2, (c1.a + c2.a) / 2)
 end
@@ -317,22 +341,21 @@ function mods.lightweight_lua.recolorFaces(object_faces, recolor_info, relativeR
     return deep_copy_faces
 end
 
-
 --changes the faces to match the crewmember's selected status
 function mods.lightweight_lua.recolorForHighlight(object_faces, crewmem)
     if (crewmem.selectionState == 0) then--not selected, do nothing
         return object_faces
-    elseif (crewmem.selectionState == 1) then --selected, green fill
+    elseif (crewmem.selectionState == 1) then --selected, relative green fill
         return mods.lightweight_lua.recolorFaces(object_faces, {filled=true, fill_color = HIGHLIGHT_GREEN}, true)
     elseif (crewmem.selectionState == 2) then --hover, green edges
         return mods.lightweight_lua.recolorFaces(object_faces, {outline=true, outline_color=HIGHLIGHT_GREEN, line_width=2})
     end
 end
 
+--Applies teleport and selection effects to a list of faces for later rendering with a mesh.
 --Only call this once per frame, after you've assembled the entire mesh you're going to render
---crewTable is the table for crewmem.
+--crewTable is the table for crewmem. object_faces is the list of faces you want to 
 --Always returns a deep copy
---todo this is correct with the current animation values I have for omen, I can probably get the blueprint to calc this for a more general case.
 function mods.lightweight_lua.applyAlternateAnimations(object_faces, crewmem, crewTable)
     local tele_level = crewTable.tele_level
     if not tele_level then
@@ -357,7 +380,7 @@ function mods.lightweight_lua.applyAlternateAnimations(object_faces, crewmem, cr
         --print("departing ", departing, "tele_level ", tele_level, 0 - (tele_level * departing))
         tele_level = tele_level + (.03 * departing)
         for i = 1, #copy_faces do
-            copy_faces[i].fill_color = Graphics.GL_Color(copy_faces[i].fill_color.r, --have to manually copy objects.  TODO add this to the copy util.
+            copy_faces[i].fill_color = Graphics.GL_Color(copy_faces[i].fill_color.r,
                 copy_faces[i].fill_color.g, copy_faces[i].fill_color.b,
                 math.min(1, math.max(0, copy_faces[i].fill_color.a - tele_level))) 
         end
@@ -374,7 +397,7 @@ function mods.lightweight_lua.applyAlternateAnimations(object_faces, crewmem, cr
     return copy_faces
 end
 
--- Generate a random point within the radius of a given point
+-- Generate a random point radius away from a point
 --modified from vertexUtils random_point_radius
 function mods.lightweight_lua.random_point_circle(origin, radius)
     local r = radius
@@ -403,6 +426,33 @@ function mods.lightweight_lua.random_valid_space_point_adjacent(origin, shipMana
     return nil
 end
 
+--returns the closest available slot, or a slot with id and room -1 if none is found.
+--isIntruder seems to be iff you want to check slots ignoring ones invading crew occupy, else ignoring ones defending crew occupy.
+function mods.lightweight_lua.closestOpenSlot(point, shipId, isIntruder)
+    local shipGraph = Hyperspace.ShipGraph.GetShipInfo(shipId)
+    return shipGraph:GetClosestSlot(point, shipId. isIntruder)
+end
+
+--Doesn't matter who's in it, returns -1 if no room is found. For use with things like MoveToRoom
+function mods.lightweight_lua.slotIdAtPoint(point, shipManager)
+    local shipGraph = Hyperspace.ShipGraph.GetShipInfo(shipManager.iShipId)
+    local roomNumber = get_room_at_location(shipManager, point, true)
+    if (roomNumber == -1) then
+        return -1
+    end
+    local shape = shipGraph:GetRoomShape(roomNumber)
+    --always l->r, t->bottom.
+    --get the x y indexes of the slot.  0,0; 1,1, etc.
+    local width = shape.w / TILE_SIZE
+    local deltaX = point.x - shape.x
+    local deltaY = point.y - shape.y
+    local indexX
+    indexX = math.floor(deltaX / TILE_SIZE)
+    indexY = math.floor(deltaY / TILE_SIZE)
+    return indexX + (indexY * width)
+end
+
+--Returns a random slot id in the given room.
 function mods.lightweight_lua.randomSlotRoom(roomNumber, shipId)
     local shipGraph = Hyperspace.ShipGraph.GetShipInfo(shipId)
     local shape = shipGraph:GetRoomShape(roomNumber)

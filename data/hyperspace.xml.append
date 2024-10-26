@@ -6,6 +6,8 @@
 		<mod-append:script>data/flatpack_scripts/f22.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/omen.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/buffer.lua</mod-append:script>
+		<mod-append:script>data/flatpack_scripts/jitsugyoka_body.lua</mod-append:script>
+		<mod-append:script>data/flatpack_scripts/show_room_numbers.lua</mod-append:script>
 	</mod:findLike>
 </FTL>
 
@@ -74,7 +76,7 @@
 		<mod-append:race name="fff_buffer">
 			<maxHealth>100</maxHealth>
 			<repairSpeed>1</repairSpeed>
-			<canFight>false</canFight>
+			<canFight>true</canFight>
 			<damageMultiplier>0</damageMultiplier>
 			<rangedDamageMultiplier>0</rangedDamageMultiplier>
 			<animBase>mantis</animBase>
@@ -104,7 +106,7 @@
 				<temporaryEffect>
 					<duration>999999</duration>
 					<cooldownColor r="45" g="45" b="45"/>
-					<moveSpeedMultiplier>0</moveSpeedMultiplier>
+					<moveSpeedMultiplier>.01</moveSpeedMultiplier>
 					<controllable>false</controllable>
 					<canFight>false</canFight>
 					<canMan>false</canMan>
