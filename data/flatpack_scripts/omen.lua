@@ -2,32 +2,9 @@ local userdata_table = mods.multiverse.userdata_table
 local vter = mods.multiverse.vter
 local get_room_at_location = mods.vertexutil.get_room_at_location
 local Brightness = mods.brightness
+local lwl = mods.lightweight_lua
+local lw3 = mods.lightweight_3d
 
-local get_ship_crew_point = mods.lightweight_lua.get_ship_crew_point
-local drawObject = mods.lightweight_lua.drawObject
-local drawFace = mods.lightweight_lua.drawFace
-local glDrawTriangle_Wrapper = mods.lightweight_lua.glDrawTriangle_Wrapper
-local drawRelativeLine = mods.lightweight_lua.drawRelativeLine
-local relativeVertexByIndex = mods.lightweight_lua.relativeVertexByIndex
-local relativeVertex = mods.lightweight_lua.relativeVertex
-local relativeY = mods.lightweight_lua.relativeY
-local relativeX = mods.lightweight_lua.relativeX
-local sortFacesByDepth = mods.lightweight_lua.sortFacesByDepth
-local deepTableMerge = mods.lightweight_lua.deepTableMerge
-local deepCopyTable = mods.lightweight_lua.deepCopyTable
-local tableMerge = mods.lightweight_lua.tableMerge
-local dumpObject = mods.lightweight_lua.dumpObject
-local isPaused = mods.lightweight_lua.isPaused
-local rotateAround = mods.lightweight_lua.rotateAround
-local rotatePointAroundFixed = mods.lightweight_lua.rotatePointAroundFixed
-local getRoomAtCrewmember = mods.lightweight_lua.getRoomAtCrewmember
-local damageEnemyHelper = mods.lightweight_lua.damageEnemyHelper
-local damageEnemyCrewInSameRoom = mods.lightweight_lua.damageEnemyCrewInSameRoom
-local mergeColors = mods.lightweight_lua.mergeColors
-local recolorFaces = mods.lightweight_lua.recolorFaces
-local recolorForHighlight = mods.lightweight_lua.recolorForHighlight
-local applyAlternateAnimations = mods.lightweight_lua.applyAlternateAnimations
-local random_point_circle = mods.lightweight_lua.random_point_circle
 
 --[[next:
         stretch goal:
@@ -143,10 +120,9 @@ local function beamAttack(rotated_mesh, position, shipManager, crewShipManager, 
         immuneCrewIds = {}
     end
     
-    swept_points = {}
     --points were' tracking are 16 and 13, the bottom line of the beam
-    point1 = relativeVertexByIndex(rotated_mesh, 16, position)
-    point2 = relativeVertexByIndex(rotated_mesh, 13, position)
+    point1 = lw3.relativeVertexByIndex(rotated_mesh, 16, position)
+    point2 = lw3.relativeVertexByIndex(rotated_mesh, 13, position)
     local x = point1.x
     local y = point1.y
     local delta_x = point2.x - point1.x
@@ -155,7 +131,7 @@ local function beamAttack(rotated_mesh, position, shipManager, crewShipManager, 
     for i = 0, partitions do
         ix = point1.x + (delta_x / partitions * i)
         iy = point1.y + (delta_y / partitions * i)
-        foes_at_point = get_ship_crew_point(shipManager, crewShipManager, ix, iy)--no need to check if in combat, because this requires enemy crew to exist.
+        foes_at_point = lwl.get_ship_crew_point(shipManager, crewShipManager, ix, iy)--no need to check if in combat, because this requires enemy crew to exist.
         for j = 1, #foes_at_point do
             local foe = foes_at_point[j]
             --print("Found foe", foe.selfId)
@@ -170,7 +146,7 @@ local function beamAttack(rotated_mesh, position, shipManager, crewShipManager, 
                 --apply .1s stun before damage to kill Things
                 foe.fStunTime = foe.fStunTime + .1
                 foe:DirectModifyHealth(-BASE_BEAM_DAMAGE)
-                immuneCrewIds = tableMerge(immuneCrewIds, {foe.extend.selfId})
+                immuneCrewIds = lwl.tableMerge(immuneCrewIds, {foe.extend.selfId})
             end
         end
     end
@@ -213,13 +189,13 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
             end
             --VARIABLE DEFINITIONS END
             --always render prism faces
-            local renderFaces = applyAlternateAnimations(PRISM_FACES, crewmem, crewTable)--TODO I can add the eye back in if I do the color merging code properly
-            renderFaces = deepTableMerge(renderFaces, eye_faces)
+            local renderFaces = lw3.applyAlternateAnimations(PRISM_FACES, crewmem, crewTable)--TODO I can add the eye back in if I do the color merging code properly
+            renderFaces = lwl.deepTableMerge(renderFaces, eye_faces)
             local is_combat = crewmem.bFighting
             
             --crewmem.bDead this is true only on the frame the crew dies.  And maybe when it's cloned but idk.
             --print("omen power ", omen_power, " teleport: ", crewmem.extend.customTele.teleporting, " dying: ", crewmem.health.first, crewmem.health.second)
-            if (not isPaused()) then
+            if (not lwl.isPaused()) then
                 if (beam_render_time == 0) then
                     --print("BEAM RESET ")
                     rotations = randomRotation()
@@ -243,7 +219,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                             --print("OMEN BLAST TRIGGERED")
                             soundControl:PlaySoundMix("fff_omen_blast", 6, false)
                             for i = 1, 40 do
-                                local circle_pos = random_point_circle(pos, 24)
+                                local circle_pos = lwl.random_point_circle(pos, 24)
                                 circle_pos.y = circle_pos.y - 5
                                 blastParticle = Brightness.create_particle("particles/omen/blast", 4, .4,
                                         circle_pos, math.random(0,3)*90, ship.iShipId, "SHIP_MANAGER")
@@ -251,7 +227,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                                 blastParticle.movementSpeed = 160
                             end
                             --melee
-                            damageEnemyCrewInSameRoom(crewmem, BASE_BLAST_DAMAGE, 3)
+                            lwl.damageEnemyCrewInSameRoom(crewmem, BASE_BLAST_DAMAGE, 3)
                             --brightness particle stuff
                             rotations = randomRotation()
                             omen_power = 55
@@ -268,13 +244,13 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                     omen_power = math.max(omen_power - .05, 1)
                 end
                 
-                prism_model = rotateAround(prism_model, CENTER_POINT.x, CENTER_POINT.y, CENTER_POINT.z, rotations.x * omen_power, rotations.y * omen_power, rotations.z * omen_power)
+                prism_model = lw3.rotateAround(prism_model, CENTER_POINT.x, CENTER_POINT.y, CENTER_POINT.z, rotations.x * omen_power, rotations.y * omen_power, rotations.z * omen_power)
                 
                 if (beam_render_time > 0) then
                     beamAttack(prism_model, pos, shipManager, crewShipManager, crewTable)
                     beam_render_time = beam_render_time - 1
                     omen_power = omen_power - .45
-                    renderFaces = deepTableMerge(renderFaces, beam_faces)
+                    renderFaces = lwl.deepTableMerge(renderFaces, beam_faces)
                 end
             end
             
@@ -282,7 +258,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                 if (math.random() > .975) then
                     currentSkill = math.floor(crewmem.iManningId) -- 3 weapons 8 doors 02 2 piloting 6 sensors 7 shields 0 engines 1 temporal 20 drones 4 hacking 15 cloaking 10 MC 14 arty 11
                     --print(" particles/manning_"..currentSkill)
-                    local circle_pos = random_point_circle(pos, 15)
+                    local circle_pos = lwl.random_point_circle(pos, 15)
                     --circle_pos.x = circle_pos.x - 5
                     circle_pos.y = circle_pos.y - 5
                     --render some particles based on skiling value
@@ -293,7 +269,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                     manningParticle.loops = 2
                 end
             end
-            drawObject(pos, prism_model, renderFaces)
+            lw3.drawObject(pos, prism_model, renderFaces)
             --FINALLY, write back to crewTable
             crewTable.prism_model = prism_model
             crewTable.was_combat = is_combat

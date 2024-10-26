@@ -1,8 +1,6 @@
 local lwl = mods.lightweight_lua
 local vter = mods.multiverse.vter
 
-
---only prints last row for some reason.
 script.on_render_event(Defines.RenderEvents.SHIP_SPARKS, function() end, function(ship)
     shipManager = Hyperspace.ships(ship.iShipId)
     local shipGraph = Hyperspace.ShipGraph.GetShipInfo(shipManager.iShipId)
