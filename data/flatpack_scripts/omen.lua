@@ -189,7 +189,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
             end
             --VARIABLE DEFINITIONS END
             --always render prism faces
-            local renderFaces = lw3.applyAlternateAnimations(PRISM_FACES, crewmem, crewTable)--TODO I can add the eye back in if I do the color merging code properly
+            local renderFaces = lw3.applyAlternateAnimations(PRISM_FACES, crewmem, crewTable)--the eye stays even in death
             renderFaces = lwl.deepTableMerge(renderFaces, eye_faces)
             local is_combat = crewmem.bFighting
             
@@ -255,18 +255,18 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
             end
             
             if (crewmem.bActiveManning) then
-                if (math.random() > .975) then
-                    currentSkill = math.floor(crewmem.iManningId) -- 3 weapons 8 doors 02 2 piloting 6 sensors 7 shields 0 engines 1 temporal 20 drones 4 hacking 15 cloaking 10 MC 14 arty 11
-                    --print(" particles/manning_"..currentSkill)
-                    local circle_pos = lwl.random_point_circle(pos, 15)
-                    --circle_pos.x = circle_pos.x - 5
-                    circle_pos.y = circle_pos.y - 5
-                    --render some particles based on skiling value
-                    local manningParticle = Brightness.create_particle("particles/manning_"..currentSkill, 4, 2,
-                            circle_pos, 0, ship.iShipId, "SHIP_MANAGER")
-                    manningParticle.heading = 0
-                    manningParticle.movementSpeed = 3
-                    manningParticle.loops = 2
+                if (not lwl.isPaused()) then
+                    if (math.random() > .975) then
+                        currentSkill = math.floor(crewmem.iManningId)
+                        local circle_pos = lwl.random_point_circle(pos, 15)
+                        circle_pos.y = circle_pos.y - 5
+                        --render some particles based on skiling value
+                        local manningParticle = Brightness.create_particle("particles/manning_"..currentSkill, 4, 2,
+                                circle_pos, 0, ship.iShipId, "SHIP_MANAGER")
+                        manningParticle.heading = 0
+                        manningParticle.movementSpeed = 3
+                        manningParticle.loops = 2
+                    end
                 end
             end
             lw3.drawObject(pos, prism_model, renderFaces)

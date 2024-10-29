@@ -2,8 +2,6 @@
 
 <FTL>
 	<mod:findLike type="scripts">
-		<mod-append:script>data/flatpack_scripts/utils.lua</mod-append:script>
-		<mod-append:script>data/flatpack_scripts/3d_lib.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/f22.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/omen.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/buffer.lua</mod-append:script>
