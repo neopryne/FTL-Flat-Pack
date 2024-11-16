@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<events>
+    <variable name="addon_ffftl_enabled" op="set" val="1"/>
+</events>
+
 <FTL>
 	<mod:findLike type="scripts">
 		<mod-append:script>data/flatpack_scripts/f22.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/omen.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/buffer.lua</mod-append:script>
-		<mod-append:script>data/flatpack_scripts/jitsugyoka_body.lua</mod-append:script>
-		<mod-append:script>data/flatpack_scripts/show_room_numbers.lua</mod-append:script>
+		<mod-append:script>data/flatpack_scripts/danny.lua</mod-append:script>
 	</mod:findLike>
 </FTL>
 
@@ -21,10 +24,10 @@
 		<mod-append:race name="fff_f22">
 			<maxHealth>100</maxHealth>
 			<canSuffocate>true</canSuffocate>
-			<damageMultiplier>1.2</damageMultiplier>
-			<rangedDamageMultiplier>1.2</rangedDamageMultiplier>
+			<damageMultiplier>1.5</damageMultiplier>
+			<rangedDamageMultiplier>1.5</rangedDamageMultiplier>
 			<moveSpeedMultiplier>11</moveSpeedMultiplier>
-			<sabotageSpeedMultiplier>1.2</sabotageSpeedMultiplier>
+			<sabotageSpeedMultiplier>1.5</sabotageSpeedMultiplier>
 			<animBase>mantis</animBase>
 			<deathSounds>
 				<deathSound>fff_f22_death</deathSound>
@@ -48,7 +51,7 @@
 			<resistsMindControl>true</resistsMindControl>
 			<damageMultiplier>0</damageMultiplier>
 			<rangedDamageMultiplier>0</rangedDamageMultiplier>
-			<damageTakenMultiplier>.75</damageTakenMultiplier>
+			<damageTakenMultiplier>.60</damageTakenMultiplier>
 			<suffocationModifier>1</suffocationModifier>
 			<canBurn>true</canBurn>
 			<stunMultiplier>1</stunMultiplier>
@@ -116,11 +119,113 @@
 
 			</powerEffect>
 		</mod-append:race>
+		
+		<mod-append:race name="fp_unique_phantom">
+			<maxHealth>100</maxHealth>
+			<repairSpeed>1.2</repairSpeed>
+			<sabotageSpeedMultiplier>1.2</sabotageSpeedMultiplier>
+			<animBase>human</animBase>
+			<deathSounds>
+				<deathSound>nothing</deathSound>
+			</deathSounds>
+			<shootingSounds>
+				<shootingSound>crewLaser</shootingSound>
+			</shootingSounds>
+			<animSheet>human</animSheet>
+			<powerEffect>
+				<cooldown>6</cooldown>
+				<jumpCooldown>full</jumpCooldown>
+				<powerSounds>
+					<powerSound>fp_ghost_transform</powerSound>
+				</powerSounds>
+				<buttonText>GHOST</buttonText>
+				<tooltip>[COOLDOWN:30s]
+					Fully heal and transform into phantom form. Will automatically activate if health reaches zero.
+				</tooltip>
+				<cooldownColor r="133" g="252" b="255" />
+				<transformRace>fp_unique_phantom_ghost</transformRace>
+				<selfHealth>150</selfHealth>
+			</powerEffect>
+		</mod-append:race>
+		
+		<mod-append:race name="fp_unique_phantom_ghost">
+			<maxHealth>150</maxHealth>
+			<sabotageSpeedMultiplier>1.2</sabotageSpeedMultiplier>
+			<damageMultiplier>1.2</damageMultiplier>
+			<rangedDamageMultiplier>1.2</rangedDamageMultiplier>
+			<canSuffocate>false</canSuffocate>
+			<canPhaseThroughDoors>true</canPhaseThroughDoors>
+			<animBase>human</animBase>
+			<animSheet>phantom</animSheet>
+			<deathSounds>
+				<deathSound>death1</deathSound>
+				<deathSound>death2</deathSound>
+				<deathSound>ghostDeath</deathSound>
+			</deathSounds>
+			<shootingSounds>
+				<shootingSound>crewLaser</shootingSound>
+			</shootingSounds>
+			<powerEffect>
+				<cooldown>3</cooldown>
+				<jumpCooldown>full</jumpCooldown>
+				<powerSounds>
+					<powerSound>fp_ghost_untransform</powerSound>
+				</powerSounds>
+				<buttonText>HUMAN</buttonText>
+					BECOME
+				<tooltip>[COOLDOWN:30s]
+					</tooltip>
+				<cooldownColor r="133" g="252" b="255" />
+				<transformRace>fp_unique_phantom</transformRace>
+			</powerEffect>
+		</mod-append:race>
 	</mod:findLike>
 	
+	<!-- 
+    If <ship name="MY_SHIP" ... /> already exists, adding another <ship name="MY_SHIP" ... /> will cause ship duplication.
+    If we only look for the ship and turn on the slot, then nothing will happen if that <ship> doesn't exist.
+
+    This code adds a new <ship name="MY_SHIP" ... />, in case the ship does not exist.
+    Then we look to see if there is a <ship> with the same name defined before. If not, that's it!
+    But if so, we remove the line we just added, and go to that existing <ship> and set our layout slot to true.
+
+    The code looks this way to cover all edge cases and ensure it works no matter the existing state of hyperspace.xml.
+    Use it as a single chunk and don't mix with other Slipstream tags code, otherwise it may not work correctly.
+-->
+<!-- start of chunk -->
+
+	<ships>
+		<ship name="PLAYER_SHIP_FFF_UFO_1" a="true" b="false" c="false" super="luminal" />
+		<customShip name="PLAYER_SHIP_FFF_UFO_1">
+			<crewLimit>8</crewLimit>
+		</customShip>
+	</ships>
+	<mod:findWithChildLike type="ships" child-type="ship" reverse="true" start="1" limit="1">
+		<mod:selector name="PLAYER_SHIP_FFF_UFO_1" />
+		<mod:findName type="ship" name="PLAYER_SHIP_FFF_UFO_1">
+			<mod:setAttributes super="luminal" a="true" />
+		</mod:findName>
+	</mod:findWithChildLike>
+	<mod:findWithChildLike type="ships" child-type="ship" start="1">
+		<mod:selector super="luminal" />
+		<mod:findLike type="ship">
+			<mod:selector super="luminal" />
+			<mod:removeTag />
+		</mod:findLike>
+	</mod:findWithChildLike>
+	<mod:findLike type="ships">
+		<mod:findLike type="ship">
+			<mod:selector super="luminal" />
+			<mod:removeAttributes super="" />
+		</mod:findLike>
+	</mod:findLike>
+
+<!-- end of chunk -->
+	
 	<mod-append:event name="INSTALL_LAB_FFF_F22_THERMAL_IMAGING">
+		<text>ok doing the thing.</text>
     	<hiddenAug>LAB_FFF_F22_THERMAL_IMAGING</hiddenAug>
-		<hiddenAug>LAB_FFF_F22_THERMAL_IMAGING_INSTALLED</hiddenAug>
+		<hiddenAug>LAB_FFF_F22_INSTALLED</hiddenAug>
 		<loadEvent>STORAGE_CHECK_LAB_FFF_F22</loadEvent>
     </mod-append:event>
 	
@@ -144,7 +249,7 @@
 		<mod:findLike type="customStore">
 			<mod:selector id="STORE_ULTIMATE_SYLVAN"/>
 			<mod-append:category type="CREW">
-				<customTitle>Flat Crew (1/1)</customTitle>
+				<customTitle>Flat Crew (1/3)</customTitle>
 				<item>
 					<blueprint>fff_f22</blueprint>
 				</item>
@@ -153,6 +258,26 @@
 				</item>
 				<item>
 					<blueprint>fff_f22</blueprint>
+				</item>
+				<customTitle>Flat Crew (2/3)</customTitle>
+				<item>
+					<blueprint>fff_buffer</blueprint>
+				</item>
+				<item>
+					<blueprint>fff_buffer</blueprint>
+				</item>
+				<item>
+					<blueprint>fff_buffer</blueprint>
+				</item>
+				<customTitle>Flat Crew (3/3)</customTitle>
+				<item>
+					<blueprint>fff_omen</blueprint>
+				</item>
+				<item>
+					<blueprint>fff_omen</blueprint>
+				</item>
+				<item>
+					<blueprint>fff_omen</blueprint>
 				</item>
 			</mod-append:category>
 		</mod:findLike>

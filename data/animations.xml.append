@@ -384,4 +384,11 @@
 		<desc length="1" x="0" y="0" />
 		<time>1</time>
 	</anim>
+	
+	<animSheet name="fff_ufo_thruster_sheet" w="580" h="472" fw="580" fh="472">thrusters/ufo_cruiser_thruster_glow.png</animSheet>
+	<anim name="fff_ufo_thruster">
+		<sheet>fff_ufo_thruster_sheet</sheet>
+		<desc length="1" x="0" y="0"/>
+		<time>1</time>
+	</anim>
 </FTL>

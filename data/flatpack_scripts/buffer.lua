@@ -25,9 +25,10 @@ local SHOT_DAMAGE = 1.5
 local SHOT_BURST = 3
 local SHOT_SPEED = 500
 local SHOT_DISPERSION = 10
-local PUNCH_DAMAGE = 4 --but it stuns
-local PUNCH_STUN= .45
-local BLITZ_DAMAGE = 4
+local PUNCH_DAMAGE = 5 --but it stuns
+local PUNCH_STUN= 1
+local BLITZ_DAMAGE = 7
+local BLITZ_STUN= .01
 local CAPPED_FPS = 60
 local BLACK = Graphics.GL_Color(0, 0, 0, 1) 
 
@@ -53,7 +54,7 @@ local function blitz(crewmem)
     if (newPoint ~= nil) then
         crewmem:SetPosition(newPoint)
     end
-    lwl.damageFoesInSameSpace(crewmem, 0, 0, BLITZ_DAMAGE)
+    lwl.damageFoesInSameSpace(crewmem, 0, BLITZ_STUN, BLITZ_DAMAGE)
     local newSlot = lwl.slotIdAtPoint(crewmem:GetPosition(), currentShipManager)
     local currentRoom = get_room_at_location(currentShipManager, crewmem:GetPosition(), false)
     --redirect crew to new location so it actually counts as being in that room.

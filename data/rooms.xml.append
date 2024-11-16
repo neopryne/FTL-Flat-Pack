@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<roomLayout name="fff_room_engines_1_1">
+	<computerGlow x="5" y="17" dir="DOWN" />
+</roomLayout>
+<roomLayout name="fff_room_pilot_1_1">
+	<computerGlow name="glow_pilot" x="19" y="9" dir="RIGHT" />
+</roomLayout>
+<roomLayout name="fff_room_shields_1_1">
+	<computerGlow x="7" y="1" dir="UP" />
+</roomLayout>
+<roomLayout name="fff_room_weapons_1_1">
+	<computerGlow x="24" y="-7" dir="DOWN" />
+</roomLayout>
+

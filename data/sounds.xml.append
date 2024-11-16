@@ -16,3 +16,5 @@
 <fff_buffer_shot volume="3">aliens/blast2.ogg</fff_buffer_shot>
 <fff_buffer_blitz volume="4">aliens/blast0.ogg</fff_buffer_blitz>
 <fff_buffer_death volume="4">aliens/die0.ogg</fff_buffer_death>
+<fp_ghost_transform volume="3">aliens/ghost_transform.ogg</fp_ghost_transform>
+<fp_ghost_untransform volume="5">aliens/un_phantom.ogg</fp_ghost_untransform>

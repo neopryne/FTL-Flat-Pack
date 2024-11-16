@@ -18,6 +18,7 @@ local soundControl = global:GetSoundControl()
 local MAX_POWER = 100
 local BASE_BEAM_DAMAGE = 22
 local BASE_BLAST_DAMAGE = 20
+local OMEN_STEP = .11
 local BEAM_TIME = 52
 
 local OMEN_DEPTH = 20
@@ -159,8 +160,7 @@ local function randomRotation()
 end
 
 --only functions on player ship
-script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, function(ship)
-    local shipManager = global:GetShipManager(ship.iShipId) --Manager for current ship
+script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, function(shipManager)
     for crewmem in vter(shipManager.vCrewList) do
         if (crewmem:GetSpecies() == "fff_omen") then
             crewShipManager = global:GetShipManager(1 - crewmem.iShipId) --Manager for enemy crew
@@ -213,7 +213,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                         omen_power = omen_power + 7
                     end
                     --99 MOB CHORUS
-                    omen_power = omen_power + .1, MAX_POWER
+                    omen_power = omen_power + OMEN_STEP
                     if (omen_power >= MAX_POWER) then --go off!
                         if (crewmem.bSharedSpot) then
                             --print("OMEN BLAST TRIGGERED")
@@ -222,7 +222,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                                 local circle_pos = lwl.random_point_circle(pos, 24)
                                 circle_pos.y = circle_pos.y - 5
                                 blastParticle = Brightness.create_particle("particles/omen/blast", 4, .4,
-                                        circle_pos, math.random(0,3)*90, ship.iShipId, "SHIP_MANAGER")
+                                        circle_pos, math.random(0,3)*90, shipManager.iShipId, "SHIP_MANAGER")
                                 blastParticle.heading = math.random(0, 359)
                                 blastParticle.movementSpeed = 160
                             end
@@ -249,7 +249,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                 if (beam_render_time > 0) then
                     beamAttack(prism_model, pos, shipManager, crewShipManager, crewTable)
                     beam_render_time = beam_render_time - 1
-                    omen_power = omen_power - .45
+                    omen_power = omen_power - (.35 + OMEN_STEP)
                     renderFaces = lwl.deepTableMerge(renderFaces, beam_faces)
                 end
             end
@@ -262,14 +262,16 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                         circle_pos.y = circle_pos.y - 5
                         --render some particles based on skiling value
                         local manningParticle = Brightness.create_particle("particles/manning_"..currentSkill, 4, 2,
-                                circle_pos, 0, ship.iShipId, "SHIP_MANAGER")
+                                circle_pos, 0, shipManager.iShipId, "SHIP_MANAGER")
                         manningParticle.heading = 0
                         manningParticle.movementSpeed = 3
                         manningParticle.loops = 2
                     end
                 end
             end
-            lw3.drawObject(pos, prism_model, renderFaces)
+            if (not (shipManager.bJumping or shipManager.bDestroyed)) then --I kind of like Omen existing outside of jumps.
+                lw3.drawObject(pos, prism_model, renderFaces)
+            end
             --FINALLY, write back to crewTable
             crewTable.prism_model = prism_model
             crewTable.was_combat = is_combat

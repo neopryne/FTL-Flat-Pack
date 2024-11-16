@@ -127,8 +127,8 @@ script.on_internal_event(Defines.InternalEvents.ON_MOUSE_L_BUTTON_DOWN, function
             --Manager dot my blueprint .
             --one strat: get The ship blueprint and calculate the offset from the graph there .  .layoutFile, open that and do math.
             wps = shipGraph:ConvertToLocalPosition(Hyperspace.Pointf((x - targetPosition.x),(y - targetPosition.y)), true)
-            print("Click down", mousePos.x - targetPosition.x, " ", mousePos.y - targetPosition.y - lwl.TILE_SIZE)
-            print(get_room_at_location(shipManager, Hyperspace.Point(mousePos.x - targetPosition.x, mousePos.y - targetPosition.y - lwl.TILE_SIZE), false))
+            print("Click down", mousePos.x - targetPosition.x, " ", mousePos.y - targetPosition.y - lwl.TILE_SIZE())
+            print(get_room_at_location(shipManager, Hyperspace.Point(mousePos.x - targetPosition.x, mousePos.y - targetPosition.y - lwl.TILE_SIZE()), false))
         end
         
         

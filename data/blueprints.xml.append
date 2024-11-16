@@ -16,14 +16,14 @@
 		<rarity>3</rarity>
 		<powerList>
 			<power>Really, really fast.</power>
-			<power>1.2x damage and sabotage speed.</power>
+			<power>1.5x damage and sabotage speed.</power>
 			<power>Moves erratically, may stun itself. Stun increases with damage taken.</power>
-			<power>Damages enemy crew in the rooms it moves to.</power>
+			<power>Damages and stuns enemy crew in the rooms it moves to.</power>
 		</powerList>
 	</crewBlueprint>
 
 	<crewBlueprint name="fff_omen">
-		<desc> УФЦ GЕT ЩHДΓ УФЦ GET ДИD УФЦ DOИ'Γ GЕT ЦPSET
+		<desc>УФЦ GЕT ЩHДΓ УФЦ GET ДИD УФЦ DOИ'Γ GЕT ЦPSET
 		[He/Him]
 		</desc>
 		<title>OMEN</title>
@@ -44,7 +44,7 @@
 	</crewBlueprint>
 	
 	<crewBlueprint name="fff_buffer">
-		<desc> Spends its free time in quiet contemplation of how to best kick your ass.</desc>
+		<desc>Spends its free time in quiet contemplation of how to best kick your ass.</desc>
 		<title>Buffer</title>
 		<short>Buffer</short>
 		<cost>50</cost>
@@ -57,4 +57,106 @@
 		</powerList>
 	</crewBlueprint>
 	
+	<crewBlueprint name="fp_unique_phantom">
+		<desc>Looks human enough...</desc>
+		<title>Daniel</title>
+		<short>Danny</short>
+		<cost>96</cost>
+		<bp>2</bp>
+		<rarity>5</rarity>
+		<powerList>
+			<power>Active ability: Ghost, Fully heal and transform into phantom form.</power>
+			<power>This will also activate automatically on death.</power>
+			<power>Repairs and sabotages at 1.2x speed.</power>
+		</powerList>
+	</crewBlueprint>
+	
+	<crewBlueprint name="fp_unique_phantom_ghost">
+		<desc>An imposing figure; you're not entirely sure how this whole thing works.</desc>
+		<title>Daniel</title>
+		<short>Danny</short>
+		<cost>69</cost>
+		<bp>2</bp>
+		<rarity>0</rarity>
+		<powerList>
+			<power>1.2x combat damage and sabotage speed.</power>
+			<power>Active ability: Restore Humanity, transform back to human form.</power>
+		</powerList>
+	</crewBlueprint>
+	
+	<!--SHIP BLUEPRINTS -->
+	<shipBlueprint name="PLAYER_SHIP_FFF_UFO_1" layout="fff_ufo_1" img="fff_ufo_1">
+		<class>X-23 Saucer</class>
+		<name>The Waveguide</name>
+		<desc>They've decided to beat up other people for a change.</desc>
+		<systemList>
+			<battery power="1" room="9" start="true" img="fff_room_battery_1_1" />
+			<cloaking power="1" room="12" start="false" img="fff_room_cloaking_1_1" />
+			<clonebay power="3" room="3" start="true">
+				<slot>
+					<number>0</number>
+				</slot>
+			</clonebay>
+			<doors power="1" room="1" start="false" img="fff_room_doors_1_1">
+				<slot>
+					<direction>up</direction>
+					<number>0</number>
+				</slot>
+			</doors>
+			<drones power="1" room="13" start="false" img="fff_room_drones_1_1" />
+			<engines power="1" room="8" start="true" img="fff_room_engines_1_1">
+				<slot>
+					<direction>down</direction>
+					<number>0</number>
+				</slot>
+			</engines>
+			<hacking power="1" room="14" start="false" img="room_hacking" />
+			<medbay power="1" room="3" start="false" img="fff_room_medbay_1_1">
+				<slot>
+					<number>1</number>
+				</slot>
+			</medbay>
+			<mind power="1" room="4" start="true" img="fff_room_mind_1_1" />
+			<oxygen power="1" room="11" start="true" img="fff_room_oxygen_1_1" />
+			<pilot power="1" room="2" start="true" img="fff_room_pilot_1_1">
+				<slot>
+					<direction>right</direction>
+					<number>0</number>
+				</slot>
+			</pilot>
+			<sensors power="1" room="5" start="true" img="fff_room_sensors_1_1">
+				<slot>
+					<direction>left</direction>
+					<number>0</number>
+				</slot>
+			</sensors>
+			<shields power="2" room="7" start="true" img="fff_room_shields_1_1">
+				<slot>
+					<direction>up</direction>
+					<number>0</number>
+				</slot>
+			</shields>
+			<teleporter power="1" room="0" start="true" />
+			<temporal power="1" room="10" start="true" img="fff_room_temporal_1_1" />
+			<weapons power="1" room="6" start="true" img="fff_room_weapons_1_1">
+				<slot>
+					<direction>down</direction>
+					<number>0</number>
+				</slot>
+			</weapons>
+		</systemList>
+		<weaponSlots>4</weaponSlots>
+		<droneSlots>2</droneSlots>
+		<weaponList missiles="4" count="4">
+			<weapon name="ENERGY_2_PLAYER" />
+		</weaponList>
+		<droneList drones="3" count="2" />
+		<health amount="30" />
+		<maxPower amount="6" />
+		<crewCount amount="1" class="fff_f22" />
+		<crewCount amount="1" class="fff_buffer" />
+		<crewCount amount="1" class="fff_omen" />
+		<aug name="BRAIN_DONATION" />
+	</shipBlueprint>
+
 </FTL>

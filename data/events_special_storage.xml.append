@@ -96,11 +96,11 @@
 		<event load="OPTION_INVALID"/>
 	</choice>
 
-	<choice req="LAB_FFF_F22_THERMAL_IMAGING_INSTALLED" lvl="1" max_group="1" blue="false" hidden="true">
+	<choice req="LAB_FFF_F22_INSTALLED" lvl="1" max_group="1" blue="false" hidden="true">
 		<text>Pas: Thermal Imaging. [An upgrade is already installed]</text>
 		<event load="OPTION_INVALID"/>
 	</choice>
-	<choice req="LAB_FFF_F22_THERMAL_IMAGING_INSTALLED" lvl="0" max_group="1" blue="false" hidden="true">
+	<choice req="LAB_FFF_F22_INSTALLED" lvl="0" max_group="1" blue="false" hidden="true">
 		<text>Pas: Thermal Imaging. [Cost: 40~]</text>
 		<event load="STORAGE_CHECK_LAB_FFF_F22_THERMAL_IMAGING"/>
 	</choice>
@@ -136,5 +136,6 @@
 </event>
 
 <event name="INSTALL_LAB_FFF_F22_THERMAL_IMAGING">
+	<text>um idk about this.</text>
 	<variable name="loc_lab_upgrades" op="add" val="1"/>
 </event>
