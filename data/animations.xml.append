@@ -270,24 +270,24 @@
 	<!--BUFFER ANIMATIONS-->
 <animSheet name="fff_buffer" w="490" h="805" fw="35" fh="35">people/fff_buffer_base.png</animSheet>
 	<anim name="fff_buffer_walk_down">
-	<sheet>fff_buffer</sheet>
-	<desc length="4" x="0" y="22" />
-	<time>60.0</time>
+		<sheet>fff_buffer</sheet>
+		<desc length="4" x="0" y="22" />
+		<time>1</time>
 	</anim>
 	<anim name="fff_buffer_walk_left">
 		<sheet>fff_buffer</sheet>
 		<desc length="4" x="0" y="21" />
-		<time>1.0</time>
+		<time>1</time>
 	</anim>
 	<anim name="fff_buffer_walk_right">
 		<sheet>fff_buffer</sheet>
 		<desc length="4" x="0" y="20" />
-		<time>1.0</time>
+		<time>1</time>
 	</anim>
 	<anim name="fff_buffer_walk_up">
 		<sheet>fff_buffer</sheet>
 		<desc length="4" x="0" y="19" />
-		<time>1.0</time>
+		<time>1</time>
 	</anim>
 	<anim name="fff_buffer_repair">
 		<sheet>fff_buffer</sheet>
@@ -317,52 +317,52 @@
 	<anim name="fff_buffer_fire_down">
 		<sheet>fff_buffer</sheet>
 		<desc length="1" x="0" y="13" />
-		<time>1.0</time>
+		<time>1</time>
 	</anim>
 	<anim name="fff_buffer_fire_left">
 		<sheet>fff_buffer</sheet>
 		<desc length="1" x="0" y="10" />
-		<time>1.0</time>
+		<time>1</time>
 	</anim>
 	<anim name="fff_buffer_fire_right">
 		<sheet>fff_buffer</sheet>
 		<desc length="1" x="0" y="11" />
-		<time>1.0</time>
+		<time>1</time>
 	</anim>
 	<anim name="fff_buffer_fire_up">
 		<sheet>fff_buffer</sheet>
 		<desc length="1" x="0" y="12" />
-		<time>1.0</time>
+		<time>1</time>
 	</anim>
 	<anim name="fff_buffer_punch_down">
 		<sheet>fff_buffer</sheet>
 		<desc length="1" x="0" y="22" />
-		<time>2.0</time>
+		<time>2</time>
 	</anim>
 	<anim name="fff_buffer_punch_up">
 		<sheet>fff_buffer</sheet>
 		<desc length="1" x="0" y="21" />
-		<time>2.0</time>
+		<time>2</time>
 	</anim>
 	<anim name="fff_buffer_shoot_down">
 		<sheet>fff_buffer</sheet>
 		<desc length="1" x="0" y="22" />
-		<time>1.0</time>
+		<time>1</time>
 	</anim>
 	<anim name="fff_buffer_shoot_left">
 		<sheet>fff_buffer</sheet>
 		<desc length="1" x="0" y="21" />
-		<time>1.0</time>
+		<time>1</time>
 	</anim>
 	<anim name="fff_buffer_shoot_right">
 		<sheet>fff_buffer</sheet>
 		<desc length="1" x="0" y="20" />
-		<time>1.0</time>
+		<time>1</time>
 	</anim>
 	<anim name="fff_buffer_shoot_up">
 		<sheet>fff_buffer</sheet>
 		<desc length="1" x="0" y="19" />
-		<time>1.0</time>
+		<time>1</time>
 	</anim>
 	<anim name="fff_buffer_teleport">
 		<sheet>fff_buffer</sheet>
@@ -372,6 +372,11 @@
 	<anim name="fff_buffer_death_right">
 		<sheet>fff_buffer</sheet>
 		<desc length="12" x="0" y="2" />
+		<time>2</time>
+	</anim>
+	<anim name="fff_buffer_death_left">
+		<sheet>fff_buffer</sheet>
+		<desc length="1" x="0" y="2" />
 		<time>2</time>
 	</anim>
 	<anim name="fff_buffer_clone">
@@ -384,6 +389,7 @@
 		<desc length="1" x="0" y="0" />
 		<time>1</time>
 	</anim>
+
 	
 	<animSheet name="fff_ufo_thruster_sheet" w="580" h="472" fw="580" fh="472">thrusters/ufo_cruiser_thruster_glow.png</animSheet>
 	<anim name="fff_ufo_thruster">

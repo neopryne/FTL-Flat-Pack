@@ -157,6 +157,7 @@
 		<crewCount amount="1" class="fff_buffer" />
 		<crewCount amount="1" class="fff_omen" />
 		<aug name="BRAIN_DONATION" />
+		<aug name="BACKUP_DNA" />
 	</shipBlueprint>
 
 </FTL>

@@ -48,6 +48,7 @@
 			<canRepair>true</canRepair>
 			<canSabotage>true</canSabotage>
 			<canSuffocate>false</canSuffocate>
+			<isAnaerobic>true</isAnaerobic>
 			<resistsMindControl>true</resistsMindControl>
 			<damageMultiplier>0</damageMultiplier>
 			<rangedDamageMultiplier>0</rangedDamageMultiplier>
@@ -222,13 +223,6 @@
 
 <!-- end of chunk -->
 	
-	<mod-append:event name="INSTALL_LAB_FFF_F22_THERMAL_IMAGING">
-		<text>ok doing the thing.</text>
-    	<hiddenAug>LAB_FFF_F22_THERMAL_IMAGING</hiddenAug>
-		<hiddenAug>LAB_FFF_F22_INSTALLED</hiddenAug>
-		<loadEvent>STORAGE_CHECK_LAB_FFF_F22</loadEvent>
-    </mod-append:event>
-	
 	<mod:findLike type="augments" limit="1">
 		<mod-append:aug name="LAB_FFF_F22_THERMAL_IMAGING">
 			<statBoosts>
@@ -239,9 +233,44 @@
 					<crewTarget>ALLIES</crewTarget>
 					<priority>999</priority>
 					<whiteList load="LIST_CREW_F22" />
-				</statBoost>	
+				</statBoost>
 			</statBoosts>
 		</mod-append:aug>
+		<mod-append:aug name="LAB_FFF_F22_SUPERSONIC_AIRBAGS">
+		</mod-append:aug>
+		<mod-append:aug name="LAB_FFF_F22_FREEDOM_BOOSTERS">
+			<statBoosts>
+				<statBoost name="moveSpeedMultiplier">
+					<boostType>MULT</boostType>
+					<amount>1.3</amount>
+					<shipTarget>ORIGINAL_SHIP</shipTarget>
+					<crewTarget>ALLIES</crewTarget>
+					<priority>0</priority>
+					<whiteList load="LIST_CREW_F22" />
+				</statBoost>
+			</statBoosts>
+		</mod-append:aug>
+	</mod:findLike>
+
+
+	<mod:findLike type="events" limit="1">
+		<mod:findName type="req" name="LIST_CHECK_ANY_CREW">
+			<mod-append:name>LIST_CREW_FFFTL</mod-append:name>
+		</mod:findName>
+		<mod:findName type="req" name="LIST_LAB_ALL">
+			<mod-append:name>LAB_FFF_F22_THERMAL_IMAGING</mod-append:name>
+			<mod-append:name>LAB_FFF_F22_SUPERSONIC_AIRBAGS</mod-append:name>
+			<mod-append:name>LAB_FFF_F22_FREEDOM_BOOSTERS</mod-append:name>
+		</mod:findName>
+		<mod:findName type="req" name="BLUELIST_CREW_NO2">
+			<mod-append:name>fff_omen</mod-append:name>
+		</mod:findName>
+
+		<mod:findName type="req" name="BLUELIST_CREW_NODOORS">
+		</mod:findName>
+
+		<mod:findName type="req" name="BLUELIST_CREW_NOFIRE">
+		</mod:findName>
 	</mod:findLike>
 
 	<!-- WALLACE BEACON -->

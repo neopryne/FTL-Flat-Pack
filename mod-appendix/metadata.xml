@@ -5,14 +5,18 @@
   <version><![CDATA[ 0.1 ]]></version>
   <description>
 <![CDATA[
-Requires hyperspace, multiverse, BrightnessParticles, VertexUtils, and Lightweight Lua to work.
+Requires hyperspace, multiverse, BrightnessParticles, VertexUtils, Forgemaster, and Lightweight Lua to work.  Patch below them.
 
 Adds characters from the game Flat Form Fighter as crew.
 Crew are at stores, or you can spawn them with CREW [crewname]
 
 Current cast:
-F22: fast boi
-name: fff_f22
+	F22: fast boi
+	name: fff_f22
+	Buffer: the thinker
+	name: fff_buffer
+	OMEN: enigmatic reeling
+	name: fff_omen
 
 Thanks to Jail for the use of Flat Form Fighter
 Brightlord, Arc, and ChronoVortex for help coding the room detection and rerouting.

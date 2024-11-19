@@ -6,7 +6,7 @@
 		<name>fff_omen</name>
 		<name>fff_buffer</name>
 	</blueprintList>
-	<blueprintList name="LIST_CREW_F22"> 
+	<blueprintList name="LIST_CREW_FFF_F22"> 
 		<name>fff_f22</name>
 	</blueprintList>
 	
