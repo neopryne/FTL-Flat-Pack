@@ -57,14 +57,12 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
         crewTable.moving_to_new_dest = false
         soundControl:PlaySoundMix("fff_f22_boom", 3, false)
         local multFactor = 1
-        if (shipManager:GetAugmentationValue("LAB_FFF_F22_FREEDOM_BOOSTERS") > 0) then
-            multFactor = 1.3
-        end
+        multFactor = multFactor + (.3 * shipManager.ship:HasAugmentation("LAB_FFF_F22_FREEDOM_BOOSTERS"))
         lwl.damageEnemyCrewInSameRoom(crewmem, DASH_DAMAGE * multFactor, DASH_STUN * multFactor)--todo freedom boosters
         if crewTable.shunted then
             --print("shunted xn combob")
             crewmem.fStunTime = (.5 + ((1 - (crewmem:GetIntegerHealth() / crewmem:GetMaxHealth())) * 8.5)) * multFactor -- scale stun with health loss
-            if (shipManager:GetAugmentationValue("LAB_FFF_F22_SUPERSONIC_AIRBAGS") == 0) then --this could cause issues with the infinite shunt bug.
+            if (shipManager.ship:HasAugmentation("LAB_FFF_F22_SUPERSONIC_AIRBAGS") == 0) then --this could cause issues with the infinite shunt bug.
                 crewmem:ModifyHealth(-5 * multFactor)
             end
         end

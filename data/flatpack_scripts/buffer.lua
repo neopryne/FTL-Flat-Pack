@@ -289,18 +289,22 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
                     bufferPower:CancelPower(false)
                 end
             else
-                outputTimer = outputTimer - 1
+                local speedFactor = 1
+                speedFactor = speedFactor + (1 * shipManager.ship:HasAugmentation("LAB_FFF_BUFFER_OVERCLOCK"))
+                outputTimer = outputTimer - speedFactor
                 if (outputTimer <= 0) then
                     outputTimer = fireParticle(crewmem, bufferParticles)
                 end
             end
         else
             --not going off
-            if (crewmem.bActiveManning or crewmem.bDead or (crewmem:Repairing() and not crewmem:Sabotaging())) then
-                --if doing stuff clear the buffer
-                clear_particles(bufferParticles)
-                bufferParticles = {}
-                inputTimer = 0
+            if ((crewmem.bActiveManning or crewmem.bDead or (crewmem:Repairing() and not crewmem:Sabotaging()))) then
+                if (shipManager.ship:HasAugmentation("LAB_FFF_BUFFER_EXTENDED_MEMORY") == 0) then
+                    --if doing stuff clear the buffer
+                    clear_particles(bufferParticles)
+                    bufferParticles = {}
+                    inputTimer = 0
+                end
             else
                 inputTimer = inputTimer + 1
                 if (inputTimer >= INPUT_DELAY) then

@@ -61,44 +61,35 @@
     </mod-append:choice>
 </mod:findName>
 <!-- END PLEASURE PODS -->
-<mod:findName type="event" name="STORAGE_CHECK_INVENTORY_LAB"> 
- 	<mod-append:choice hidden="true" req="LAB_FFF_F22_THERMAL_IMAGING" lvl="1" blue="false">
-		<text>Thermal Imaging [Installed]</text>
-		<event load="STORAGE_CHECK_LAB_FFF_F22"/>
-	</mod-append:choice>
-	<mod-append:choice hidden="true" req="LAB_FFF_F22_THERMAL_IMAGING" lvl="0" max_lvl="0" blue="false">
-		<text>Thermal Imaging [Not Installed]</text>
-		<event load="OPTION_INVALID"/>
-	</mod-append:choice>
- 	<mod-append:choice hidden="true" req="LAB_FFF_F22_SUPERSONIC_AIRBAGS" lvl="1" blue="false">
-		<text>Supersonic Airbags [Installed]</text>
-		<event load="STORAGE_CHECK_LAB_FFF_F22"/>
-	</mod-append:choice>
-	<mod-append:choice hidden="true" req="LAB_FFF_F22_SUPERSONIC_AIRBAGS" lvl="0" max_lvl="0" blue="false">
-		<text>Supersonic Airbags [Not Installed]</text>
-		<event load="OPTION_INVALID"/>
-	</mod-append:choice>
- 	<mod-append:choice hidden="true" req="LAB_FFF_F22_FREEDOM_BOOSTERS" lvl="1" blue="false">
-		<text>Freedom Boosters [Installed]</text>
-		<event load="STORAGE_CHECK_LAB_FFF_F22"/>
-	</mod-append:choice>
-	<mod-append:choice hidden="true" req="LAB_FFF_F22_FREEDOM_BOOSTERS" lvl="0" max_lvl="0" blue="false">
-		<text>Freedom Boosters [Not Installed]</text>
-		<event load="OPTION_INVALID"/>
-	</mod-append:choice>
-</mod:findName>
-
 <mod:findName type="event" name="STORAGE_CHECK_LAB">
     <mod-append:choice req="LIST_CREW_FFF_F22" blue="false" hidden="true">
 		<text>F-22.</text>
 		<event load="STORAGE_CHECK_LAB_FFF_F22"/>
     </mod-append:choice>
-    <mod:findWithChildLike type="choice" child-type="text">
-      <mod:selector>Nevermind.</mod:selector>
-      <mod:setAttributes max_group="998" req="pilot" lvl="1" blue="false"/>
-    </mod:findWithChildLike>
+    <mod-append:choice req="LIST_CREW_FFF_BUFFER" blue="false" hidden="true">
+		<text>Buffer.</text>
+		<event load="STORAGE_CHECK_LAB_FFF_BUFFER"/>
+    </mod-append:choice>
+	<mod-append:choice req="fff_omen" blue="false" hidden="true">
+		<text>Omen.</text>
+		<event load="STORAGE_CHECK_LAB_FFF_OMEN"/>
+    </mod-append:choice>
 </mod:findName>
 
+<event name="STORAGE_CHECK_LAB_FFF_OMEN">
+	<text>You are viewing the lab menu for: [OMEN]</text>
+	<choice req="pilot" lvl="1" max_group="0" blue="false" hidden="true">
+		<text>Can't improve perfection.</text>
+		<event load="OPTION_INVALID"/>
+	</choice>
+
+	<choice req="pilot" lvl="1" max_group="999" blue="false" hidden="true">
+		<text>Go back.</text>
+		<event load="STORAGE_CHECK_LAB_LOAD"/>
+	</choice>
+</event>
+
+<!-- Begin generated lab events for F-22-->
 <event name="STORAGE_CHECK_LAB_FFF_F22">
 	<text>You are viewing the lab menu for: [F-22]</text>
 	<choice req="LAB_FFF_F22_THERMAL_IMAGING" lvl="1" max_group="0" blue="false" hidden="true">
@@ -114,6 +105,11 @@
 	<choice req="LAB_FFF_F22_FREEDOM_BOOSTERS" lvl="1" max_group="0" blue="false" hidden="true">
 		<text>Currently Installed Passive: Freedom Boosters.
 		[Let your F-22's excercise their god-given right to reckless endangerment in pursuit of going really fast.]</text>
+		<event load="OPTION_INVALID"/>
+	</choice>
+	<choice req="LAB_FFF_F22_ARMORED_NOSECONES" lvl="1" max_group="0" blue="false" hidden="true">
+		<text>Currently Installed Passive: Armored Nosecones.
+		[No door can stand in your way.]</text>
 		<event load="OPTION_INVALID"/>
 	</choice>
 	<choice req="pilot" lvl="1" max_group="0" blue="false" hidden="true">
@@ -145,6 +141,14 @@
 		<text>Pas: Freedom Boosters. [Cost: 32~]</text>
 		<event load="STORAGE_CHECK_LAB_FFF_F22_FREEDOM_BOOSTERS"/>
 	</choice>
+	<!--<choice req="LAB_FFF_F22_INSTALLED" lvl="1" max_group="4" blue="false" hidden="true">
+		<text>Pas: Armored Nosecones. [An upgrade is already installed]</text>
+		<event load="OPTION_INVALID"/>
+	</choice>
+	<choice req="LAB_FFF_F22_INSTALLED" lvl="0" max_group="4" blue="false" hidden="true">
+		<text>Pas: Armored Nosecones. [Cost: 20~]</text>
+		<event load="STORAGE_CHECK_LAB_FFF_F22_ARMORED_NOSECONES"/>
+	</choice>-->
 
 	<choice req="pilot" lvl="1" max_group="999" blue="false" hidden="true">
 		<text>Go back.</text>
@@ -216,7 +220,7 @@
 
 <event name="STORAGE_CHECK_LAB_FFF_F22_FREEDOM_BOOSTERS">
 	<text>You are about to install the Freedom Boosters modification.
-	[Effects: Undo the safety mechanisms on your F22's engines, increasing their speed, dash damage, stun time, and self damage by 1.3x.]
+	[Effects: Undo the safety mechanisms on your F-22's engines, increasing their speed, dash damage, stun time, and self damage by 1.3x.]
 	
 	[Warning: After installing this, you will not be able to install any more Passive upgrades for F-22 crew. You will not be able to deactivate this mod either.]</text>
 	<choice hidden="true">
@@ -244,3 +248,139 @@
 	<hiddenAug>LAB_FFF_F22_INSTALLED</hiddenAug>
 	<loadEvent>STORAGE_CHECK_LAB_FFF_F22</loadEvent>
 </event>
+
+<event name="STORAGE_CHECK_LAB_FFF_F22_ARMORED_NOSECONES">
+	<text>You are about to install the Armored Nosecones modification.
+	[Effects: Tiny battering rams turn your F-22's into wrecking crew, destroying any door that stands in their way.]
+	
+	[Warning: After installing this, you will not be able to install any more Passive upgrades for F-22 crew. You will not be able to deactivate this mod either.]</text>
+	<choice hidden="true">
+		<text>Install the modification. [Cost: 20~]</text>
+		<event>
+			<text>You install the modification.</text>
+			<item_modify>
+				<item type="scrap" min="-20" max="-20"/>
+			</item_modify>
+			<choice hidden="true">
+				<text>Continue...</text>
+				<event load="INSTALL_LAB_FFF_F22_ARMORED_NOSECONES"/>
+			</choice>
+		</event>
+	</choice>
+	<choice req="pilot" lvl="1" max_group="1" blue="false" hidden="true">
+		<text>Nevermind.</text>
+		<event load="STORAGE_CHECK_LAB_LOAD"/>
+	</choice>
+</event>
+
+<event name="INSTALL_LAB_FFF_F22_ARMORED_NOSECONES">
+	<variable name="loc_lab_upgrades" op="add" val="1"/>
+	<hiddenAug>LAB_FFF_F22_ARMORED_NOSECONES</hiddenAug>
+	<hiddenAug>LAB_FFF_F22_INSTALLED</hiddenAug>
+	<loadEvent>STORAGE_CHECK_LAB_FFF_F22</loadEvent>
+</event>
+
+<!-- Begin generated lab events for Buffer-->
+<event name="STORAGE_CHECK_LAB_FFF_BUFFER">
+	<text>You are viewing the lab menu for: [Buffer]</text>
+	<choice req="LAB_FFF_BUFFER_EXTENDED_MEMORY" lvl="1" max_group="0" blue="false" hidden="true">
+		<text>Currently Installed Passive: Extended Memory.
+		[Keep track of what you were doing.]</text>
+		<event load="OPTION_INVALID"/>
+	</choice>
+	<choice req="LAB_FFF_BUFFER_OVERCLOCK" lvl="1" max_group="0" blue="false" hidden="true">
+		<text>Currently Installed Passive: Overclock.
+		[Buffers execute commands twice as fast but have 40 less health.]</text>
+		<event load="OPTION_INVALID"/>
+	</choice>
+	<choice req="pilot" lvl="1" max_group="0" blue="false" hidden="true">
+		<text>Currently Installed Passive: None</text>
+		<event load="OPTION_INVALID"/>
+	</choice>
+
+	<choice req="LAB_FFF_BUFFER_INSTALLED" lvl="1" max_group="1" blue="false" hidden="true">
+		<text>Pas: Extended Memory. [An upgrade is already installed]</text>
+		<event load="OPTION_INVALID"/>
+	</choice>
+	<choice req="LAB_FFF_BUFFER_INSTALLED" lvl="0" max_group="1" blue="false" hidden="true">
+		<text>Pas: Extended Memory. [Cost: 40~]</text>
+		<event load="STORAGE_CHECK_LAB_FFF_BUFFER_EXTENDED_MEMORY"/>
+	</choice>
+	<choice req="LAB_FFF_BUFFER_INSTALLED" lvl="1" max_group="2" blue="false" hidden="true">
+		<text>Pas: Overclock. [An upgrade is already installed]</text>
+		<event load="OPTION_INVALID"/>
+	</choice>
+	<choice req="LAB_FFF_BUFFER_INSTALLED" lvl="0" max_group="2" blue="false" hidden="true">
+		<text>Pas: Overclock. [Cost: 50~]</text>
+		<event load="STORAGE_CHECK_LAB_FFF_BUFFER_OVERCLOCK"/>
+	</choice>
+
+	<choice req="pilot" lvl="1" max_group="999" blue="false" hidden="true">
+		<text>Go back.</text>
+		<event load="STORAGE_CHECK_LAB_LOAD"/>
+	</choice>
+</event>
+
+<event name="STORAGE_CHECK_LAB_FFF_BUFFER_EXTENDED_MEMORY">
+	<text>You are about to install the Extended Memory modification.
+	[Effects: Equip your Buffers with external memory banks, allowing them to remember their stack even if they are interrupted.]
+	
+	[Warning: After installing this, you will not be able to install any more Passive upgrades for Buffer crew. You will not be able to deactivate this mod either.]</text>
+	<choice hidden="true">
+		<text>Install the modification. [Cost: 40~]</text>
+		<event>
+			<text>You install the modification.</text>
+			<item_modify>
+				<item type="scrap" min="-40" max="-40"/>
+			</item_modify>
+			<choice hidden="true">
+				<text>Continue...</text>
+				<event load="INSTALL_LAB_FFF_BUFFER_EXTENDED_MEMORY"/>
+			</choice>
+		</event>
+	</choice>
+	<choice req="pilot" lvl="1" max_group="1" blue="false" hidden="true">
+		<text>Nevermind.</text>
+		<event load="STORAGE_CHECK_LAB_LOAD"/>
+	</choice>
+</event>
+
+<event name="INSTALL_LAB_FFF_BUFFER_EXTENDED_MEMORY">
+	<variable name="loc_lab_upgrades" op="add" val="1"/>
+	<hiddenAug>LAB_FFF_BUFFER_EXTENDED_MEMORY</hiddenAug>
+	<hiddenAug>LAB_FFF_BUFFER_INSTALLED</hiddenAug>
+	<loadEvent>STORAGE_CHECK_LAB_FFF_BUFFER</loadEvent>
+</event>
+
+<event name="STORAGE_CHECK_LAB_FFF_BUFFER_OVERCLOCK">
+	<text>You are about to install the Overclock modification.
+	[Effects: Manual tuning charges your Buffers with power, but makes their systems vulnerable. 2x execution speed, -30 health.]
+	
+	[Warning: After installing this, you will not be able to install any more Passive upgrades for Buffer crew. You will not be able to deactivate this mod either.]</text>
+	<choice hidden="true">
+		<text>Install the modification. [Cost: 50~]</text>
+		<event>
+			<text>You install the modification.</text>
+			<item_modify>
+				<item type="scrap" min="-50" max="-50"/>
+			</item_modify>
+			<choice hidden="true">
+				<text>Continue...</text>
+				<event load="INSTALL_LAB_FFF_BUFFER_OVERCLOCK"/>
+			</choice>
+		</event>
+	</choice>
+	<choice req="pilot" lvl="1" max_group="1" blue="false" hidden="true">
+		<text>Nevermind.</text>
+		<event load="STORAGE_CHECK_LAB_LOAD"/>
+	</choice>
+</event>
+
+<event name="INSTALL_LAB_FFF_BUFFER_OVERCLOCK">
+	<variable name="loc_lab_upgrades" op="add" val="1"/>
+	<hiddenAug>LAB_FFF_BUFFER_OVERCLOCK</hiddenAug>
+	<hiddenAug>LAB_FFF_BUFFER_INSTALLED</hiddenAug>
+	<loadEvent>STORAGE_CHECK_LAB_FFF_BUFFER</loadEvent>
+</event>
+
+<!-- End generated lab events for Buffer-->

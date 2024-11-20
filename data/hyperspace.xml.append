@@ -48,7 +48,6 @@
 			<canRepair>true</canRepair>
 			<canSabotage>true</canSabotage>
 			<canSuffocate>false</canSuffocate>
-			<isAnaerobic>true</isAnaerobic>
 			<resistsMindControl>true</resistsMindControl>
 			<damageMultiplier>0</damageMultiplier>
 			<rangedDamageMultiplier>0</rangedDamageMultiplier>
@@ -223,8 +222,8 @@
 
 <!-- end of chunk -->
 	
-	<mod:findLike type="augments" limit="1">
-		<mod-append:aug name="LAB_FFF_F22_THERMAL_IMAGING">
+	<augments limit="1">
+		<aug name="LAB_FFF_F22_THERMAL_IMAGING">
 			<statBoosts>
 				<statBoost name="detectsLifeforms">
 					<boostType>SET</boostType>
@@ -232,25 +231,54 @@
 					<shipTarget>ALL</shipTarget>
 					<crewTarget>ALLIES</crewTarget>
 					<priority>999</priority>
-					<whiteList load="LIST_CREW_F22" />
+					<whiteList load="LIST_CREW_FFF_F22" />
 				</statBoost>
 			</statBoosts>
-		</mod-append:aug>
-		<mod-append:aug name="LAB_FFF_F22_SUPERSONIC_AIRBAGS">
-		</mod-append:aug>
-		<mod-append:aug name="LAB_FFF_F22_FREEDOM_BOOSTERS">
+		</aug>
+		<aug name="LAB_FFF_F22_SUPERSONIC_AIRBAGS">
+			<!-- Lua only -->
+		</aug>
+		<aug name="LAB_FFF_F22_FREEDOM_BOOSTERS">
 			<statBoosts>
 				<statBoost name="moveSpeedMultiplier">
 					<boostType>MULT</boostType>
 					<amount>1.3</amount>
-					<shipTarget>ORIGINAL_SHIP</shipTarget>
+					<shipTarget>ALL</shipTarget>
 					<crewTarget>ALLIES</crewTarget>
 					<priority>0</priority>
-					<whiteList load="LIST_CREW_F22" />
+					<whiteList load="LIST_CREW_FFF_F22" />
 				</statBoost>
 			</statBoosts>
-		</mod-append:aug>
-	</mod:findLike>
+		</aug>
+		<!-- TODO: Make this phasing and use lua to find and destroy the doors. -->
+		<aug name="LAB_FFF_F22_ARMORED_NOSECONES">
+			<statBoosts>
+				<statBoost name="doorDamageMultiplier">
+					<boostType>MULT</boostType>
+					<amount>9000</amount>
+					<shipTarget>ALL</shipTarget>
+					<crewTarget>ALLIES</crewTarget>
+					<priority>999</priority>
+					<whiteList load="LIST_CREW_FFF_F22" />
+				</statBoost>
+			</statBoosts>
+		</aug>
+		<aug name="LAB_FFF_BUFFER_EXTENDED_MEMORY">
+			<!-- Lua only -->
+		</aug>
+		<aug name="LAB_FFF_BUFFER_OVERCLOCK">
+			<statBoosts>
+				<statBoost name="maxHealth">
+					<boostType>FLAT</boostType>
+					<amount>-40</amount>
+					<shipTarget>ALL</shipTarget>
+					<crewTarget>ALLIES</crewTarget>
+					<priority>999</priority>
+					<whiteList load="LIST_CREW_FFF_BUFFER" />
+				</statBoost>
+			</statBoosts>
+		</aug>
+	</augments>
 
 
 	<mod:findLike type="events" limit="1">
@@ -261,6 +289,8 @@
 			<mod-append:name>LAB_FFF_F22_THERMAL_IMAGING</mod-append:name>
 			<mod-append:name>LAB_FFF_F22_SUPERSONIC_AIRBAGS</mod-append:name>
 			<mod-append:name>LAB_FFF_F22_FREEDOM_BOOSTERS</mod-append:name>
+			<mod-append:name>LAB_FFF_BUFFER_EXTENDED_MEMORY</mod-append:name>
+			<mod-append:name>LAB_FFF_BUFFER_OVERCLOCK</mod-append:name>
 		</mod:findName>
 		<mod:findName type="req" name="BLUELIST_CREW_NO2">
 			<mod-append:name>fff_omen</mod-append:name>

@@ -83,7 +83,48 @@
 			<power>Active ability: Restore Humanity, transform back to human form.</power>
 		</powerList>
 	</crewBlueprint>
-	
+
+	<augBlueprint name="LAB_FFF_F22_THERMAL_IMAGING">
+		<title>FFF_F22 </title>
+		<desc>slug vision</desc>
+		<cost>0</cost>
+		<rarity>0</rarity>
+		<stackable>false</stackable>
+		<bp>0</bp>
+	</augBlueprint>
+	<augBlueprint name="LAB_FFF_F22_SUPERSONIC_AIRBAGS">
+		<title>FFF_F22 </title>
+		<desc>no impact damage</desc>
+		<cost>0</cost>
+		<rarity>0</rarity>
+		<stackable>false</stackable>
+		<bp>0</bp>
+	</augBlueprint>	
+	<augBlueprint name="LAB_FFF_F22_FREEDOM_BOOSTERS">
+		<title>FFF_F22 </title>
+		<desc>even faster</desc>
+		<cost>0</cost>
+		<rarity>0</rarity>
+		<stackable>false</stackable>
+		<bp>0</bp>
+	</augBlueprint>	
+	<augBlueprint name="LAB_FFF_BUFFER_EXTENDED_MEMORY">
+		<title>FFF_BUFFER </title>
+		<desc>save/load</desc>
+		<cost>0</cost>
+		<rarity>0</rarity>
+		<stackable>false</stackable>
+		<bp>0</bp>
+	</augBlueprint>	
+	<augBlueprint name="LAB_FFF_BUFFER_OVERCLOCK">
+		<title>FFF_BUFFER </title>
+		<desc>fastinversesqrt</desc>
+		<cost>0</cost>
+		<rarity>0</rarity>
+		<stackable>false</stackable>
+		<bp>0</bp>
+	</augBlueprint>
+
 	<!--SHIP BLUEPRINTS -->
 	<shipBlueprint name="PLAYER_SHIP_FFF_UFO_1" layout="fff_ufo_1" img="fff_ufo_1">
 		<class>X-23 Saucer</class>
@@ -130,7 +171,7 @@
 					<number>0</number>
 				</slot>
 			</sensors>
-			<shields power="2" room="7" start="true" img="fff_room_shields_1_1">
+			<shields power="2" max="8" room="7" start="true" img="fff_room_shields_1_1">
 				<slot>
 					<direction>up</direction>
 					<number>0</number>
