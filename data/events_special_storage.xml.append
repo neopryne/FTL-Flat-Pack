@@ -141,14 +141,14 @@
 		<text>Pas: Freedom Boosters. [Cost: 32~]</text>
 		<event load="STORAGE_CHECK_LAB_FFF_F22_FREEDOM_BOOSTERS"/>
 	</choice>
-	<!--<choice req="LAB_FFF_F22_INSTALLED" lvl="1" max_group="4" blue="false" hidden="true">
+	<choice req="LAB_FFF_F22_INSTALLED" lvl="1" max_group="4" blue="false" hidden="true">
 		<text>Pas: Armored Nosecones. [An upgrade is already installed]</text>
 		<event load="OPTION_INVALID"/>
 	</choice>
 	<choice req="LAB_FFF_F22_INSTALLED" lvl="0" max_group="4" blue="false" hidden="true">
 		<text>Pas: Armored Nosecones. [Cost: 20~]</text>
 		<event load="STORAGE_CHECK_LAB_FFF_F22_ARMORED_NOSECONES"/>
-	</choice>-->
+	</choice>
 
 	<choice req="pilot" lvl="1" max_group="999" blue="false" hidden="true">
 		<text>Go back.</text>

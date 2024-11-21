@@ -1,6 +1,7 @@
 local userdata_table = mods.multiverse.userdata_table
 local vter = mods.multiverse.vter
 local lwl = mods.lightweight_lua
+local Brightness = mods.brightness
 local get_room_at_location = mods.vertexutil.get_room_at_location
 local random_point_radius = mods.vertexutil.random_point_radius
 local TILE_SIZE = 35
@@ -10,13 +11,37 @@ local DASH_DAMAGE = 10
 local DASH_STUN = 1.7
 local global = Hyperspace.Global.GetInstance()
 local soundControl = global:GetSoundControl()
+local TAG = "FFF f22.lua"
+
+local function passingDestruction(shipManager, crewmem)
+    local crewTable = userdata_table(crewmem, "mods.flatpack.crewDestinationTracker")
+    local currentRoomId = get_room_at_location(shipManager, crewmem:GetPosition(), false)
+    crewTable.savedRoomId = lwl.nilSet(crewTable.savedRoomId, currentRoomId)
+    local savedRoomId = crewTable.savedRoomId
+    if (currentRoomId ~= nil) then
+        --print("room", currentRoomId, savedRoomId)
+        if (not (currentRoomId == savedRoomId)) then
+            local door = lwl.getSharedDoors(shipManager.iShipId, currentRoomId, savedRoomId)[1]
+            --print("door ", door.health, door.baseHealth)
+            door:ApplyDamage(9999)
+            door.health = 0
+            door.bOpen = true
+            --print("door after ", door.health, door.baseHealth)
+            crewTable.savedRoomId = currentRoomId
+        end
+    else
+        lwl.logError(TAG, "Current room null!")
+    end
+end
 
 script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
   if (crewmem:GetSpecies() == "fff_f22") then
     local shipManager = global:GetShipManager(crewmem.currentShipId)
     local new_room = 0
     local new_slot = 0
-    --print(crewmem.currentSlot.roomId)
+    if (Hyperspace.ships(0).ship:HasAugmentation("LAB_FFF_F22_ARMORED_NOSECONES") > 0) then
+        passingDestruction(shipManager, crewmem)
+    end
     local crewTable = userdata_table(crewmem, "mods.flatpack.crewDestinationTracker")
     if crewTable.previousDestination and
         (crewmem.currentSlot.roomId ~= crewTable.previousDestination.roomId or crewmem.currentSlot.slotId ~= crewTable.previousDestination.slotId) then
@@ -35,7 +60,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
         while (new_room == -1 and radius > 0) do
           crewTable.shunted = true
           --redo circle stuff, but smaller.  You can upgrade the lab to reduce the circle size.
-          radius = math.min(0, radius - .5) --this assumes that the current location is valid, which might not be true if cloning or teleporting in.  Stop trying if radius is zero.
+          radius = math.min(0, radius - 3) --this assumes that the current location is valid, which might not be true if cloning or teleporting in.  Stop trying if radius is zero.
           new_dest_point = random_point_radius(crewmem.currentSlot.worldLocation, radius)
           new_room = get_room_at_location(shipManager, new_dest_point, false)
           --print("moved to non-room position, shunting closer")
@@ -57,12 +82,12 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
         crewTable.moving_to_new_dest = false
         soundControl:PlaySoundMix("fff_f22_boom", 3, false)
         local multFactor = 1
-        multFactor = multFactor + (.3 * shipManager.ship:HasAugmentation("LAB_FFF_F22_FREEDOM_BOOSTERS"))
+        multFactor = multFactor + (.3 * Hyperspace.ships(0).ship:HasAugmentation("LAB_FFF_F22_FREEDOM_BOOSTERS"))
         lwl.damageEnemyCrewInSameRoom(crewmem, DASH_DAMAGE * multFactor, DASH_STUN * multFactor)--todo freedom boosters
         if crewTable.shunted then
             --print("shunted xn combob")
             crewmem.fStunTime = (.5 + ((1 - (crewmem:GetIntegerHealth() / crewmem:GetMaxHealth())) * 8.5)) * multFactor -- scale stun with health loss
-            if (shipManager.ship:HasAugmentation("LAB_FFF_F22_SUPERSONIC_AIRBAGS") == 0) then --this could cause issues with the infinite shunt bug.
+            if (Hyperspace.ships(0).ship:HasAugmentation("LAB_FFF_F22_SUPERSONIC_AIRBAGS") == 0) then --this could cause issues with the infinite shunt bug.
                 crewmem:ModifyHealth(-5 * multFactor)
             end
         end

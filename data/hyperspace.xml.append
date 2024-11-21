@@ -245,17 +245,16 @@
 					<amount>1.3</amount>
 					<shipTarget>ALL</shipTarget>
 					<crewTarget>ALLIES</crewTarget>
-					<priority>0</priority>
+					<priority>999</priority>
 					<whiteList load="LIST_CREW_FFF_F22" />
 				</statBoost>
 			</statBoosts>
 		</aug>
-		<!-- TODO: Make this phasing and use lua to find and destroy the doors. -->
 		<aug name="LAB_FFF_F22_ARMORED_NOSECONES">
 			<statBoosts>
-				<statBoost name="doorDamageMultiplier">
-					<boostType>MULT</boostType>
-					<amount>9000</amount>
+				<statBoost name="canPhaseThroughDoors">
+					<boostType>SET</boostType>
+					<value>true</value>
 					<shipTarget>ALL</shipTarget>
 					<crewTarget>ALLIES</crewTarget>
 					<priority>999</priority>
