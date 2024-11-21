@@ -1,5 +1,5 @@
 # The Flat Pack
-Adds a number of characters from [Flat Form Fighter](https://flatformfighter.com/) into FTL.
+Adds a number of characters from [Flat Form Fighter](https://flatformfighter.com/) and a cruiser for them into FTL.
 
 ## Requirements
 [Multiverse](https://ftlmultiverse.boards.net/)
