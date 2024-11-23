@@ -129,15 +129,6 @@
 	<shipBlueprint name="PLAYER_SHIP_FFF_UFO_1" layout="fff_ufo_1" img="fff_ufo_1">
 		<class>X-23 Saucer</class>
 		<name>The Waveguide</name>
-		<name>The Waveguide2</name>
-		<name>The Waveguide2</name>
-		<name>The Waveguide2</name>
-		<name>The Waveguide2</name>
-		<name>The Waveguide2</name>
-		<name>The Waveguide2</name>
-		<name>The Waveguide2</name>
-		<name>The Waveguide2</name>
-		<name>The Waveguide3</name>
 		<desc>They've decided to beat up other people for a change.</desc>
 		<systemList>
 			<battery power="1" room="9" start="true" img="fff_room_battery_1_1" />
@@ -207,7 +198,7 @@
 		<crewCount amount="1" class="fff_buffer" />
 		<crewCount amount="1" class="fff_omen" />
 		<aug name="BRAIN_DONATION" />
-		<aug name="BACKUP_DNA" />
+		<aug name="EX_BACKUP_DNA" />
 	</shipBlueprint>
 
 </FTL>
