@@ -175,6 +175,10 @@ local function clear_particles(bufferParticles)
 end
 
 local function addParticleInner(particleType, crewmem, bufferParticles)
+    --clear shots as a safeguard
+    local crewTable = userdata_table(crewmem, TABLE_NAME_BUFFER)
+    crewTable.shotsFired = {}
+    
     particle = Brightness.create_particle("particles/buffer/"..particleType.name, 1, 60, nil, 0, crewmem.currentShipId, "SHIP_MANAGER")
     particle.persists = true
     particle.fff_buffer_id = particleType.id
@@ -380,7 +384,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                 local point1 = Hyperspace.Point(x1, y1)
                 local point2 = Hyperspace.Point(x2, y2)
                 Graphics.CSurface.GL_DrawTriangle(point1, point2, particle.shotOrigin, BLACK)
-                if (particle.remainingDuration <= .05) then --idek what's happening here, TODO fix this maybe
+                if (particle.remainingDuration <= .1) then --idek what's happening here, TODO fix this maybe
                     table.remove(shotsFired, i)
                 end
             end

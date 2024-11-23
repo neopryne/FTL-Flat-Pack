@@ -29,4 +29,45 @@
 		<mod-append:name>fp_unique_phantom</mod-append:name>
 		<mod-append:name>fp_unique_phantom_ghost</mod-append:name>
 	</mod:findName>
+	<mod:findName type="blueprintList" name="LIST_CREW_GAS">
+		<mod-append:name>fff_omen</mod-append:name>
+	</mod:findName>	
+	<mod:findName type="blueprintList" name="LIST_CREW_ELITE">
+		<mod-append:name>fff_omen</mod-append:name>
+	</mod:findName>
+	<mod:findName type="blueprintList" name="LIST_CREW_ELITE_RHYME">
+		<mod-append:name>fff_omen</mod-append:name>
+	</mod:findName>
+	<mod:findName type="blueprintList" name="LIST_CREW_MADNESS_IMMUNE">
+		<mod-append:name>fff_omen</mod-append:name>
+	</mod:findName>
+	<mod:findName type="blueprintList" name="LIST_CREW_ELDRITCH">
+		<mod-append:name>fff_omen</mod-append:name>
+	</mod:findName>
+	<mod:findName type="blueprintList" name="LIST_CREW_UNIQUE_CRAPBUCKET">
+		<mod-append:name>fp_unique_phantom</mod-append:name>
+		<mod-append:name>fp_unique_phantom_ghost</mod-append:name>
+	</mod:findName>
+	<mod:findName type="blueprintList" name="LIST_CREW_ALL_CRAPBUCKET">
+		<mod-append:name>fff_f22</mod-append:name>
+		<mod-append:name>fff_omen</mod-append:name>
+		<mod-append:name>fff_buffer</mod-append:name>
+	</mod:findName>
+	<mod:findName type="blueprintList" name="LIST_CREW_METAL">
+		<mod-append:name>fff_f22</mod-append:name>
+	</mod:findName>
+	<mod:findName type="blueprintList" name="FR_METALLOID_CREW">
+		<mod-append:name>fff_f22</mod-append:name>
+	</mod:findName>
+	
+	<!--LIST_CREW_PETS --poopy
+	LIST_CREW_GAS --shell gas, not the spiders
+	LIST_CREW_ELITE
+	LIST_CREW_ELITE_RHYME
+	LIST_CREW_MADNESS_IMMUNE
+	LIST_CREW_ELDRITCH
+	LIST_CREW_MEDICAL --mine
+	LIST_CREW_MEDIC
+	LIST_CREW_ALL_CRAPBUCKET
+	LIST_CREW_UNIQUE_CRAPBUCKET-->
 </FTL>
