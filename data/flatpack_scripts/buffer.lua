@@ -295,6 +295,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
             else
                 local speedFactor = 1
                 speedFactor = speedFactor + (1 * Hyperspace.ships(0).ship:HasAugmentation("LAB_FFF_BUFFER_OVERCLOCK"))
+                speedFactor = speedFactor * (Hyperspace.FPS.SpeedFactor ) --account for differences in FPS changing ticks per second.
                 outputTimer = outputTimer - speedFactor
                 if (outputTimer <= 0) then
                     outputTimer = fireParticle(crewmem, bufferParticles)

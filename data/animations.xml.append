@@ -371,8 +371,8 @@
 	</anim>
 	<anim name="fff_buffer_death_right">
 		<sheet>fff_buffer</sheet>
-		<desc length="12" x="0" y="2" />
-		<time>2</time>
+		<desc length="15" x="0" y="2" />
+		<time>2.5</time>
 	</anim>
 	<anim name="fff_buffer_death_left">
 		<sheet>fff_buffer</sheet>

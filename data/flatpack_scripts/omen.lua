@@ -200,7 +200,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                     --print("BEAM RESET ")
                     rotations = randomRotation()
                     beam_render_time = -1
-                    omen_power = omen_power + 5
+                    omen_power = omen_power + (5 * Hyperspace.FPS.SpeedFactor )
                     --reset immunities
                     crewTable.immuneCrewIds = {}
                 end
@@ -237,7 +237,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                             soundControl:PlaySoundMix("fff_omen_shoot", 3, false)
                             beam_render_time = BEAM_TIME
                             --draw a random triangle/hyperbola and damage in it.
-                            omen_power = MAX_POWER - 1 --idk hacky solution
+                            omen_power = MAX_POWER - (1 * Hyperspace.FPS.SpeedFactor ) --idk hacky solution
                         end
                     end
                 else
