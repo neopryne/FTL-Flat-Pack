@@ -159,9 +159,8 @@ local function randomRotation()
     return {x = math.random() * .01, y = math.random() * .01, z = math.random() * .01}
 end
 
---only functions on player ship
-script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, function(shipManager)
-    for crewmem in vter(shipManager.vCrewList) do
+script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
+    local shipManager = global:GetShipManager(crewmem.iShipId)
         if (crewmem:GetSpecies() == "fff_omen") then
             crewShipManager = global:GetShipManager(1 - crewmem.iShipId) --Manager for enemy crew
             local crewTable = userdata_table(crewmem, "mods.flatpack.fatespinner")
@@ -189,8 +188,6 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
             end
             --VARIABLE DEFINITIONS END
             --always render prism faces
-            local renderFaces = lw3.applyAlternateAnimations(PRISM_FACES, crewmem, crewTable)--the eye stays even in death
-            renderFaces = lwl.deepTableMerge(renderFaces, eye_faces)
             local is_combat = crewmem.bFighting
             
             --crewmem.bDead this is true only on the frame the crew dies.  And maybe when it's cloned but idk.
@@ -200,7 +197,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                     --print("BEAM RESET ")
                     rotations = randomRotation()
                     beam_render_time = -1
-                    omen_power = omen_power + (5 * Hyperspace.FPS.SpeedFactor )
+                    omen_power = omen_power + (5 * (Hyperspace.FPS.SpeedFactor * 4))
                     --reset immunities
                     crewTable.immuneCrewIds = {}
                 end
@@ -213,7 +210,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                         omen_power = omen_power + 7
                     end
                     --99 MOB CHORUS
-                    omen_power = omen_power + OMEN_STEP
+                    omen_power = omen_power + (OMEN_STEP * (Hyperspace.FPS.SpeedFactor * 4))
                     if (omen_power >= MAX_POWER) then --go off!
                         if (crewmem.bSharedSpot) then
                             --print("OMEN BLAST TRIGGERED")
@@ -250,7 +247,6 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                     beamAttack(prism_model, pos, shipManager, crewShipManager, crewTable)
                     beam_render_time = beam_render_time - 1
                     omen_power = omen_power - (.35 + OMEN_STEP)
-                    renderFaces = lwl.deepTableMerge(renderFaces, beam_faces)
                 end
             end
             
@@ -269,14 +265,53 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                     end
                 end
             end
-            if (not (shipManager.bJumping or shipManager.bDestroyed)) then --I kind of like Omen existing outside of jumps.
-                lw3.drawObject(pos, prism_model, renderFaces)
-            end
             --FINALLY, write back to crewTable
             crewTable.prism_model = prism_model
             crewTable.was_combat = is_combat
             crewTable.omen_power = omen_power
             crewTable.rotations = rotations
+            crewTable.beam_render_time = beam_render_time
+        end
+end)
+
+
+--only functions on player ship
+script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, function(shipManager)
+    for crewmem in vter(shipManager.vCrewList) do
+        if (crewmem:GetSpecies() == "fff_omen") then
+            crewShipManager = global:GetShipManager(1 - crewmem.iShipId) --Manager for enemy crew
+            local crewTable = userdata_table(crewmem, "mods.flatpack.fatespinner")
+            pos = crewmem:GetPosition()
+            --local current_room = get_room_at_location(shipManager, pos, false)--todo is vertexUtils buggfy?  does it only work on my ship?  f22 def worked on both.
+            --local current_room_crewmember = getRoomAtCrewmember(crewmem)
+            --print("current_room: ", current_room, " position ", crewmem:GetPosition().x, " ", crewmem:GetPosition().y, "  crw: ", current_room_crewmember)
+            
+            --VARIABLE DEFINITIONS
+            local prism_model = crewTable.prism_model
+            if (not prism_model) then
+                prism_model = INITIAL_PRISM
+            end
+            local beam_render_time = crewTable.beam_render_time
+            if not (crewTable.beam_render_time) then --if undefined
+                beam_render_time = -1
+            end
+            --VARIABLE DEFINITIONS END
+            --always render prism faces
+            local renderFaces = lw3.applyAlternateAnimations(PRISM_FACES, crewmem, crewTable)--the eye stays even in death
+            renderFaces = lwl.deepTableMerge(renderFaces, eye_faces)
+            
+            --crewmem.bDead this is true only on the frame the crew dies.  And maybe when it's cloned but idk.
+            --print("omen power ", omen_power, " teleport: ", crewmem.extend.customTele.teleporting, " dying: ", crewmem.health.first, crewmem.health.second)
+
+            if (beam_render_time > 0) then
+                renderFaces = lwl.deepTableMerge(renderFaces, beam_faces)
+            end
+            
+            if (not (shipManager.bJumping or shipManager.bDestroyed)) then --I kind of like Omen existing outside of jumps.
+                lw3.drawObject(pos, prism_model, renderFaces)
+            end
+            --FINALLY, write back to crewTable
+            crewTable.prism_model = prism_model
             crewTable.beam_render_time = beam_render_time
         end
     end

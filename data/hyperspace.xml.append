@@ -198,6 +198,7 @@
 		<ship name="PLAYER_SHIP_FFF_UFO_1" a="true" b="false" c="false" super="luminal" />
 		<customShip name="PLAYER_SHIP_FFF_UFO_1">
 			<crewLimit>8</crewLimit>
+			<hiddenAug>LAB_INSTALLED</hiddenAug>
 		</customShip>
 	</ships>
 	<mod:findWithChildLike type="ships" child-type="ship" reverse="true" start="1" limit="1">

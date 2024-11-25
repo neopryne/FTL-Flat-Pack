@@ -144,7 +144,7 @@
 					<number>0</number>
 				</slot>
 			</doors>
-			<drones power="1" room="13" start="false" img="fff_room_drones_1_1" />
+			<drones power="1" room="13" max="8" start="false" img="fff_room_drones_1_1" />
 			<engines power="1" room="8" start="true" img="fff_room_engines_1_1">
 				<slot>
 					<direction>down</direction>
@@ -190,6 +190,7 @@
 		<droneSlots>2</droneSlots>
 		<weaponList missiles="4" count="4">
 			<weapon name="ENERGY_2_PLAYER" />
+			<weapon name="BOMB_HEAL_SYSTEM" />
 		</weaponList>
 		<droneList drones="3" count="2" />
 		<health amount="30" />

@@ -295,7 +295,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
             else
                 local speedFactor = 1
                 speedFactor = speedFactor + (1 * Hyperspace.ships(0).ship:HasAugmentation("LAB_FFF_BUFFER_OVERCLOCK"))
-                speedFactor = speedFactor * (Hyperspace.FPS.SpeedFactor ) --account for differences in FPS changing ticks per second.
+                speedFactor = speedFactor * (Hyperspace.FPS.SpeedFactor * 4) --account for differences in FPS changing ticks per second.
                 outputTimer = outputTimer - speedFactor
                 if (outputTimer <= 0) then
                     outputTimer = fireParticle(crewmem, bufferParticles)
@@ -311,7 +311,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
                     inputTimer = 0
                 end
             else
-                inputTimer = inputTimer + 1
+                inputTimer = inputTimer + (Hyperspace.FPS.SpeedFactor * 4)
                 if (inputTimer >= INPUT_DELAY) then
                     addParticle(crewmem, bufferParticles)
                     inputTimer = 0
@@ -326,7 +326,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
         end
         --print("shotHeadings", lwl.dumpObject(crewTable))
         if (#shotHeadings > 0) then
-            shotTimer = shotTimer - 1
+            shotTimer = shotTimer - (Hyperspace.FPS.SpeedFactor * 4)
             --print("shotTimer", shotTimer)
             if (shotTimer <= 0) then
                 shotTimer = OUTPUT_DELAY / 2
