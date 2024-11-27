@@ -234,7 +234,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
                             soundControl:PlaySoundMix("fff_omen_shoot", 3, false)
                             beam_render_time = BEAM_TIME
                             --draw a random triangle/hyperbola and damage in it.
-                            omen_power = MAX_POWER - (1 * Hyperspace.FPS.SpeedFactor ) --idk hacky solution
+                            omen_power = MAX_POWER - (4 * Hyperspace.FPS.SpeedFactor ) --idk hacky solution
                         end
                     end
                 else
@@ -245,7 +245,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
                 
                 if (beam_render_time > 0) then
                     beamAttack(prism_model, pos, shipManager, crewShipManager, crewTable)
-                    beam_render_time = beam_render_time - 1
+                    beam_render_time = beam_render_time - (4 * Hyperspace.FPS.SpeedFactor )
                     omen_power = omen_power - (.35 + OMEN_STEP)
                 end
             end
