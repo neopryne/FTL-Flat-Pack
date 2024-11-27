@@ -194,32 +194,13 @@
 -->
 <!-- start of chunk -->
 
-	<ships>
-		<ship name="PLAYER_SHIP_FFF_UFO_1" a="true" b="false" c="false" super="luminal" />
-		<customShip name="PLAYER_SHIP_FFF_UFO_1">
-			<crewLimit>8</crewLimit>
-			<hiddenAug>LAB_INSTALLED</hiddenAug>
-		</customShip>
-	</ships>
-	<mod:findWithChildLike type="ships" child-type="ship" reverse="true" start="1" limit="1">
-		<mod:selector name="PLAYER_SHIP_FFF_UFO_1" />
-		<mod:findName type="ship" name="PLAYER_SHIP_FFF_UFO_1">
-			<mod:setAttributes super="luminal" a="true" />
-		</mod:findName>
-	</mod:findWithChildLike>
-	<mod:findWithChildLike type="ships" child-type="ship" start="1">
-		<mod:selector super="luminal" />
-		<mod:findLike type="ship">
-			<mod:selector super="luminal" />
-			<mod:removeTag />
-		</mod:findLike>
-	</mod:findWithChildLike>
-	<mod:findLike type="ships">
-		<mod:findLike type="ship">
-			<mod:selector super="luminal" />
-			<mod:removeAttributes super="" />
-		</mod:findLike>
-	</mod:findLike>
+<mod:findLike type="ships" limit="1">
+	<mod-append:ship name="PLAYER_SHIP_FFF_UFO_1" a="true" b="false" c="false" super="luminal"/>
+	<mod-append:customShip name="PLAYER_SHIP_FFF_UFO_1">
+		<crewLimit>8</crewLimit>
+		<hiddenAug>FOR_MULTIVERSE</hiddenAug>
+	</mod-append:customShip>
+</mod:findLike>
 
 <!-- end of chunk -->
 	
