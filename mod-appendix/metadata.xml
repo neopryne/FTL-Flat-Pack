@@ -2,7 +2,7 @@
   <title><![CDATA[ The Flat Pack]]></title>
   <threadUrl><![CDATA[https://ftlmultiverse.boards.net/thread/116/mv-5-4-ffftl-fff2lua]]></threadUrl>
   <author><![CDATA[ Limrix ]]></author>
-  <version><![CDATA[ 0.1 ]]></version>
+  <version><![CDATA[ 0.13.4 ]]></version>
   <description>
 <![CDATA[
 Requires hyperspace, multiverse, BrightnessParticles, VertexUtils, Forgemaster, and Lightweight Lua to work.  Patch below them.

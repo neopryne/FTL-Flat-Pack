@@ -134,11 +134,12 @@ script.on_internal_event(Defines.InternalEvents.ON_MOUSE_L_BUTTON_DOWN, function
         
     end)
 --]]
-
 --actually just use crew loop?
 --I need to save all jitsu's information in long term storage.
 --It can't break when you load it agian.
---[[ man 
+--[[ man If I really wanted to do this I would make some colored shapes for the different parts.
+Because you need to render the shapes differently based on the facing direction.
+
 script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function(ship) 
     local shipManager = Hyperspace.ships(ship.iShipId)
     for crewmem in vter(shipManager.vCrewList) do
