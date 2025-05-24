@@ -1,10 +1,15 @@
 local userdata_table = mods.multiverse.userdata_table
 local vter = mods.multiverse.vter
-local get_room_at_location = mods.vertexutil.get_room_at_location
+local get_room_at_location = mods.multiverse.get_room_at_location
 local Brightness = mods.brightness
 local lwl = mods.lightweight_lua
 local lw3 = mods.lightweight_3d
-
+if not lwl then
+    error("Lightweight Lua was not patched, or was patched after FFFTL.  Install it properly or things will probably break badly when you get FFFTL crew.")
+end
+if not mods.Forgemaster then
+    error("Forgemaster was not patched, or was patched after FFFTL.  Install it properly or the mind clouder won't show up on the saucer.")
+end
 
 --[[next:
         stretch goal:

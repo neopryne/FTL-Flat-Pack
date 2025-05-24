@@ -59,8 +59,8 @@
 	
 	<crewBlueprint name="fp_unique_phantom">
 		<desc>Looks human enough...</desc>
-		<title>Daniel</title>
-		<short>Danny</short>
+		<title>Half-Ghost</title>
+		<short>Halfa</short>
 		<cost>96</cost>
 		<bp>2</bp>
 		<rarity>5</rarity>
@@ -73,8 +73,8 @@
 	
 	<crewBlueprint name="fp_unique_phantom_ghost">
 		<desc>An imposing figure; you're not entirely sure how this whole thing works.</desc>
-		<title>Daniel</title>
-		<short>Danny</short>
+		<title>Half-Ghost</title>
+		<short>Halfa</short>
 		<cost>69</cost>
 		<bp>2</bp>
 		<rarity>0</rarity>
@@ -201,5 +201,4 @@
 		<aug name="BRAIN_DONATION" />
 		<aug name="EX_BACKUP_DNA" />
 	</shipBlueprint>
-
 </FTL>

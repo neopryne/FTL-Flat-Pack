@@ -1,8 +1,9 @@
 local userdata_table = mods.multiverse.userdata_table
 local vter = mods.multiverse.vter
-local get_room_at_location = mods.vertexutil.get_room_at_location
+local get_room_at_location = mods.multiverse.get_room_at_location
 local Brightness = mods.brightness
 local lwl = mods.lightweight_lua
+
 
 local ENEMY_SHIP = 1
 local global = Hyperspace.Global.GetInstance()

@@ -133,7 +133,7 @@
 			</shootingSounds>
 			<animSheet>human</animSheet>
 			<powerEffect>
-				<cooldown>6</cooldown>
+				<cooldown>30</cooldown>
 				<jumpCooldown>full</jumpCooldown>
 				<powerSounds>
 					<powerSound>fp_ghost_transform</powerSound>
@@ -166,14 +166,14 @@
 				<shootingSound>crewLaser</shootingSound>
 			</shootingSounds>
 			<powerEffect>
-				<cooldown>3</cooldown>
+				<cooldown>20</cooldown>
 				<jumpCooldown>full</jumpCooldown>
 				<powerSounds>
 					<powerSound>fp_ghost_untransform</powerSound>
 				</powerSounds>
 				<buttonText>HUMAN</buttonText>
 					BECOME
-				<tooltip>[COOLDOWN:30s]
+				<tooltip>[COOLDOWN:20s]
 					</tooltip>
 				<cooldownColor r="133" g="252" b="255" />
 				<transformRace>fp_unique_phantom</transformRace>

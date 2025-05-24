@@ -3,7 +3,7 @@ local vter = mods.multiverse.vter
 local Brightness = mods.brightness
 local lwl = mods.lightweight_lua
 
-local get_room_at_location = mods.vertexutil.get_room_at_location
+local get_room_at_location = mods.multiverse.get_room_at_location
 
 
 local TABLE_NAME_JITSU = "mods.flatpack.finmechv2.13.9"
