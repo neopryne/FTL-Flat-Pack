@@ -3,7 +3,6 @@ local vter = mods.multiverse.vter
 local lwl = mods.lightweight_lua
 local Brightness = mods.brightness
 local get_room_at_location = mods.multiverse.get_room_at_location
-local random_point_radius = mods.vertexutil.random_point_radius
 local TILE_SIZE = 35
 local REDIRECT_RADIUS = TILE_SIZE * 2
 local ENEMY_SHIP = 1
@@ -51,8 +50,8 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
         --print(id)
         local x = crewmem.currentSlot.worldLocation.x
         local y = crewmem.currentSlot.worldLocation.y
-        radius = REDIRECT_RADIUS
-        local new_dest_point = random_point_radius(crewmem.currentSlot.worldLocation, radius)
+        local radius = REDIRECT_RADIUS
+        local new_dest_point = lwl.random_point_radius(crewmem.currentSlot.worldLocation, radius)
 
         crewTable.shunted = false
         new_room = get_room_at_location(shipManager, new_dest_point, false)
@@ -61,7 +60,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
           crewTable.shunted = true
           --redo circle stuff, but smaller.  You can upgrade the lab to reduce the circle size.
           radius = math.min(0, radius - 3) --this assumes that the current location is valid, which might not be true if cloning or teleporting in.  Stop trying if radius is zero.
-          new_dest_point = random_point_radius(crewmem.currentSlot.worldLocation, radius)
+          new_dest_point = lwl.random_point_radius(crewmem.currentSlot.worldLocation, radius)
           new_room = get_room_at_location(shipManager, new_dest_point, false)
           --print("moved to non-room position, shunting closer")
         end

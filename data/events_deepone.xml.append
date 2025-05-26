@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FTL>
+
+
+<event name="FFF_OMEN_ENTRY_AUTHORITY_SUCCESS">
+	<text>Whatever's here isn't getting any purchase on you. You return your thoughts to more present matters.</text>
+</event>
+
+<event name="FFF_OMEN_ENTRY_AUTHORITY_FAILURE">
+	<text>You try to focus your will against the presence, but it overpowers you and the area nearby begins to warp.  Quite severely, too.  An object manifests, but the backlash of fighting your intent is severe.  Your reactor is on the fritz, and there's an angry looking ship quickly become less disoriented.</text>
+	<status type="loss" target="player" system="reactor" amount="2" />
+	<crewMember amount="1" class="fff_omen" />
+	<choice>
+		<text>Continue...</text>
+		<event load="MV_TRAVELER_SECRET_NORMAL" />
+	</choice>
+</event>
+
+<event name="FFF_OMEN_ENTRY_VOLITION_SUCCESS">
+	<text>With a tremendous effort, you shove the thing out of your mind.  There's something here that wasn't before, but it's quickly falling apart.  You collect what you can from it.</text>
+	<autoReward level="LOW">scrap_only</autoReward>
+	<choice>
+		<text>Continue...</text>
+		<event>
+			<text>You're exhausted, like a post-workout burn, but you feel like if you ever encountered something like this again, you could handle it. +1 Psyche flat buff.</text>
+			<variable name="DISCO_BOOST_PSYCHE" op="add" val="1"/>
+		</event>
+	</choice>
+</event>
+
+<event name="FFF_OMEN_ENTRY_VOLITION_FAILURE">
+	<text>You strain your mind right back at this unknown intruder, but are rebuffed and thrown backwards.  It manifests in front of you in an explosion of metal and psychic energy.  Despite your opposition, it does not appear hostile, though the violent apperation caused some damage to the hull.</text>
+	<damage amount="1" />
+	<damage amount="0" system="random" effect="breach" />
+	<crewMember amount="1" class="fff_omen" />
+</event>
+
+<event name="FFF_OMEN_ENTRY_WILLING">
+	<text>Opening your perception to it, you find a new crewmate beside you.  It doesn't seem to say much, but somehow you know its name.</text>
+	<crewMember amount="1" class="fff_omen" />
+</event>
+
+<event name="FFF_OMEN_ENTRY_RESPONSE">
+	<text>You feel something open in-- Outside of youʳˢᵉˡᶠ .  It strains at the edges of ˡᵉᵗ ᵐᵉ ᶦⁿ your ˡᵉᵗ ᵐᵉ ᶦⁿ mind, ˡᵉᵗ ᵐᵉ ᶦⁿ and you ʟᴇᴛ ᴍᴇ ɪɴ...</text>
+		<choice hidden="true">
+			<text>Let it in</text>
+			<event load="FFF_OMEN_ENTRY_WILLING" />
+		</choice>
+		<choice hidden="true">
+			<text>Let it in</text>
+			<event load="FFF_OMEN_ENTRY_WILLING" />
+		</choice>
+		<choice req="pilot" lvl="1" max_group="643" blue="true" hidden="true">
+			<text>fff_active_1</text>
+			<event load="FFF_OMEN_ENTRY_VOLITION_SUCCESS" />
+		</choice>
+		<choice req="pilot" lvl="1" max_group="644" blue="false" hidden="true">
+			<text>fff_active_1</text>
+			<event load="FFF_OMEN_ENTRY_VOLITION_FAILURE" />
+		</choice>
+</event>
+
+
+<event name="FFF_OMEN_ENTRY_MAIN">
+	<text>Who's eyes are those eyes?</text>
+	<choice req="pilot" lvl="1" max_group="641" blue="true" hidden="true">
+		<text>fff_active_1</text>
+		<event load="FFF_OMEN_ENTRY_AUTHORITY_SUCCESS"/>
+	</choice>
+	<choice req="pilot" lvl="1" max_group="642" blue="false" hidden="true">
+		<text>fff_active_1</text>
+		<event load="FFF_OMEN_ENTRY_AUTHORITY_FAILURE"/>
+	</choice>
+	<choice>
+		<text>Those eyes are god's eyes.</text>
+		<event load="FFF_OMEN_ENTRY_RESPONSE" />
+	</choice>
+</event>
+
+
+<event name="FFF_OMEN_ENTRY">
+	<text>ᵃⁿ ᵒᵐᵉⁿ ʳᵒᵗᵃᵗᵉˢ. You f e e l like you are being w a t c h e d. ʸᵒᵘ ᵃʳᵉ </text>
+	<choice>
+		<text>Who's eyes are those eyes?</text>
+		<event load="FFF_OMEN_ENTRY_MAIN" />
+	</choice>
+	<choice>
+		<text>Ignore the feeling.</text>
+		<event />
+	</choice>
+</event>
+
+</FTL>

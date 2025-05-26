@@ -10,6 +10,7 @@
 		<mod-append:script>data/flatpack_scripts/omen.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/buffer.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/danny.lua</mod-append:script>
+		<mod-append:script>data/flatpack_scripts/registerEvents.lua</mod-append:script>
 	</mod:findLike>
 </FTL>
 
