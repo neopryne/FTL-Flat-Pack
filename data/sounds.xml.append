@@ -2,11 +2,11 @@
 
 <fff_f22_shot volume="4">aliens/shoot0.ogg</fff_f22_shot>
 <fff_f22_death volume="4">aliens/die0.ogg</fff_f22_death>
-<fff_f22_repair volume="3">aliens/deflect.ogg</fff_f22_repair>
+<fff_f22_repair volume="1">aliens/deflect.ogg</fff_f22_repair>
 <fff_f22_boom volume="3">aliens/blast0.ogg</fff_f22_boom>
 <fff_f22_dash volume="3">aliens/charge0.ogg</fff_f22_dash>
 <fff_omen_death volume="5">aliens/die1.ogg</fff_omen_death>
-<fff_omen_repair volume="2">aliens/choose0.ogg</fff_omen_repair>
+<fff_omen_repair volume="1">aliens/choose0.ogg</fff_omen_repair>
 <fff_omen_spinup volume="2">aliens/pulse1.ogg</fff_omen_spinup>
 <fff_omen_shoot volume="3">aliens/laser0.ogg</fff_omen_shoot>
 <fff_omen_blast volume="3">aliens/metalhit.ogg</fff_omen_blast>

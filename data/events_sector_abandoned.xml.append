@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FTL>
+
+<event name="FFF_PHANTOM_MENACE_DEFEAT">
+    <text>Having cleared out the station, you scan the area for the remaining ghost.  He contacts you after a moment.  "That was kind of extreme, don'cha think?  Though you were pretty effective at taking them out, those ghosts are double dead now.  I guess I've got nowhere to go now, so sign me up for the Space Squad!"</text>
+    <choice>
+        <text>Anyone who takes on a Dynasty station solo is more than welcome on my ship.</text>
+        <event>
+            <text>"Neat!"</text>
+            <crewMember amount="1" class="fp_unique_phantom_ghost"/>
+        </event>
+        <text>Sorry, we're not taking applicants at the moment.</text>
+        <event>
+            <text>"Rats.  Well, see if you can send somebody my way, ok?"</text>
+        </event>
+    </choice>
+</event>
+
+<event name="FFF_PHANTOM_MENACE_EXPLAIN">
+    <text>"Oh, huh.  Well, they sure talk like old dead guys.  I guess that means I'm done here, I don't suppose I could hitch a ride with you?"</text>
+    <choice>
+        <text>Anyone who takes on a Dynasty station solo is more than welcome on my ship.</text>
+        <event>
+            <text>"Neat!"</text>
+            <crewMember amount="1" class="fp_unique_phantom_ghost"/>
+        </event>
+        <text>I'll have to pass.</text>
+        <event>
+            <text>"No worries."</text>
+        </event>
+    </choice>
+</event>
+
+<event name="FFF_PHANTOM_MENACE_SURRENDER">
+    <text>"First the Spook Chasers and now this utter buffoon of an impersonator, why must petulant nincompoops continue to harangue our kind?  We will surrender, if barbaric folk such as yourself honor such customs."</text>
+    <choice>
+        <text>Surrender?  Never heard of 'er.</text>
+        <event />
+    </choice>
+    <choice>
+        <text>Acquiesce.</text>
+        <event>
+            <ship hostile="false" />
+            <autoReward level="MEDIUM">item</autoReward>
+            <text>The other ghost returns as you collect your spoils.  As the dynasty representative mentioned, he seems to believe that these are actual ghosts.  You explain to him that they are gasious lifeforms, and he seems to loosen up.</text>
+            <choice>
+                <text>Continue...</text>
+                <event load="FFF_PHANTOM_MENACE_EXPLAIN" />
+            </choice>
+        </event>
+    </choice>
+</event>
+    
+<ship name="SHIP_FFF_DANNY_DYNASTY_OUTPOST" auto_blueprint="MU_DYNASTY_STATION">
+	<surrender min="2" max="3" load="FFF_PHANTOM_MENACE_SURRENDER" />
+    <destroyed load="FFF_PHANTOM_MENACE_DEFEAT" />
+    <deadCrew load="FFF_PHANTOM_MENACE_DEFEAT" />
+</ship>
+
+<event name="FFF_PHANTOM_MENACE_COMBAT">
+    <text>Seeing your ship engage the station, the rogue ghost takes off a short distance away.</text>
+    <ship hostile="true" />
+    <choice>
+        <text>Continue...</text>
+        <event load="COMBAT_CHECK" />
+    </choice>
+</event>
+
+<event name="FFF_PHANTOM_MENACE">
+    <text>You come to an old dynasty outpost.  It seems like there's an altercation among the crew, with one ghost fighting the rest.</text>
+    <ship load="SHIP_FFF_DANNY_DYNASTY_OUTPOST" hostile="false" />
+    <choice>
+        <text>Hail the station and try to figure out what's going on.</text>
+        <event>
+            <text>"What's going on is some ghost has the absurd notion that we are literal spirits of the dead and must be put to rest, or otherwise contained.  I don't suppose an ignoramous such as yourself would be able to explain the situation to him."</text>
+            <choice>
+                <text>Patch through to the instigator and explain phantoms are not literal ghosts.</text>
+                <event load="FFF_PHANTOM_MENACE_EXPLAIN" />
+            </choice>
+            <choice>
+                <text>What did you just call me?  Attack!</text>
+                <event load="FFF_PHANTOM_MENACE_COMBAT" />
+            </choice>
+        </event>
+    </choice>
+    <choice>
+        <text>Take advantage of the chaos and attack!</text>
+        <event load="FFF_PHANTOM_MENACE_COMBAT" />
+    </choice>
+</event>
+
+<mod:findName type="eventList" name="NEUTRAL_ABANDONED">
+    <mod-append:name>FFF_PHANTOM_MENACE</mod-append:name>
+</mod:findName>
+
+</FTL>

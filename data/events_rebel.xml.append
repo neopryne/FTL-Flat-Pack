@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FTL>
+
+    <event name="FFF_ERRANT_F22_CONVERSATION">
+        <text>Having got its bearings, it conveys that it wants to destroy the larger ship.</text>
+        <choice hidden="true">
+            <text>Well, what are we waiting for?  Fire!</text>
+            <event>
+                <text>Continue...</text>
+                <ship hostile="true" />
+                <crewMember amount="1" class="fff_f22" />
+                <environment target="enemy" type="PDS" />
+                <event load="COMBAT_CHECK" />
+            </event>
+        </choice>
+        <choice>
+            <text>Tell it you can't help.</text>
+            <event>
+                <text>It hangs its head and requests to be thrown off the ship.</text>
+                <choice>
+                    <text>Space it.</text>
+                    <event load="STORAGE_CHECK" />
+                </choice>
+            </event>
+        </choice>
+    </event>
+
+    <event name="FFF_ERRANT_F22">
+        <ship hostile="false" load="SHIP_REBEL_FIGHT" />
+        <damage amount="2" effect="breach" />
+        <text>As you warp in, you see a ship beset by a swarm of tiny fighters.  You can't track their erratic movements and one of them crashes into your ship!  It seems jittery and confused.</text>
+        <choice req="mind" lvl="1">
+            <text>(Mind Control) Calm it down.</text>
+            <event>
+                <text>You pacify the small machine with your mind control long enough for it to orient itself.</text>
+                <choice>
+                    <text>Continue...</text>
+                    <event load="FFF_ERRANT_F22_CONVERSATION" />
+                </choice>
+            </event>
+        </choice>
+        <choice>
+            <text>Uhhh...</text>
+            <event>
+                <text>You are unable to communicate with the construct before it launches itself bodily around your ship, knocking itself out and damaging your systems.</text>
+		        <damage amount="1" system="random" effect="breach" />
+                <choice>
+                    <text>Wait for it to stop.</text>
+                    <event load="FFF_ERRANT_F22_CONVERSATION" />
+                </choice>
+            </event>
+        </choice>
+    </event>
+
+    <mod:findName type="eventList" name="HOSTILE_REBEL">
+		<mod-append:name>FFF_ERRANT_F22</mod-append:name>
+	</mod:findName>
+</FTL>

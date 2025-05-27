@@ -21,9 +21,11 @@ end
 --add shoot sounds
 --if I want danny to have more than one ability, this needs to change.
 script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
-        if (crewmem:GetSpecies() == "fp_unique_phantom") then
+        if (crewmem:GetSpecies() == "fp_unique_phantom") or (crewmem:GetSpecies() == "fp_unique_phantom_ghost") then
             --print(lwl.dumpObject(mRenamedDanielIds))
             setName(crewmem)
+        end
+        if (crewmem:GetSpecies() == "fp_unique_phantom") then
             if (crewmem.health.first <= 1) then
                 crewmem.bDead = false
                 crewmem.health.first = 100

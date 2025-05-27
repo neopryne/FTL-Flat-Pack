@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FTL>
+
+<mod:findName type="event" name="UNLOCK_GHOST_QUEST">
+    <mod-append:choice req="fp_unique_phantom_ghost" lvl="1" hidden="true">
+		<text>(Half-Ghost) You guys chase real ghosts?</text>
+		<event>
+			<text>"Well, they aren't exactly real ghosts we're chasing on our current mission, but someday! Someday we'll find real ones and then everyone will have no choice but to believe!"
+
+"That sounds pretty cool.  If we help you with your current mission, could you let us know if you ever find any ghosts?"
+
+"Of course!  We might be the only ones crazy enough to still be searching for ghosts in this godforsaken sector, but we're nothing if not committed."
+            </text>
+			<choice>
+                <text>Continue...</text>
+                <event>
+                    <text>The captain turns to you with a glint in his eye. "We've taken the biggest bounty in galactic history, a decommissioned rebel flagship commandeered by Goziodeon and his vagabond Haunts.  I'm no fool, I know when a bounty's too big for one ship to handle.  So I'll split it with you, 50/50, if you help us take it down."</text>
+                    <choice hidden="true">
+						<text>Agree.</text>
+						<event>
+							<text>"Perfect! We'll transfer the last known co-ordinates of the ship. See you there."</text>
+							<quest event="UNLOCK_GHOST_QUEST_2" />
+						</event>
+					</choice>
+					<choice hidden="true">
+						<text>Refuse.</text>
+						<event>
+							<text>The captain mutters something under his breath. "Fine, we'll find some other ship who's willing to kill some silly ship in return for the largest bounty ever made in galactic history!"</text>
+						</event>
+					</choice>
+                </event>
+            </choice>
+		</event>
+    </mod-append:choice>
+</mod:findName>
+
+<mod:findName type="event" name="UNLOCK_GHOST_DAMAGE">
+    <mod-append:choice req="fp_unique_phantom_ghost" lvl="1" hidden="true">
+		<text>(Half-Ghost) Your Half-Ghost times a telefrag to shields in sync with the Spook Chasers' assault.</text>
+		<event>
+	        <variable name="unused_Var" op="add" val="1"/>
+            <enemyDamage amount="2" system="shields" />
+		</event>
+    </mod-append:choice>
+</mod:findName>
+
+<mod:findName type="event" name="UNLOCK_GHOST_QUEST_WIN">
+    <mod-append:choice req="fp_unique_phantom_ghost" lvl="1" hidden="true">
+		<text>(Half-Ghost) Your Half-Ghost requests to join the Spook Chasers.</text>
+		<event>
+            <text>"Sorry to break it to you, but we're through with this line of work.  We're set for all of our lives and maybe a few more, and I don't think any of us feel like risking those lives any more than we have to now.  Tell you what, I'll give you this urn I found during my paranormal research.  It's supposed to contain the souls of the most powerful ghosts in existance.  I've never opened it, as that sounds like probably too much for us to handle."</text>
+            <metaVariable name="fr_haunt_urn_unlocked" op="set" val="1" />
+            <metaVariable name="loc_fr_urn_picked_up" op="set" val="1" />
+            <autoReward level="LOW">scrap_only</autoReward>
+            <choice>
+                <text>Continue...</text>
+                <event>
+                    <text>The Ghost Hunter turns to you. "Now that. Was. LEGENDARY! Do you know how rich we're gonna be? Wait, yes yes. Your payment. Considering the bounty from this will be enough for us to buy an entire moon, maybe even a small planet, I suppose it doesn't hurt to give you something extra-special. We have a new cruiser that we've been working on, and I couldn't think of anyone else more worthy of piloting it than you."</text>
+                    <unlockCustomShip silent="false">PLAYER_SHIP_GHOST</unlockCustomShip>
+                    <damage amount="-5" />
+                    <item_modify>
+                        <item type="fuel" min="10" max="15" />
+                        <item type="scrap" min="80" max="110" />
+                        <item type="missiles" min="7" max="10" />
+                        <item type="drones" min="5" max="9" />
+                    </item_modify>
+                    <choice hidden="true">
+                        <text>Continue...</text>
+                        <event>
+                            <text>"Oh, oh! One last thing. With this we'll never have to work another day in our lives. It does me no harm to pass this onto you now. More members of the haunt still roam this galaxy, and you're as good a choice as any to take the rest of them out!"</text>
+                            <augment name="PROTON_PACK" />
+                        <jumpEvent>FR_TARTARUS_COORDINATES</jumpEvent></event>
+                    </choice>
+                </event>
+            </choice>
+        </event>
+    </mod-append:choice>
+</mod:findName>
+
+</FTL>
