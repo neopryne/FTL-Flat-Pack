@@ -57,6 +57,19 @@
 		</powerList>
 	</crewBlueprint>
 	
+	<crewBlueprint name="fff_jitsugyoka">
+		<desc>Autonomous mech on the ligma grindset.</desc>
+		<title>Jitsugyoka</title>
+		<short>Jitsugyoka</short>
+		<cost>65</cost>
+		<bp>2</bp>
+		<rarity>5</rarity>
+		<powerList>
+			<power>Upgradable through premium currency.</power>
+			<power>The power of THE ECONOMY at your fingertips.</power>
+		</powerList>
+	</crewBlueprint>
+	
 	<crewBlueprint name="fp_unique_phantom">
 		<desc>Looks human enough...</desc>
 		<title>Half-Ghost</title>

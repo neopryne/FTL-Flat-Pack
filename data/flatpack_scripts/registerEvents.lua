@@ -4,6 +4,7 @@ Follow the instructions in xmlEventGeneration.lua.
 ]]
 local mde = mods.multiverseDiscoEngine
 local dvsd = mods.discoVerseStaticDefinitions
+
 if not mde then
     error("Multiverse Disco Engine was not patched, or was patched after FFFTL.  Install it properly or see crappy looking events.")
 end

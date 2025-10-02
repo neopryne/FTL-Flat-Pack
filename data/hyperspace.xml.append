@@ -9,6 +9,7 @@
 		<mod-append:script>data/flatpack_scripts/f22.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/omen.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/buffer.lua</mod-append:script>
+		<mod-append:script>data/flatpack_scripts/jitsugyoka_body.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/danny.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/registerEvents.lua</mod-append:script>
 	</mod:findLike>
@@ -119,6 +120,24 @@
 				</temporaryEffect>
 
 			</powerEffect>
+		</mod-append:race>
+		
+		<mod-append:race name="fff_jitsugyoka">
+			<maxHealth>100</maxHealth>
+			<repairSpeed>1</repairSpeed>
+			<canFight>true</canFight>
+			<damageMultiplier>0</damageMultiplier>
+			<rangedDamageMultiplier>0</rangedDamageMultiplier>
+			<animBase>human</animBase>
+			<deathSounds>
+				<deathSound>nothing</deathSound>
+			</deathSounds>
+			<shootingSounds>
+				<shootingSound>nothing</shootingSound>
+			</shootingSounds>
+			<repairSounds animSoundFrame="2">
+				<repairSound>nothing</repairSound>
+			</repairSounds>
 		</mod-append:race>
 		
 		<mod-append:race name="fp_unique_phantom">

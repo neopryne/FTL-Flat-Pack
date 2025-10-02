@@ -112,7 +112,7 @@ end
 local function punch(crewmem) 
     soundControl:PlaySoundMix("fff_buffer_punch", 4, false)
     lwl.damageFoesInSameSpace(crewmem, 0, PUNCH_STUN, PUNCH_DAMAGE)
-    particle = Brightness.create_particle("particles/buffer/fist", 1, (OUTPUT_DELAY / (CAPPED_FPS * 2)), crewmem:GetPosition(), 0, crewmem.currentShipId, "SHIP_MANAGER")
+    local particle = Brightness.create_particle("particles/buffer/fist", 1, (OUTPUT_DELAY / (CAPPED_FPS * 2)), crewmem:GetPosition(), 0, crewmem.currentShipId, "SHIP_MANAGER")
     particle.movementSpeed = 40
     particle.heading = 270
 end
@@ -149,14 +149,14 @@ end
 --call every move tick after doing all other logic
 local function repositionBufferStack(crewmem, bufferParticles, brownianTime)
     for i = 1, #bufferParticles do
-        particle = bufferParticles[i]
+        local particle = bufferParticles[i]
         particle.space = crewmem.currentShipId
-        offsetIndex = (((MOTION_SEED * (10^(math.ceil(i / 2)))) % 10) + ((brownianTime % (BROWNIAN_PERIOD * 10)) / BROWNIAN_PERIOD)) % 10
-        brownianOffset = floatInPeriodicRange(0, 10, -BROWNIAN_RANGE, BROWNIAN_RANGE, offsetIndex)
+        local offsetIndex = (((MOTION_SEED * (10^(math.ceil(i / 2)))) % 10) + ((brownianTime % (BROWNIAN_PERIOD * 10)) / BROWNIAN_PERIOD)) % 10
+        local brownianOffset = floatInPeriodicRange(0, 10, -BROWNIAN_RANGE, BROWNIAN_RANGE, offsetIndex)
         --print(offsetIndex, " obro ", brownianOffset)
         
-        position_x = crewmem:GetPosition().x + FIRST_SYMBOL_RELATIVE_X + (((i + 1) % 2) * SYMBOL_OFFSET_X) + brownianOffset
-        position_y = crewmem:GetPosition().y + FIRST_SYMBOL_RELATIVE_Y - (math.ceil(i / 2) * SYMBOL_OFFSET_Y)
+        local position_x = crewmem:GetPosition().x + FIRST_SYMBOL_RELATIVE_X + (((i + 1) % 2) * SYMBOL_OFFSET_X) + brownianOffset
+        local position_y = crewmem:GetPosition().y + FIRST_SYMBOL_RELATIVE_Y - (math.ceil(i / 2) * SYMBOL_OFFSET_Y)
         
         if (particle.position ~= nil) then
             position_x = math.min(math.max(particle.position.x, position_x - (i*LAYER_LAG)), position_x + (i*LAYER_LAG))
@@ -180,7 +180,7 @@ local function addParticleInner(particleType, crewmem, bufferParticles)
     local crewTable = userdata_table(crewmem, TABLE_NAME_BUFFER)
     crewTable.shotsFired = {}
     
-    particle = Brightness.create_particle("particles/buffer/"..particleType.name, 1, 60, nil, 0, crewmem.currentShipId, "SHIP_MANAGER")
+    local particle = Brightness.create_particle("particles/buffer/"..particleType.name, 1, 60, nil, 0, crewmem.currentShipId, "SHIP_MANAGER")
     particle.persists = true
     particle.fff_buffer_id = particleType.id
     table.insert(bufferParticles, particle)
@@ -244,34 +244,13 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
         local currentShipManager = global:GetShipManager(crewmem.currentShipId)
         local crewTable = userdata_table(crewmem, TABLE_NAME_BUFFER)
         --load vars
-        local inputTimer = crewTable.inputTimer
-        if (inputTimer == nil) then
-            inputTimer = 0
-        end
-        local outputTimer = crewTable.outputTimer
-        if (outputTimer == nil) then
-            outputTimer = 0
-        end
-        local goingOff = crewTable.goingOff
-        if (goingOff == nil) then
-            goingOff = false
-        end
-        local bufferParticles = crewTable.bufferParticles
-        if (bufferParticles == nil) then
-            bufferParticles = {}
-        end
-        local brownianTime = crewTable.brownianTime
-        if (brownianTime == nil) then
-            brownianTime = 0
-        end
-        local shotTimer = crewTable.shotTimer
-        if (shotTimer == nil) then
-            shotTimer = 0
-        end
-        local hasBeenReset = crewTable.hasBeenReset
-        if (hasBeenReset == nil) then
-            hasBeenReset = false
-        end
+        local inputTimer = lwl.setIfNil(crewTable.inputTimer, 0)
+        local outputTimer = lwl.setIfNil(crewTable.outputTimer, 0)
+        local goingOff = lwl.setIfNil(crewTable.goingOff, false)
+        local bufferParticles = lwl.setIfNil(crewTable.bufferParticles, {})
+        local brownianTime = lwl.setIfNil(crewTable.brownianTime, 0)
+        local shotTimer = lwl.setIfNil(crewTable.shotTimer, 0)
+        local hasBeenReset = lwl.setIfNil(crewTable.hasBeenReset, false)
         --end load vars
         --reset active powers on load.
         if (BUFFERS_RESETTING) then
@@ -378,7 +357,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
                 local particleRadius = 2
                 local deltaX = particle.position.x - crewmem:GetPosition().x
                 local deltaY = particle.position.y - crewmem:GetPosition().y
-                local innerAngle = math.atan(deltaY/deltaX)
+                local innerAngle = math.atan(deltaY, deltaX)
                 local x1 = particle.position.x - 2*math.sin(innerAngle)
                 local y1 = particle.position.y + 2*math.cos(innerAngle)
                 local x2 = particle.position.x + 2*math.sin(innerAngle)

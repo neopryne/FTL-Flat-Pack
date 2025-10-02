@@ -262,7 +262,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
                         local circle_pos = lwl.random_point_circle(pos, 15)
                         circle_pos.y = circle_pos.y - 5
                         --render some particles based on skiling value
-                        local manningParticle = Brightness.create_particle("particles/manning_"..currentSkill, 4, 2,
+                        local manningParticle = Brightness.create_particle("particles/omen/manning_"..currentSkill, 4, 2,
                                 circle_pos, 0, shipManager.iShipId, "SHIP_MANAGER")
                         manningParticle.heading = 0
                         manningParticle.movementSpeed = 3
