@@ -213,5 +213,6 @@
 		<crewCount amount="1" class="fff_omen" />
 		<aug name="BRAIN_DONATION" />
 		<aug name="EX_BACKUP_DNA" />
+		<mv-mapImage>map_icon_mup_fff_ufo_1</mv-mapImage>
 	</shipBlueprint>
 </FTL>
