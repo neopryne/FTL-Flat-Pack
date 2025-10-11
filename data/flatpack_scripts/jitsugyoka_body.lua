@@ -125,6 +125,8 @@ end
 
     All values should scale off of base crew values where possible so that he's affected by things that affect things.
     Like all FFFTL crew, he should be strong when slowed?
+    
+    I could get very into making all the stuff spawn exactly right from all the parts/attachments.
 --]]
 
 --The names here are used to find files, so you have to update those if you change this.
@@ -291,14 +293,15 @@ end
 
 
 local function getBasePathForPart(jitsu, partType)
-    print("partType", partType)
+    --print("partType", partType)
     local modelIndex = 1--jitsu:getVar(PART_FILE_NAMES[partType]) todo add
-    print("modelIndex", modelIndex)
+    --print("modelIndex", modelIndex)
     return getPartPath(PART_MODELS_BY_TYPE[partType][modelIndex])
 end
 
 --The game will create a new jitsu table to track a crewmember that's a jitsu.
 local function newJitsu(crewmem)
+    print("new jitsu", crewmem:GetName())
     local jitsu = {}
     jitsu.baseCrew = crewmem
 
@@ -306,91 +309,101 @@ local function newJitsu(crewmem)
     local bombCooldown = 0
     local podCooldown = 0
 
-    jitsu.setVar = function(self, varKey, value)
-        mJitsuPlayerVariableInterface.setVariable(self.baseCrew.extend.selfId, varKey, value)
-    end
+    -- jitsu.setVar = function(self, varKey, value)
+    --     mJitsuPlayerVariableInterface.setVariable(self.baseCrew.extend.selfId, varKey, value)
+    -- end
 
-    jitsu.getVar = function (self, varKey)
-        mJitsuPlayerVariableInterface.getVariable(self.baseCrew.extend.selfId, varKey)
-    end
+    -- jitsu.getVar = function (self, varKey)
+    --     mJitsuPlayerVariableInterface.getVariable(self.baseCrew.extend.selfId, varKey)
+    -- end
 
-    jitsu.initVar = function (self, varKey, defaultValue)
-        jitsu:setVar(varKey, lwl.setIfNil(jitsu:getVar(varKey), defaultValue))
-    end
+    -- jitsu.initVar = function (self, varKey, defaultValue)
+    --     jitsu:setVar(varKey, lwl.setIfNil(jitsu:getVar(varKey), defaultValue))
+    -- end
 
-    jitsu.destroySelf = function(self)
-        for partType=1,#PART_FILE_NAMES do
-            local partTypeName = PART_FILE_NAMES[partType]
-            if #PART_INFO_LIST[partType].subunits > 0 then
-                for _,subunitName in ipairs(PART_INFO_LIST[partType].subunits) do
-                    self[partTypeName..subunitName].destroy()
-                end
-            else
-                self[partTypeName].destroy()
-            end
-        end
-        mJitsuPlayerVariableInterface.removeObject(self.baseCrew.extend.selfId)
-    end
+    -- jitsu.destroySelf = function(self)
+    --     for partType=1,#PART_FILE_NAMES do
+    --         local partTypeName = PART_FILE_NAMES[partType]
+    --         if #PART_INFO_LIST[partType].subunits > 0 then
+    --             for _,subunitName in ipairs(PART_INFO_LIST[partType].subunits) do
+    --                 self[partTypeName..subunitName].destroy()
+    --             end
+    --         else
+    --             self[partTypeName].destroy()
+    --         end
+    --     end
+    --     mJitsuPlayerVariableInterface.removeObject(self.baseCrew.extend.selfId)
+    -- end
 
-    jitsu.swapParticles = function(self, partPath, partName)
-        local newParticle = createPersistantParticle(partPath)
-        if self[partName] then
-            self[partName].destroy()
-        end
-        self[partName] = newParticle
-    end
+    -- jitsu.swapParticles = function(self, partPath, partName)
+    --     local newParticle = createPersistantParticle(partPath)
+    --     if self[partName] then
+    --         self[partName].destroy()
+    --     end
+    --     self[partName] = newParticle
+    -- end
 
-    --Called during init, load, and part swap.  todo maybe change arguments
-    jitsu.equipPart = function(self, partList, modelIndex)
-        local part = partList[modelIndex]
-        local partTypeName = PART_FILE_NAMES[part.type]
-        local partPath = getPartPath(part)
+    -- --Called during init, load, and part swap.  todo maybe change arguments
+    -- jitsu.equipPart = function(self, partList, modelIndex)
+    --     local part = partList[modelIndex]
+    --     local partTypeName = PART_FILE_NAMES[part.type]
+    --     local partPath = getPartPath(part)
 
-        if #PART_INFO_LIST[part.type].subunits > 0 then
-            for _,subunitName in ipairs(PART_INFO_LIST[part.type].subunits) do
-                self:swapParticles(partPath.."/"..subunitName, partTypeName..subunitName)
-            end
-        else
-            self:swapParticles(partPath, partTypeName)
-        end
-        --todo also change the statistics.
+    --     if #PART_INFO_LIST[part.type].subunits > 0 then
+    --         for _,subunitName in ipairs(PART_INFO_LIST[part.type].subunits) do
+    --             self:swapParticles(partPath.."/"..subunitName, partTypeName..subunitName)
+    --         end
+    --     else
+    --         self:swapParticles(partPath, partTypeName)
+    --     end
+    --     --todo also change the statistics.
 
-        self:setVar(partTypeName, modelIndex)
-    end
+    --     self:setVar(partTypeName, modelIndex)
+    -- end
 
-    ---Returns the direction this crew should face as a BRIGHTNESS ANGLE
-    ---@return number the angle the crew is travelling in degrees, 0 being straight up.
-    jitsu.calculateDesiredFacingAngle = function(self)
-        local bodyParticle = self[PART_FILE_NAMES[2]]
-        if lwl.goalExists(self.baseCrew:GetFinalGoal()) then
-            --First, see if we're way off base.  Uh this is throwing errors.  Rotate to face the general direction.
-            local immediateHeading = angleFtlToBrightness(getAngle(self.baseCrew:GetPosition(), self.baseCrew:GetNextGoal()))
-            local overallHeading = angleFtlToBrightness(getAngle(self.baseCrew:GetPosition(), self.baseCrew:GetFinalGoal()))
-            local facingDistance = angleDistance(bodyParticle.heading, overallHeading) --body heading
-            if facingDistance > 180 then
-                print("big angle", facingDistance)
-                return overallHeading
-            end
+    -- ---Returns the direction this crew should face as a BRIGHTNESS ANGLE
+    -- ---@return number the angle the crew is travelling in degrees, 0 being straight up.
+    -- jitsu.calculateDesiredFacingAngle = function(self)
+    --     local bodyParticle = self[PART_FILE_NAMES[2]]
+    --     if lwl.goalExists(self.baseCrew:GetFinalGoal()) then
+    --         --First, see if we're way off base.  Uh this is throwing errors.  Rotate to face the general direction.
+    --         local immediateHeading = angleFtlToBrightness(getAngle(self.baseCrew:GetPosition(), self.baseCrew:GetNextGoal()))
+    --         local overallHeading = angleFtlToBrightness(getAngle(self.baseCrew:GetPosition(), self.baseCrew:GetFinalGoal()))
+    --         local facingDistance = angleDistance(bodyParticle.heading, overallHeading) --body heading
+    --         if facingDistance > 180 then
+    --             print("big angle", facingDistance)
+    --             return overallHeading
+    --         end
 
-            --If we are generally pointed the right direction, do some finer navigation.
-            return immediateHeading
-        else
-            --Standing still, don't rotate
-            --We want to rotate in combat or manning systems or fighting fires.
-            --print("Standing still at ", mBodyParticle.rotation)
-            return bodyParticle.rotation
-        end
-    end
+    --         --If we are generally pointed the right direction, do some finer navigation.
+    --         return immediateHeading
+    --     else
+    --         --Standing still, don't rotate
+    --         --We want to rotate in combat or manning systems or fighting fires.
+    --         --print("Standing still at ", mBodyParticle.rotation)
+    --         return bodyParticle.rotation
+    --     end
+    -- end
 
-    ---comment
-    jitsu.adjustFacingDirection = function(self)
-        local desiredDirection = self:calculateDesiredFacingAngle()
-        --print("Desired Direction:", desiredDirection, "facing", mBodyParticle.rotation)
-        adjustParticleDirection(self[PART_FILE_NAMES[PART_BODY]], desiredDirection)
-        adjustParticleDirection(self[PART_FILE_NAMES[PART_HEAD]], desiredDirection)
-        --todo do this in the same style as the other stuff, just note that feet might be on the ground and not able to turn.
-        --but also i can save that part for later.
-    end
+    -- ---comment
+    -- jitsu.adjustFacingDirection = function(self)
+    --     local desiredDirection = self:calculateDesiredFacingAngle()
+    --     --print("Desired Direction:", desiredDirection, "facing", mBodyParticle.rotation)
+        
+    --     for partType=1,#PART_FILE_NAMES do
+    --         local partTypeName = PART_FILE_NAMES[partType]
+    --         if #PART_INFO_LIST[partType].subunits > 0 then
+    --             for _,subunitName in ipairs(PART_INFO_LIST[partType].subunits) do
+    --                 --todo make this depend on foot activeness.
+    --                 --adjustParticleDirection(self[partTypeName..subunitName], desiredDirection)
+    --             end
+    --         else
+    --             adjustParticleDirection(self[partTypeName], desiredDirection)
+    --         end
+    --     end
+    --     --todo do this in the same style as the other stuff, just note that feet might be on the ground and not able to turn.
+    --     --but also i can save that part for later.
+    -- end
 
     jitsu.onFrame = function (self)
         --for all particles
@@ -400,18 +413,25 @@ local function newJitsu(crewmem)
             local partTypeName = PART_FILE_NAMES[partType]
             if #PART_INFO_LIST[partType].subunits > 0 then
                 for _,subunitName in ipairs(PART_INFO_LIST[partType].subunits) do
-                    self[partTypeName..subunitName].space = self.baseCrew.currentShipId
+                    -- self[partTypeName..subunitName].space = self.baseCrew.currentShipId
                 end
             else
                 self[partTypeName].position = self.baseCrew:GetPosition()
-                self[partTypeName].space = self.baseCrew.currentShipId
+                print(self)
+                print(self.baseCrew)
+                print(self.baseCrew.currentShipId)
+                --self[partTypeName].space = 0--self.baseCrew.currentShipId  --todo these are the lines that break it.
+                --print("did all that and didn't crash", partTypeName, self[partTypeName].space)
+                ----todo it just crashes, it doesn't even get here.  Brightness bug?  HS bug?
+                --Also it snaps the parts onto one of the other crew.
+                --and then after another refresh, forgets their attached to anyone.
             end
         end
 
         if not (self.baseCrew:GetNextGoal() == nil) then
-            self:adjustFacingDirection()
-            --advanceFeet(crewmem)
-            ----mNextLocationParticle.position = lwl.setIfNil(crewmem:GetNextGoal(), crewmem:GetPosition())
+            -- self:adjustFacingDirection()
+            -- --advanceFeet(crewmem)
+            -- ----mNextLocationParticle.position = lwl.setIfNil(crewmem:GetNextGoal(), crewmem:GetPosition())
         end
     end
 
@@ -425,7 +445,7 @@ local function newJitsu(crewmem)
 
     ---Start all parts at the lowest level if not already set.
     for i,partTypeName in ipairs(PART_FILE_NAMES) do
-        jitsu:initVar(partTypeName, 1)
+        --jitsu:initVar(partTypeName, 1) todo add
         if #PART_INFO_LIST[i].subunits > 0 then
             jitsu[partTypeName] = {}
             for _,subunitName in ipairs(PART_INFO_LIST[i].subunits) do
@@ -439,10 +459,11 @@ local function newJitsu(crewmem)
         --todo this doesn't handle feet/legs right.
     end
 
-    local mActiveFootZeroIndex = 0
-    local mFootSwapReady = true
+    -- local mActiveFootZeroIndex = 0
+    -- local mFootSwapReady = true
     
-    jitsu:snapFeet()
+    -- jitsu:snapFeet()
+    Brightness.send_to_front(jitsu[PART_FILE_NAMES[PART_HEAD]])
     return jitsu
 end
 
@@ -463,12 +484,12 @@ end
 
 local function generateCrewMatchFilter(crewId)
     return function(table, i)
-        return table[i].baseCrew.extend.selfId ~= crewId
+        return false --table[i].baseCrew.extend.selfId == crewId todo extend should not be nil.
     end
 end
 
 local function jitsuOnRemove(jitsu)
-    jitsu:destroySelf()
+    --jitsu:destroySelf()
 end
 
 --All the jitsus, both sides.
@@ -490,19 +511,17 @@ script.on_internal_event(Defines.InternalEvents.ON_TICK, function()
     if not mJitsuObserver.isInitialized() then return end
     
     --todo put stuff that should happen while paused here.
-
-    if not lwl.isPaused() then --probably also need to say, not in menu and not in hangar.
-        mScaledLocalTime = mScaledLocalTime + (Hyperspace.FPS.SpeedFactor * 16 / 10)
-        if (mScaledLocalTime > 1) then
-            mScaledLocalTime = 0
-            for _,crewId in ipairs(mJitsuObserver.getAddedCrew()) do
-                table.insert(mJitsuList, newJitsu(lwl.getCrewById(crewId)))
-            end
-            for _,crewId in ipairs(mJitsuObserver.getRemovedCrew()) do
-                lwl.arrayRemove(mJitsuList, generateCrewMatchFilter(crewId), jitsuOnRemove)
-            end
-            mJitsuObserver.saveLastSeenState()
+    if lwl.isPaused() then return end
+    mScaledLocalTime = mScaledLocalTime + (Hyperspace.FPS.SpeedFactor * 16 / 10)
+    if (mScaledLocalTime > 1) then
+        mScaledLocalTime = 0
+        for _,crewId in ipairs(mJitsuObserver.getAddedCrew()) do
+            table.insert(mJitsuList, newJitsu(lwl.getCrewById(crewId)))
         end
+        for _,crewId in ipairs(mJitsuObserver.getRemovedCrew()) do
+            lwl.arrayRemove(mJitsuList, generateCrewMatchFilter(crewId), jitsuOnRemove)
+        end
+        mJitsuObserver.saveLastSeenState()
     end
 end)
 
@@ -519,6 +538,10 @@ Time to comment out large blocks of code and see what happens.
 
 Ok I changed nothing and now the particles don't show up.
 
+Buffer works fine, but the old particles stick around.  There should be something in Brightness to deal with particles that you lose track of.
+I wonder if old versions of this crash also, or if that's more of a complex interaction.
+
+Restarting also breaks it.  But only with brightness particles?
 --]]
 
 
