@@ -293,9 +293,9 @@ end
 
 
 local function getBasePathForPart(jitsu, partType)
-    --print("partType", partType)
-    local modelIndex = 1--jitsu:getVar(PART_FILE_NAMES[partType]) todo add
-    --print("modelIndex", modelIndex)
+    print("partType", partType, PART_FILE_NAMES[partType])
+    local modelIndex = jitsu:getVar(PART_FILE_NAMES[partType])
+    print("modelIndex", modelIndex, PART_MODELS_BY_TYPE[partType], PART_MODELS_BY_TYPE[partType][modelIndex])
     return getPartPath(PART_MODELS_BY_TYPE[partType][modelIndex])
 end
 
@@ -309,17 +309,24 @@ local function newJitsu(crewmem)
     local bombCooldown = 0
     local podCooldown = 0
 
-    -- jitsu.setVar = function(self, varKey, value)
-    --     mJitsuPlayerVariableInterface.setVariable(self.baseCrew.extend.selfId, varKey, value)
-    -- end
+    jitsu.setVar = function(self, varKey, value)
+        print("setting var", self.baseCrew.extend.selfId, varKey, value)
+        mJitsuPlayerVariableInterface.setVariable(self.baseCrew.extend.selfId, varKey, value)
+    end
 
-    -- jitsu.getVar = function (self, varKey)
-    --     mJitsuPlayerVariableInterface.getVariable(self.baseCrew.extend.selfId, varKey)
-    -- end
+    jitsu.getVar = function (self, varKey)
+        print("getvar3", self.baseCrew.extend.selfId)
+        return mJitsuPlayerVariableInterface.getVariable(self.baseCrew.extend.selfId, varKey)
+    end
 
-    -- jitsu.initVar = function (self, varKey, defaultValue)
-    --     jitsu:setVar(varKey, lwl.setIfNil(jitsu:getVar(varKey), defaultValue))
-    -- end
+    jitsu.initVar = function (self, varKey, defaultValue)
+        print("initiing var")
+        local previousValue = math.floor(lwl.setIfNil(jitsu:getVar(varKey), defaultValue))
+        if previousValue < 1 then
+            previousValue = 1 --todo hack to deal with zeros left over, remove later.
+        end
+        jitsu:setVar(varKey, previousValue)
+    end
 
     -- jitsu.destroySelf = function(self)
     --     for partType=1,#PART_FILE_NAMES do
@@ -406,20 +413,33 @@ local function newJitsu(crewmem)
     -- end
 
     jitsu.onFrame = function (self)
+        print("wow this printed")
         --for all particles
         --if it doesn't have subparticles, snap it to yourself.
         --always snap it to your space.
         for partType=1,#PART_FILE_NAMES do
+            print("wow this printed1")
             local partTypeName = PART_FILE_NAMES[partType]
+            print("wow this printed2")
             if #PART_INFO_LIST[partType].subunits > 0 then
+                print("wow this printed3")
                 for _,subunitName in ipairs(PART_INFO_LIST[partType].subunits) do
                     -- self[partTypeName..subunitName].space = self.baseCrew.currentShipId
                 end
             else
-                self[partTypeName].position = self.baseCrew:GetPosition()
-                print(self)
-                print(self.baseCrew)
-                print(self.baseCrew.currentShipId)
+                print("wow this printed4") --this is the last thing that printed before the crash.
+                print("wow this printed4", self)
+                print("wow this printed4", self.baseCrew)
+                print("wow this printed4", self.baseCrew.currentShipId)
+                print("wow this printed4 pos", self.baseCrew:GetPosition())
+                print("wow this printed4 part", self[partTypeName])
+                print("wow this printed4 apos", self[partTypeName].position)
+                print("wow this printed5")
+                self[partTypeName].position = self.baseCrew:GetPosition() ---god this is undefined behavior bugs. rippy.
+                print("wow this printed6")
+                print("wow this printed6", self)
+                print("wow this printed6", self.baseCrew)
+                print("wow this printed6", self.baseCrew.currentShipId)
                 --self[partTypeName].space = 0--self.baseCrew.currentShipId  --todo these are the lines that break it.
                 --print("did all that and didn't crash", partTypeName, self[partTypeName].space)
                 ----todo it just crashes, it doesn't even get here.  Brightness bug?  HS bug?
@@ -445,7 +465,7 @@ local function newJitsu(crewmem)
 
     ---Start all parts at the lowest level if not already set.
     for i,partTypeName in ipairs(PART_FILE_NAMES) do
-        --jitsu:initVar(partTypeName, 1) todo add
+        jitsu:initVar(partTypeName, 1)
         if #PART_INFO_LIST[i].subunits > 0 then
             jitsu[partTypeName] = {}
             for _,subunitName in ipairs(PART_INFO_LIST[i].subunits) do
