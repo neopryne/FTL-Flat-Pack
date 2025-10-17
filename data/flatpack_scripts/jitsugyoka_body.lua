@@ -49,6 +49,9 @@ function mods.lightweight_lua.floatEquals(f1, f2, epsilon)
 end
 
 function mods.lightweight_lua.pointFuzzyEquals(p1, p2, epsilon)
+    if not epsilon then
+        epsilon = 1
+    end
     --print("compare xx,yy", p1.x, p2.x, p1.y, p2.y)
     return lwl.floatEquals(p1.x, p2.x, epsilon) and lwl.floatEquals(p1.y, p2.y, epsilon)
 end
@@ -74,22 +77,23 @@ function lwl.getPoint(origin, angle, distance)
     return Hyperspace.Pointf(origin.x - (distance * math.cos(angle)), origin.y - (distance * math.sin(angle)))
 end
 
-
-------------------END POINT UTILS---------------------
-function lwl.crewSpeedToScreenSpeed(crewSpeed)
-    --1.333 ~= .4, it's probably linear.  And 0=0
-    return crewSpeed --* .4 / 1.334
+function lwl.getDistance(origin, target)
+    return math.abs(math.sqrt((origin.x - target.x)^2 + (origin.y - target.y)^2))
 end
-------------------ANGLE UTILS---------------------
 
-local function getAngle(origin, target)
+function lwl.getAngle(origin, target)
     local deltaX = origin.x - target.x
     local deltaY = origin.y - target.y
     local innerAngle = math.atan(deltaY, deltaX)
     --print("Angle is ", innerAngle)
     return innerAngle
 end
-
+------------------END POINT UTILS---------------------
+function lwl.crewSpeedToScreenSpeed(crewSpeed)
+    --1.333 ~= .4, it's probably linear.  And 0=0
+    return crewSpeed --* .4 / 1.334
+end
+------------------ANGLE UTILS---------------------
 ---Converts an FTL style angle to a Brightness Particles style one.
 ---That is, it rotates it by 90 degrees and converts it to degrees.
 ---@param angle number
@@ -132,7 +136,7 @@ end
 ---@param crewmem Hyperspace.CrewMember
 ---@return number the angle the crew is travelling in degrees, 0 being straight right.
 function lwl.getMovementDirection(crewmem)
-    return getAngle(crewmem:GetPosition(), crewmem:GetNextGoal())
+    return lwl.getAngle(crewmem:GetPosition(), crewmem:GetNextGoal())
 end
 
 ---TODO! IT'S VERY IMPORTANT NOT TO MIX BRIGHTNESS ANGLES WITH NON-BRIGHTNESS ANGLES!
@@ -171,6 +175,8 @@ local PART_FILE_NAMES = {"head", "body", "legs", "gun", "bomb", "pod"} --SSOT fo
 local HEAD_INFO = {subunits={}}
 local BODY_INFO = {subunits={}}
 local LEGS_INFO = {subunits={"left", "right"}}
+local LEFT_FOOT_INDEX = 1 --to help with finding these
+local RIGHT_FOOT_INDEX = 2
 local GUN_INFO = {subunits={}}
 local BOMB_INFO = {subunits={}}
 local POD_INFO = {subunits={}}
@@ -191,8 +197,18 @@ So that the structure looks like
     mJitsuPlayerVariableInterface.setVariable(jitsu.uuid, whateverVar.key, 7)
 ]]
 
-local FEET_MAX_DISTANCE = 30
-local FEET_MAX_BODY_DISTANCE = 15
+
+local function getFootName(index)
+    return PART_FILE_NAMES[PART_LEGS]..LEGS_INFO.subunits[index]
+end
+
+local function leftFootName()
+    return getFootName(LEFT_FOOT_INDEX)
+end
+
+local function rightFootName()
+    return getFootName(RIGHT_FOOT_INDEX)
+end
 
 local MODEL_BASIC = "basic"
 
@@ -211,6 +227,7 @@ local PODS = {BASIC_POD}
 local LEGS = {BASIC_LEGS}
 local PART_MODELS_BY_TYPE = {HEADS, BODIES, LEGS, GUNS, BOMBS, PODS}
 
+local FOOT_OFFSET = 5
 
 --todo do I need to stub this for testing?
 local mJitsuPlayerVariableInterface = lwl.CreatePlayerVariableInterface(METAVAR_NAME_JITSU)
@@ -273,58 +290,6 @@ end
 local function adjustParticleDirection(particle, desiredDirection)
     particle.rotation = rotateTowards(particle.rotation, desiredDirection, 1)
 end
-
-
-
-
-
-
-local function footTooFar(crewmem)
-    -- local footDistance = lwl.distanceBetweenPoints(mFeet[1 + mActiveFootZeroIndex].position, crewmem:GetPosition())
-    -- --print("Foot body distance", footDistance)
-    -- return lwl.distanceBetweenPoints(mFeet[1 + mActiveFootZeroIndex].position, crewmem:GetPosition()) > FEET_MAX_BODY_DISTANCE
-end
-
-local function feetTooFar(foot1, foot2)
-    local footDistance = lwl.distanceBetweenPoints(foot1.position, foot2.position)
-    --print("Foot distance", footDistance)
-    return lwl.distanceBetweenPoints(foot1.position, foot2.position) > FEET_MAX_DISTANCE
-end
-
-
-
----comment
----Ok, what we do is track the current desired position.  Then we do some trig? to get approx? where the feet should go if they move 2x the speed of the main body.
----But remember, speed doesn't matter, only position.
----
----
----
----@param crewmem Hyperspace.CrewMember
-local function advanceFeet(crewmem)
-    -- if lwl.goalExists(crewmem:GetFinalGoal()) then
-    --     --Assume left starts active, then swap if needed.
-    --     --Move active foot 2x speed along path.
-    --     --Getting the movement vector is easy.  Getting the speed is less so.
-
-    --     --todo nothing here actually makes sure that the feet track the main body, I should add that.
-    --     --print("speed:", crewmem:GetMoveSpeed())
-    --     local movementDirection = lwl.getMovementDirection(crewmem) --todo pull out for efficiency
-    --     local activeFoot = mFeet[1 + mActiveFootZeroIndex]
-    --     activeFoot.position = lwl.getPoint(activeFoot.position, movementDirection, lwl.crewSpeedToScreenSpeed(crewmem:GetMoveSpeed()) * 2)
-    --     --Bring the foot in a little to keep it in the correct radius.
-    --     activeFoot.position = lwl.getPoint(activeFoot.position, getAngle(activeFoot.position, crewmem:GetPosition()), lwl.crewSpeedToScreenSpeed(crewmem:GetMoveSpeed()) * .1)
-    --     if feetTooFar(mLeftFootParticle, mRightFootParticle) or footTooFar(crewmem) then
-    --         if mFootSwapReady then
-    --             --print("Swapped feet.")
-    --             mActiveFootZeroIndex = 1 - mActiveFootZeroIndex
-    --             --mFootSwapReady = false
-    --         end
-    --     else
-    --         mFootSwapReady = true
-    --     end
-    -- end
-end
-
 
 local function getBasePathForPart(jitsu, partType)
     print("partType", partType, PART_FILE_NAMES[partType])
@@ -409,17 +374,17 @@ local function newJitsu(crewmem)
         local crew = self.baseCrewWrapper:get()
         if lwl.goalExists(crew:GetFinalGoal()) then
             --First, see if we're way off base.  Uh this is throwing errors.  Rotate to face the general direction.
-            local immediateHeading = angleFtlToBrightness(getAngle(crew:GetPosition(), crew:GetNextGoal()))
-            local overallHeading = angleFtlToBrightness(getAngle(crew:GetPosition(), crew:GetFinalGoal()))
-            local facingDistance = angleDistance(bodyParticle.rotation, overallHeading) --body heading
-            print("facings", immediateHeading, overallHeading, bodyParticle.rotation, facingDistance)
-            if facingDistance > 90 then
-                print("big angle", facingDistance)
-                return overallHeading
+            self.immediateHeading = lwl.getAngle(crew:GetPosition(), crew:GetNextGoal())
+            local immediateHeadingBrightness = angleFtlToBrightness(self.immediateHeading)
+            self.overallHeading = lwl.getAngle(crew:GetPosition(), crew:GetFinalGoal())
+            local overallHeadingBrightness = angleFtlToBrightness(self.overallHeading)
+            self.facingDistance = angleDistance(bodyParticle.rotation, overallHeadingBrightness) --body heading
+            if self.facingDistance > 90 then
+                return overallHeadingBrightness
             end
 
             --If we are generally pointed the right direction, do some finer navigation.
-            return immediateHeading
+            return immediateHeadingBrightness
         else
             --Standing still, don't rotate
             --We want to rotate in combat or manning systems or fighting fires.
@@ -448,10 +413,95 @@ local function newJitsu(crewmem)
         --but also i can save that part for later.
     end
 
+    local FOOT_FORWARD_FACTOR = 2
+    local STEP_DISTANCE = 33
+    local INDEXING_OFFSET = 1 --nonsense for 1 indexing
+    
+    jitsu.getNextFoot = function(self)
+        if not self.activeFootIndex then
+            self.activeFootIndex = LEFT_FOOT_INDEX
+        else
+            self.activeFootIndex = (1 - (self.activeFootIndex - INDEXING_OFFSET)) + INDEXING_OFFSET
+            print("checking feet", self.activeFootParticle, self[leftFootName()], self.activeFootIndex)
+        end
+        self.activeFootParticle = self[getFootName(self.activeFootIndex)]
+        return self.activeFootParticle
+    end
+
+    jitsu.getActiveFootPosition = function(self)
+        return self.activeFootParticle.position
+    end
+
+    --Must not be called when stationary/goal does not exist, or before feet are set.
+    jitsu.getFootGoal = function(self)
+        local crew = self.baseCrewWrapper:get()
+        ---get a point that is STEP_DISTANCE away from self in the direction of the current movement.
+        local crewPos = crew:GetPosition()
+        local straightFootGoal = lwl.getPoint(crewPos, self.immediateHeading, STEP_DISTANCE)
+        local headingAdjustment = (math.pi / 2) - math.pi * (self.activeFootIndex - 1)
+        self.footGoal = lwl.getPoint(straightFootGoal, self.immediateHeading + headingAdjustment, FOOT_OFFSET)
+        self.footStart = lwl.deepCopyTable(self.activeFootParticle.position)
+        local footGoalOriginalDistance = lwl.getDistance(self.footStart, self.footGoal)
+        self.footGoalDirection = lwl.getAngle(self.footStart, self.footGoal)
+        local bodyGoalOriginalDistance = STEP_DISTANCE / FOOT_FORWARD_FACTOR--todo do I need these?
+        self.footGoalDistanceRatio = footGoalOriginalDistance / bodyGoalOriginalDistance
+        self.bodyGoal = lwl.getPoint(crewPos, self.immediateHeading, bodyGoalOriginalDistance)
+        self.bodyStart = crewPos
+        return self.footGoal --idk about this return
+    end
+
+    jitsu.swapFeet = function(self)
+        self.activeFootParticle = self:getNextFoot()
+        self:getFootGoal() --todo rename?
+    end
+
+    --todo make a menu state broadcaster instead of this terrible ugly cludgy crewwrapper .
+    
+    ---comment
+    ---Ok, what we do is track the current desired position.  Then we do some trig? to get approx? where the feet should go if they move 2x the speed of the main body.
+    ---But remember, speed doesn't matter, only position.
+    ---Ok, this version has introduced a new bug that crashes when you tab away and tab back.  That's pretty bad.
+    jitsu.advanceFeet = function(self)--todo send feet to back
+        local crew = self.baseCrewWrapper:get()
+        if lwl.goalExists(crew:GetFinalGoal()) then
+            --Assume left starts active, then swap if needed.
+            --Move active foot 2x speed along path.
+            --Getting the movement vector is easy.  Getting the speed is less so.
+            local shouldSwap = false
+            if lwl.pointFuzzyEquals(self:getActiveFootPosition(), self.footGoal) then
+                print("foot goal reached", self.activeFootIndex)
+                shouldSwap = true
+            end
+            local nextGoal = crew:GetNextGoal()
+            if (not self.nextGoal) or (not lwl.pointFuzzyEquals(nextGoal, self.nextGoal)) then
+                print("next goal changed", nextGoal.x, nextGoal.y)
+                shouldSwap = true
+                self.nextGoal = nextGoal
+            end
+            local bodyDistance = lwl.getDistance(crew:GetPosition(), self.bodyGoal)
+            if bodyDistance < 1 then
+                shouldSwap = true
+            end
+
+            if shouldSwap then
+                self:swapFeet()
+                bodyDistance = lwl.getDistance(crew:GetPosition(), self.bodyGoal)
+            end
+
+            local footDistance = bodyDistance * self.footGoalDistanceRatio
+            print("Moving foot ", bodyDistance, footDistance, self.footGoalDistanceRatio)
+            --todo the hard part is getting the initial position to line up with where it landed last time.
+            --totp um actually, just draw a line based on the place the foot started and the place the foot is going
+            --it's not hard to math.
+            self.activeFootParticle.position = lwl.getPoint(self.footGoal, self.footGoalDirection + math.pi, footDistance)
+        end
+    end
+
     jitsu.onFrame = function (self)
         --for all particles
         --if it doesn't have subparticles, snap it to yourself.
         --always snap it to your space.
+        local crew = self.baseCrewWrapper:get()
         for partType=1,#PART_FILE_NAMES do
             local partTypeName = PART_FILE_NAMES[partType]
             if #PART_INFO_LIST[partType].subunits > 0 then
@@ -459,7 +509,7 @@ local function newJitsu(crewmem)
                     -- self[partTypeName..subunitName].space = self.baseCrewWrapper:get().currentShipId
                 end
             else
-                local crew = self.baseCrewWrapper:get()
+                
                 -- print("wow this printed4") --this is the last thing that printed before the crash.
                 -- print("wow this printed4", self)
                 -- print("wow this printed4", crew)
@@ -475,20 +525,22 @@ local function newJitsu(crewmem)
             end
         end
 
-        if not (self.baseCrewWrapper:get():GetNextGoal() == nil) then
+        if not (crew:GetNextGoal() == nil) then
             self:adjustFacingDirection()
-            --advanceFeet(crewmem)
-            ----mNextLocationParticle.position = lwl.setIfNil(crewmem:GetNextGoal(), crewmem:GetPosition())
+            self:advanceFeet()
+            -- print("stepping start", lwl.dumpObject(self.footStart), "goal", lwl.dumpObject(self.footGoal),
+            -- "left foot", lwl.dumpObject(self[leftFootName()]), "right foot", lwl.dumpObject(self[rightFootName()]))
+            --mNextLocationParticle.position = lwl.setIfNil(crewmem:GetNextGoal(), crewmem:GetPosition())
         end
     end
 
     ---comment
     jitsu.snapFeet = function(self)
         local crew = self.baseCrewWrapper:get() --todo make this base on the facing direction.
-        self["legsleft"].position = crew:GetPosition()
-        self["legsleft"].position.x = self["legsleft"].position.x - 5
-        self["legsright"].position = crew:GetPosition()
-        self["legsright"].position.x = self["legsright"].position.x + 5
+        self[leftFootName()].position = crew:GetPosition()
+        self[leftFootName()].position.x = self[leftFootName()].position.x - FOOT_OFFSET
+        self[rightFootName()].position = crew:GetPosition()
+        self[rightFootName()].position.x = self[rightFootName()].position.x + FOOT_OFFSET
     end
 
     ---Start all parts at the lowest level if not already set.
@@ -506,11 +558,10 @@ local function newJitsu(crewmem)
         end
         --todo this doesn't handle feet/legs right.
     end
-
-    -- local mActiveFootZeroIndex = 0
-    -- local mFootSwapReady = true
     
-    -- jitsu:snapFeet()
+    jitsu.immediateHeading = 0
+    jitsu:snapFeet()
+    jitsu:swapFeet()
     Brightness.send_to_front(jitsu[PART_FILE_NAMES[PART_HEAD]])
     return jitsu
 end
