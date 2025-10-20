@@ -121,27 +121,27 @@ local beam_faces = {
 --this must be reset externally
 --this damages the crew of the ship you're on as is.
 local function beamAttack(rotated_mesh, position, shipManager, crewShipManager, crewTable)
-    immuneCrewIds = crewTable.immuneCrewIds
+    local immuneCrewIds = crewTable.immuneCrewIds
     if not immuneCrewIds then
         immuneCrewIds = {}
     end
     
     --points were' tracking are 16 and 13, the bottom line of the beam
-    point1 = lw3.relativeVertexByIndex(rotated_mesh, 16, position)
-    point2 = lw3.relativeVertexByIndex(rotated_mesh, 13, position)
+    local point1 = lw3.relativeVertexByIndex(rotated_mesh, 16, position)
+    local point2 = lw3.relativeVertexByIndex(rotated_mesh, 13, position)
     local x = point1.x
     local y = point1.y
     local delta_x = point2.x - point1.x
     local delta_y = point2.y - point1.y
     local partitions = 10
     for i = 0, partitions do
-        ix = point1.x + (delta_x / partitions * i)
-        iy = point1.y + (delta_y / partitions * i)
-        foes_at_point = lwl.get_ship_crew_point(shipManager, crewShipManager, ix, iy)--no need to check if in combat, because this requires enemy crew to exist.
+        local ix = point1.x + (delta_x / partitions * i)
+        local iy = point1.y + (delta_y / partitions * i)
+        local foes_at_point = lwl.get_ship_crew_point(shipManager, crewShipManager, ix, iy)--no need to check if in combat, because this requires enemy crew to exist.
         for j = 1, #foes_at_point do
             local foe = foes_at_point[j]
             --print("Found foe", foe.selfId)
-            should_exclude = false
+            local should_exclude = false
             for k = 1, #immuneCrewIds do
                 if (foe.extend.selfId == immuneCrewIds[k]) then
                     should_exclude = true
@@ -167,9 +167,9 @@ end
 script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
     local shipManager = global:GetShipManager(crewmem.iShipId)
         if (crewmem:GetSpecies() == "fff_omen") then
-            crewShipManager = global:GetShipManager(1 - crewmem.iShipId) --Manager for enemy crew
+            local crewShipManager = global:GetShipManager(1 - crewmem.iShipId) --Manager for enemy crew
             local crewTable = userdata_table(crewmem, "mods.flatpack.fatespinner")
-            pos = crewmem:GetPosition()
+            local pos = crewmem:GetPosition()
             --local current_room = get_room_at_location(shipManager, pos, false)--todo is vertexUtils buggfy?  does it only work on my ship?  f22 def worked on both.
             --local current_room_crewmember = getRoomAtCrewmember(crewmem)
             --print("current_room: ", current_room, " position ", crewmem:GetPosition().x, " ", crewmem:GetPosition().y, "  crw: ", current_room_crewmember)
@@ -223,7 +223,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
                             for i = 1, 40 do
                                 local circle_pos = lwl.random_point_circle(pos, 24)
                                 circle_pos.y = circle_pos.y - 5
-                                blastParticle = Brightness.create_particle("particles/omen/blast", 4, .4,
+                                local blastParticle = Brightness.create_particle("particles/omen/blast", 4, .4,
                                         circle_pos, math.random(0,3)*90, shipManager.iShipId, "SHIP_MANAGER")
                                 blastParticle.heading = math.random(0, 359)
                                 blastParticle.movementSpeed = 160
@@ -258,7 +258,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
             if (crewmem.bActiveManning) then
                 if (not lwl.isPaused()) then
                     if (math.random() > .975) then
-                        currentSkill = math.floor(crewmem.iManningId)
+                        local currentSkill = math.floor(crewmem.iManningId)
                         local circle_pos = lwl.random_point_circle(pos, 15)
                         circle_pos.y = circle_pos.y - 5
                         --render some particles based on skiling value
@@ -284,9 +284,9 @@ end)
 script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, function(shipManager)
     for crewmem in vter(shipManager.vCrewList) do
         if (crewmem:GetSpecies() == "fff_omen") then
-            crewShipManager = global:GetShipManager(1 - crewmem.iShipId) --Manager for enemy crew
+            local crewShipManager = global:GetShipManager(1 - crewmem.iShipId) --Manager for enemy crew
             local crewTable = userdata_table(crewmem, "mods.flatpack.fatespinner")
-            pos = crewmem:GetPosition()
+            local pos = crewmem:GetPosition()
             --local current_room = get_room_at_location(shipManager, pos, false)--todo is vertexUtils buggfy?  does it only work on my ship?  f22 def worked on both.
             --local current_room_crewmember = getRoomAtCrewmember(crewmem)
             --print("current_room: ", current_room, " position ", crewmem:GetPosition().x, " ", crewmem:GetPosition().y, "  crw: ", current_room_crewmember)

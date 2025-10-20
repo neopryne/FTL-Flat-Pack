@@ -4,6 +4,7 @@ local Brightness = mods.brightness
 local lwl = mods.lightweight_lua
 local lwui = mods.lightweight_user_interface
 local lwcco = mods.lightweight_crew_change_observer
+local lweb = mods.lightweight_event_broadcaster
 
 local get_room_at_location = mods.multiverse.get_room_at_location
 
@@ -40,15 +41,17 @@ lwl.createMemorySafeCrewWrapper = function(crewmem)
 end
 
 -----------------------END MEMORY_SAFE_CREW---------------------------
-
-------------------POINT UTILS---------------------
-
-function mods.lightweight_lua.floatEquals(f1, f2, epsilon)
+function lwl.floatEquals(f1, f2, epsilon)
     epsilon = lwl.nilSet(epsilon, .0001)
     return math.abs(f1-f2) < epsilon
 end
 
-function mods.lightweight_lua.pointFuzzyEquals(p1, p2, epsilon)
+function lwl.isMoving(crewmem)
+    return crewmem.speed_x + crewmem.speed_y > 0
+end
+
+------------------POINT UTILS---------------------
+function lwl.pointFuzzyEquals(p1, p2, epsilon)
     if not epsilon then
         epsilon = 1
     end
@@ -56,7 +59,7 @@ function mods.lightweight_lua.pointFuzzyEquals(p1, p2, epsilon)
     return lwl.floatEquals(p1.x, p2.x, epsilon) and lwl.floatEquals(p1.y, p2.y, epsilon)
 end
 
-function mods.lightweight_lua.goalExists(goalPoint)
+function lwl.goalExists(goalPoint)
     return not (lwl.floatEquals(goalPoint.x, -1) and lwl.floatEquals(goalPoint.y, -1))
 end
 
@@ -98,29 +101,33 @@ end
 ---That is, it rotates it by 90 degrees and converts it to degrees.
 ---@param angle number
 ---@return number
-local function angleFtlToBrightness(angle)
+function lwl.angleFtlToBrightness(angle)
     return ((angle * 180 / math.pi) + 270) % 360
 end
 
-local function angleBrightnessToFtl(angle)
+function lwl.angleBrightnessToFtl(angle)
     return (((angle + 90) % 360) * math.pi / 180)
 end
 
-local function clockwiseDistance(heading, target)
+function lwl.clockwiseDistanceDegrees(heading, target)
       return ((target - heading) + 360) % 360
 end
 
-local function counterclockwiseDistance(heading, target)
+function lwl.counterclockwiseDistanceDegrees(heading, target)
       return ((heading - target) + 360) % 360
 end
 
-local function angleDistance(heading, target)
-    return math.min(clockwiseDistance(heading, target), counterclockwiseDistance(heading, target))
+---
+---@param heading number angle in degrees
+---@param target number angle in degrees
+---@return number the shortest angular distance between the heading and the target directions.
+function lwl.angleDistanceDegrees(heading, target)
+    return math.min(lwl.clockwiseDistanceDegrees(heading, target), lwl.counterclockwiseDistanceDegrees(heading, target))
 end
 
-local function rotateTowards(heading, target, step) --todo how was this not jittering before?
-    local clockwise = clockwiseDistance(heading, target)
-    local counterclockwise = counterclockwiseDistance(heading, target)
+function lwl.rotateTowardsDegrees(heading, target, step) --todo how was this not jittering before?
+    local clockwise = lwl.clockwiseDistanceDegrees(heading, target)
+    local counterclockwise = lwl.counterclockwiseDistanceDegrees(heading, target)
     if clockwise <= 1 or counterclockwise <= 1 then
         --Close enough
         return heading
@@ -137,6 +144,13 @@ end
 ---@return number the angle the crew is travelling in degrees, 0 being straight right.
 function lwl.getMovementDirection(crewmem)
     return lwl.getAngle(crewmem:GetPosition(), crewmem:GetNextGoal())
+end
+
+---comment
+---@param direction number from CrewAnimation
+---@return number FTL angle in radians
+function lwl.animationDirectionToFtlAngle(direction)
+    return ((3 - direction) % 4) * math.pi / 2
 end
 
 ---TODO! IT'S VERY IMPORTANT NOT TO MIX BRIGHTNESS ANGLES WITH NON-BRIGHTNESS ANGLES!
@@ -271,6 +285,7 @@ This was easy when I was rendering everything, but now they're all image particl
 If I make the body always have the same outline, I could do something like render a particle over the body.
 Actually, an easy thing to do is render a green circle/disk under the unit.  I'll go with that.
 
+Death animation
 ]]
 
 
@@ -286,9 +301,27 @@ local function createPersistantParticle(path)
 end
 
 --TODO the movement noise will come from the feet, as they move and stop. whiiir bang whiir bang
+local function launchParticle(particle)
+    --random heading, random speed
+    particle.heading = math.random(0,360)
+    particle.movementSpeed = math.random(1,30)
+end
 
 local function adjustParticleDirection(particle, desiredDirection)
-    particle.rotation = rotateTowards(particle.rotation, desiredDirection, 1)
+    particle.rotation = lwl.rotateTowardsDegrees(particle.rotation, desiredDirection, 1)
+end
+
+local function iterateParticles(jitsu, effectFunction)
+    for partType=1,#PART_FILE_NAMES do
+        local partTypeName = PART_FILE_NAMES[partType]
+        if #PART_INFO_LIST[partType].subunits > 0 then
+            for _,subunitName in ipairs(PART_INFO_LIST[partType].subunits) do
+                effectFunction(jitsu[partTypeName..subunitName])
+            end
+        else
+            effectFunction(jitsu[partTypeName])
+        end
+    end
 end
 
 local function getBasePathForPart(jitsu, partType)
@@ -328,17 +361,21 @@ local function newJitsu(crewmem)
     end
 
     jitsu.destroySelf = function(self)
-        for partType=1,#PART_FILE_NAMES do
-            local partTypeName = PART_FILE_NAMES[partType]
-            if #PART_INFO_LIST[partType].subunits > 0 then
-                for _,subunitName in ipairs(PART_INFO_LIST[partType].subunits) do
-                    self[partTypeName..subunitName].destroy()
-                end
-            else
-                self[partTypeName].destroy()
-            end
+        local destroyFunction = function (particle)
+            particle.destroy()
         end
+        iterateParticles(self, destroyFunction)
+        print("destroy self")
         mJitsuPlayerVariableInterface.removeObject(self.baseCrewWrapper:get().extend.selfId)
+    end
+    
+    ---comment
+    jitsu.snapFeet = function(self)
+        local crew = self.baseCrewWrapper:get() --todo make this base on the facing direction.
+        self[leftFootName()].position = crew:GetPosition()
+        self[leftFootName()].position.x = self[leftFootName()].position.x - FOOT_OFFSET
+        self[rightFootName()].position = crew:GetPosition()
+        self[rightFootName()].position.x = self[rightFootName()].position.x + FOOT_OFFSET
     end
 
     jitsu.swapParticles = function(self, partPath, partName)
@@ -367,18 +404,48 @@ local function newJitsu(crewmem)
         self:setVar(partTypeName, modelIndex)
     end
 
+    --Start death animation
+    jitsu.onDeathAnim = function (self)
+        local deathAnimationFunction = function (particle)
+            launchParticle(particle)
+        end
+        iterateParticles(self, deathAnimationFunction)
+        self.isDying = true
+    end
+
+    --make the particles stop rendering and stop them.
+    jitsu.onDeath = function (self)
+        local deathFunction = function (particle)
+            particle.heading = 0
+            particle.movementSpeed = 0
+            particle.visible = false
+        end
+        iterateParticles(self, deathFunction)
+    end
+
+    --make the things show up again
+    jitsu.onClone = function (self)
+        local cloneFunction = function (particle)
+            particle.visible = true
+        end
+        iterateParticles(self, cloneFunction)
+        self.isDying = false
+        self:snapFeet()
+    end
+
     ---Returns the direction this crew should face as a BRIGHTNESS ANGLE
     ---@return number the angle the crew is travelling in degrees, 0 being straight up.
     jitsu.calculateDesiredFacingAngle = function(self)
         local bodyParticle = self[PART_FILE_NAMES[2]]
+        --print("calc angle")
         local crew = self.baseCrewWrapper:get()
         if lwl.goalExists(crew:GetFinalGoal()) then
             --First, see if we're way off base.  Uh this is throwing errors.  Rotate to face the general direction.
             self.immediateHeading = lwl.getAngle(crew:GetPosition(), crew:GetNextGoal())
-            local immediateHeadingBrightness = angleFtlToBrightness(self.immediateHeading)
+            local immediateHeadingBrightness = lwl.angleFtlToBrightness(self.immediateHeading)
             self.overallHeading = lwl.getAngle(crew:GetPosition(), crew:GetFinalGoal())
-            local overallHeadingBrightness = angleFtlToBrightness(self.overallHeading)
-            self.facingDistance = angleDistance(bodyParticle.rotation, overallHeadingBrightness) --body heading
+            local overallHeadingBrightness = lwl.angleFtlToBrightness(self.overallHeading)
+            self.facingDistance = lwl.angleDistanceDegrees(bodyParticle.rotation, overallHeadingBrightness) --body heading
             if self.facingDistance > 90 then
                 return overallHeadingBrightness
             end
@@ -388,6 +455,11 @@ local function newJitsu(crewmem)
         else
             --Standing still, don't rotate
             --We want to rotate in combat or manning systems or fighting fires.
+            --print("crew direction", crew.crewAnim.direction, crew.crewAnim.sub_direction, crew.crewAnim.moveDirection, crew.crewAnim.bTyping)
+            --print("manning?", crew.bActiveManning, crew:RepairingFire())
+            if crew.bActiveManning or crew:RepairingFire() then
+                return lwl.angleFtlToBrightness(lwl.animationDirectionToFtlAngle(crew.crewAnim.direction))
+            end
             --print("Standing still at ", mBodyParticle.rotation)
             return bodyParticle.rotation
         end
@@ -396,15 +468,17 @@ local function newJitsu(crewmem)
     ---comment
     jitsu.adjustFacingDirection = function(self)
         local desiredDirection = self:calculateDesiredFacingAngle()
+        local crew = self.baseCrewWrapper:get()
         --print("Desired Direction:", desiredDirection, "facing", mBodyParticle.rotation)
         
         for partType=1,#PART_FILE_NAMES do
             local partTypeName = PART_FILE_NAMES[partType]
             if #PART_INFO_LIST[partType].subunits > 0 then
-                for _,subunitName in ipairs(PART_INFO_LIST[partType].subunits) do
-                    --todo make this depend on foot activeness.
-                    --adjustParticleDirection(self[partTypeName..subunitName], desiredDirection)
-                end
+                --for _,subunitName in ipairs(PART_INFO_LIST[partType].subunits) do
+                    if lwl.isMoving(crew) then
+                        adjustParticleDirection(self.activeFootParticle, desiredDirection)
+                    end
+                --end
             else
                 adjustParticleDirection(self[partTypeName], desiredDirection)
             end
@@ -422,7 +496,7 @@ local function newJitsu(crewmem)
             self.activeFootIndex = LEFT_FOOT_INDEX
         else
             self.activeFootIndex = (1 - (self.activeFootIndex - INDEXING_OFFSET)) + INDEXING_OFFSET
-            print("checking feet", self.activeFootParticle, self[leftFootName()], self.activeFootIndex)
+            --print("checking feet", self.activeFootParticle, self[leftFootName()], self.activeFootIndex)
         end
         self.activeFootParticle = self[getFootName(self.activeFootIndex)]
         return self.activeFootParticle
@@ -489,7 +563,7 @@ local function newJitsu(crewmem)
             end
 
             local footDistance = bodyDistance * self.footGoalDistanceRatio
-            print("Moving foot ", bodyDistance, footDistance, self.footGoalDistanceRatio)
+            --print("Moving foot ", bodyDistance, footDistance, self.footGoalDistanceRatio)
             --todo the hard part is getting the initial position to line up with where it landed last time.
             --totp um actually, just draw a line based on the place the foot started and the place the foot is going
             --it's not hard to math.
@@ -502,6 +576,11 @@ local function newJitsu(crewmem)
         --if it doesn't have subparticles, snap it to yourself.
         --always snap it to your space.
         local crew = self.baseCrewWrapper:get()
+        --print("onframe")
+        if crew.bDead then return end --don't try to render crew that's not on screen.
+        if not crew.crewAnim.sub_direction == crew.crewAnim.moveDirection then
+            print("directions differed!", crew.crewAnim.sub_direction, crew.crewAnim.moveDirection)
+        end
         for partType=1,#PART_FILE_NAMES do
             local partTypeName = PART_FILE_NAMES[partType]
             if #PART_INFO_LIST[partType].subunits > 0 then
@@ -534,15 +613,6 @@ local function newJitsu(crewmem)
         end
     end
 
-    ---comment
-    jitsu.snapFeet = function(self)
-        local crew = self.baseCrewWrapper:get() --todo make this base on the facing direction.
-        self[leftFootName()].position = crew:GetPosition()
-        self[leftFootName()].position.x = self[leftFootName()].position.x - FOOT_OFFSET
-        self[rightFootName()].position = crew:GetPosition()
-        self[rightFootName()].position.x = self[rightFootName()].position.x + FOOT_OFFSET
-    end
-
     ---Start all parts at the lowest level if not already set.
     for i,partTypeName in ipairs(PART_FILE_NAMES) do
         jitsu:initVar(partTypeName, 1)
@@ -556,12 +626,15 @@ local function newJitsu(crewmem)
         else
             jitsu[partTypeName] = createPersistantParticle(getBasePathForPart(jitsu, i))
         end
-        --todo this doesn't handle feet/legs right.
     end
     
     jitsu.immediateHeading = 0
     jitsu:snapFeet()
     jitsu:swapFeet()
+    Brightness.send_to_front(jitsu[PART_FILE_NAMES[PART_BODY]])
+    Brightness.send_to_front(jitsu[PART_FILE_NAMES[PART_BOMB]])
+    Brightness.send_to_front(jitsu[PART_FILE_NAMES[PART_GUN]])
+    Brightness.send_to_front(jitsu[PART_FILE_NAMES[PART_POD]])
     Brightness.send_to_front(jitsu[PART_FILE_NAMES[PART_HEAD]])
     return jitsu
 end
@@ -574,6 +647,41 @@ end
 
 
 ---------------------------------------------------------
+local SPECIES_JITSU = "fff_jitsugyoka"
+
+local function onDeathAnim(crewmem)
+    if crewmem:GetSpecies() == SPECIES_JITSU then
+        for _,jitsu in ipairs(mJitsuList) do
+            if jitsu.baseCrewWrapper:get().extend.selfId == crewmem.extend.selfId then
+                jitsu:onDeathAnim()
+                return
+            end
+        end
+    end
+end
+local function onDeath(crewmem)
+    if crewmem:GetSpecies() == SPECIES_JITSU then
+        for _,jitsu in ipairs(mJitsuList) do
+            if jitsu.baseCrewWrapper:get().extend.selfId == crewmem.extend.selfId then
+                jitsu:onDeath()
+                return
+            end
+        end
+    end
+end
+local function onClone(crewmem)
+    if crewmem:GetSpecies() == SPECIES_JITSU then
+        for _,jitsu in ipairs(mJitsuList) do
+            if jitsu.baseCrewWrapper:get().extend.selfId == crewmem.extend.selfId then
+                jitsu:onClone()
+                return
+            end
+        end
+    end
+end
+lweb.registerDeathAnimationListener(onDeathAnim)
+lweb.registerDeathListener(onDeath)
+lweb.registerClonedListener(onClone)
 
 local function renderJitsus()
     for _,jitsu in ipairs(mJitsuList) do
@@ -593,7 +701,7 @@ end
 
 --All the jitsus, both sides.
 local function jitsuFilter(crewmem)
-    return crewmem:GetSpecies() == "fff_jitsugyoka"
+    return crewmem:GetSpecies() == SPECIES_JITSU
 end
 
 script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, function(ship)
