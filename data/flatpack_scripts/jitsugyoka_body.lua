@@ -242,6 +242,11 @@ local LEGS = {BASIC_LEGS}
 local PART_MODELS_BY_TYPE = {HEADS, BODIES, LEGS, GUNS, BOMBS, PODS}
 
 local FOOT_OFFSET = 5
+local HIGHLIGHT_YELLOW = Graphics.GL_Color(.8, .8, .0, .5)
+local HIGHLIGHT_GREEN = Graphics.GL_Color(.0, .8, .0, .5)
+local HOVER_GREEN = Graphics.GL_Color(.0, .8, .0, .3)
+local SELECT_CIRCLE_RADIUS = 15
+local SPECIES_JITSU = "fff_jitsugyoka"
 
 --todo do I need to stub this for testing?
 local mJitsuPlayerVariableInterface = lwl.CreatePlayerVariableInterface(METAVAR_NAME_JITSU)
@@ -262,15 +267,12 @@ jitsu-id-ID#-pod:
 facing direction
 whatever other variables I need to store.
 
-Honestly it might be time to make a small class abstracting this kind of stuff.
-
+legs: speed, rotation
+body: health, DR
+head: swag for targeting algorithm?
 
 --unlocks should be across all, equips should be individual
 
-main self turns to point towards target.
-When not moving, does not turn head.
-In combat or firefight, faces target.
---make it not flicker back and forth.
 
 One foot is always stationary, and one foot moves quickly to a place that it can stay stationary.
 When it starts moving, it picks a foot furthest from where it is.
@@ -279,13 +281,8 @@ This is a big thing made of smaller things.
 The angle of the feet should rotate to align with the body, but only while a given foot is moving.
 
 
-Current challenge: properly showing selection state.
-Green outline, green overlay.
-This was easy when I was rendering everything, but now they're all image particles.  
-If I make the body always have the same outline, I could do something like render a particle over the body.
-Actually, an easy thing to do is render a green circle/disk under the unit.  I'll go with that.
-
-Death animation
+Firefighting poof bits if the game doesn't do them itself.
+Make sure it turns towards fires and people it fights.
 ]]
 
 
@@ -302,9 +299,10 @@ end
 
 --TODO the movement noise will come from the feet, as they move and stop. whiiir bang whiir bang
 local function launchParticle(particle)
-    --random heading, random speed
+    --random heading, random speed, random rotation
     particle.heading = math.random(0,360)
-    particle.movementSpeed = math.random(1,30)
+    particle.imageSpin = math.random(-32, 32)
+    particle.movementSpeed = math.random(2,8)
 end
 
 local function adjustParticleDirection(particle, desiredDirection)
@@ -336,6 +334,7 @@ local function newJitsu(crewmem)
     print("new jitsu", crewmem:GetName())
     local jitsu = {}
     jitsu.baseCrewWrapper = lwl.createMemorySafeCrewWrapper(crewmem)
+    --todo if this is created while dead, it will be in a bad state.
 
     local gunCooldown = 0
     local bombCooldown = 0
@@ -419,6 +418,8 @@ local function newJitsu(crewmem)
             particle.heading = 0
             particle.movementSpeed = 0
             particle.visible = false
+            particle.imageSpin = 0
+            particle.rotation = 0
         end
         iterateParticles(self, deathFunction)
     end
@@ -571,11 +572,26 @@ local function newJitsu(crewmem)
         end
     end
 
-    jitsu.onFrame = function (self)
+    jitsu.onFrame = function(self, ship)
         --for all particles
         --if it doesn't have subparticles, snap it to yourself.
         --always snap it to your space.
         local crew = self.baseCrewWrapper:get()
+        if (not (crew.currentShipId == ship.iShipId)) or (self.isDying or crew.bDead) then return end
+
+        --render selection state
+        --print("ship", ship.iShipId, crew.currentShipId, crew.currentShipId == ship.iShipId)
+        local position = crewmem:GetPosition()
+        local color
+        if (crewmem.selectionState == 0) then--not selected, do nothing
+            color = HIGHLIGHT_YELLOW
+        elseif (crewmem.selectionState == 1) then --selected, relative green fill
+            color = HIGHLIGHT_GREEN
+        elseif (crewmem.selectionState == 2) then --hover, green edges
+            color = HOVER_GREEN
+        end
+        Graphics.CSurface.GL_DrawCircle(position.x, position.y, SELECT_CIRCLE_RADIUS, color)
+
         --print("onframe")
         if crew.bDead then return end --don't try to render crew that's not on screen.
         if not crew.crewAnim.sub_direction == crew.crewAnim.moveDirection then
@@ -585,7 +601,7 @@ local function newJitsu(crewmem)
             local partTypeName = PART_FILE_NAMES[partType]
             if #PART_INFO_LIST[partType].subunits > 0 then
                 for _,subunitName in ipairs(PART_INFO_LIST[partType].subunits) do
-                    -- self[partTypeName..subunitName].space = self.baseCrewWrapper:get().currentShipId
+                    self[partTypeName..subunitName].space = self.baseCrewWrapper:get().currentShipId
                 end
             else
                 
@@ -596,6 +612,7 @@ local function newJitsu(crewmem)
                 -- print("wow this printed4 i", crew.iShipId)
                 -- print("wow this printed4 pos", crew:GetPosition())
                 self[partTypeName].position = crew:GetPosition() ---god this is undefined behavior bugs. rippy.
+                self[partTypeName].space = self.baseCrewWrapper:get().currentShipId
                 --self[partTypeName].space = 0--self.baseCrewWrapper:get().currentShipId  --todo these are the lines that break it.
                 --print("did all that and didn't crash", partTypeName, self[partTypeName].space)
                 ----todo it just crashes, it doesn't even get here.  Brightness bug?  HS bug?
@@ -610,6 +627,7 @@ local function newJitsu(crewmem)
             -- print("stepping start", lwl.dumpObject(self.footStart), "goal", lwl.dumpObject(self.footGoal),
             -- "left foot", lwl.dumpObject(self[leftFootName()]), "right foot", lwl.dumpObject(self[rightFootName()]))
             --mNextLocationParticle.position = lwl.setIfNil(crewmem:GetNextGoal(), crewmem:GetPosition())
+        
         end
     end
 
@@ -647,7 +665,6 @@ end
 
 
 ---------------------------------------------------------
-local SPECIES_JITSU = "fff_jitsugyoka"
 
 local function onDeathAnim(crewmem)
     if crewmem:GetSpecies() == SPECIES_JITSU then
@@ -683,9 +700,9 @@ lweb.registerDeathAnimationListener(onDeathAnim)
 lweb.registerDeathListener(onDeath)
 lweb.registerClonedListener(onClone)
 
-local function renderJitsus()
+local function renderJitsus(ship)
     for _,jitsu in ipairs(mJitsuList) do
-        jitsu:onFrame()
+        jitsu:onFrame(ship)
     end
 end
 
@@ -708,7 +725,7 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
     --This doesn't actually render anything, but does compute that should happen during a render.
     if lwl.isPaused() then return end
     --todo maybe scale for framerate.
-    renderJitsus()
+    renderJitsus(ship)
 end)
 
 script.on_internal_event(Defines.InternalEvents.ON_TICK, function()
