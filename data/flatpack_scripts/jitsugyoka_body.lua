@@ -3,6 +3,7 @@ local vter = mods.multiverse.vter
 local Brightness = mods.brightness
 local lwl = mods.lightweight_lua
 local lwui = mods.lightweight_user_interface
+local lwsb = mods.lightweight_statboosts
 local lwcco = mods.lightweight_crew_change_observer
 local lweb = mods.lightweight_event_broadcaster
 
@@ -174,6 +175,8 @@ end
     Like all FFFTL crew, he should be strong when slowed?
     
     I could get very into making all the stuff spawn exactly right from all the parts/attachments.
+
+    Ok, so each gun, bomb, and pod need their own projectiles
 --]]
 
 --The names here are used to find files, so you have to update those if you change this.
@@ -226,21 +229,25 @@ end
 
 local MODEL_BASIC = "basic"
 
-local BASIC_HEAD = {model=MODEL_BASIC, type=PART_HEAD}
-local BASIC_BODY = {model=MODEL_BASIC, type=PART_BODY, health=50} --todo make powers for all of the equips I can't assign.
-local BASIC_LEGS = {model=MODEL_BASIC, type=PART_LEGS}
+local BASIC_HEAD = {model=MODEL_BASIC, type=PART_HEAD, compute=30} --targeting? Processing power?
+local BASIC_BODY = {model=MODEL_BASIC, type=PART_BODY, health=95, compute=10} --todo make powers for all of the equips I can't assign.
+local BASIC_LEGS = {model=MODEL_BASIC, type=PART_LEGS, traverseSpeed=1, movementSpeed=.8}
 local BASIC_GUN = {model=MODEL_BASIC, type=PART_GUN, damage=3, shots=3, shot_delay=.3, cooldown=2}
-local BASIC_BOMB = {model=MODEL_BASIC, type=PART_BOMB}
+local BASIC_BOMB = {model=MODEL_BASIC, type=PART_BOMB} --todo remove the basic pod and bomb from default.  You have to buy them.
 local BASIC_POD = {model=MODEL_BASIC, type=PART_POD}
+local NONE = {} --todo see what I need to stub.  Also I need an id-indexed list of jitsus.
 
 local HEADS = {BASIC_HEAD}
 local BODIES = {BASIC_BODY}
 local GUNS = {BASIC_GUN}
-local BOMBS = {BASIC_BOMB}
-local PODS = {BASIC_POD}
+local BOMBS = {NONE, BASIC_BOMB}
+local PODS = {NONE, BASIC_POD}
 local LEGS = {BASIC_LEGS}
 local PART_MODELS_BY_TYPE = {HEADS, BODIES, LEGS, GUNS, BOMBS, PODS}
 
+local FOOT_FORWARD_FACTOR = 2
+local STEP_DISTANCE = 33
+local INDEXING_OFFSET = 1 --nonsense for 1 indexing
 local FOOT_OFFSET = 5
 local HIGHLIGHT_YELLOW = Graphics.GL_Color(.8, .8, .0, .5)
 local HIGHLIGHT_GREEN = Graphics.GL_Color(.0, .8, .0, .5)
@@ -248,9 +255,8 @@ local HOVER_GREEN = Graphics.GL_Color(.0, .8, .0, .3)
 local SELECT_CIRCLE_RADIUS = 15
 local SPECIES_JITSU = "fff_jitsugyoka"
 
---todo do I need to stub this for testing?
 local mJitsuPlayerVariableInterface = lwl.CreatePlayerVariableInterface(METAVAR_NAME_JITSU)
-local mJitsuList = {} --todo load this from cco
+local mJitsuList = {}
 local mInitialized = false
 local mJitsuObserver
 local mScaledLocalTime = 0 --todo make a time ticker.
@@ -281,13 +287,27 @@ This is a big thing made of smaller things.
 The angle of the feet should rotate to align with the body, but only while a given foot is moving.
 
 
+
 Firefighting poof bits if the game doesn't do them itself.
 Make sure it turns towards fires and people it fights.
 ]]
+local function getGunProjectilePath(model)
+    return ""
+end
 
+local function getBombProjectilePath(model)
+    return ""
+end
+
+local function getPodProjectilePath(model)
+    return ""
+end
 
 local function getPartPath(part)
     --print("Getting path for", lwl.dumpObject(part))
+    if not part.model then
+        return "" --todo if this doesn't create a particle, might return a path to an empty image. --nah it should work.
+    end
     return "particles/jitsugyoka/"..PART_FILE_NAMES[part.type] .."/"..part.model
 end
 
@@ -322,13 +342,6 @@ local function iterateParticles(jitsu, effectFunction)
     end
 end
 
-local function getBasePathForPart(jitsu, partType)
-    print("partType", partType, PART_FILE_NAMES[partType])
-    local modelIndex = jitsu:getVar(PART_FILE_NAMES[partType])
-    print("modelIndex", modelIndex, PART_MODELS_BY_TYPE[partType], PART_MODELS_BY_TYPE[partType][modelIndex])
-    return getPartPath(PART_MODELS_BY_TYPE[partType][modelIndex])
-end
-
 --The game will create a new jitsu table to track a crewmember that's a jitsu.
 local function newJitsu(crewmem)
     print("new jitsu", crewmem:GetName())
@@ -346,7 +359,7 @@ local function newJitsu(crewmem)
     end
 
     jitsu.getVar = function (self, varKey)
-        print("getvar3", self.baseCrewWrapper:get().extend.selfId)
+        --print("getvar3", self.baseCrewWrapper:get().extend.selfId, varKey)
         return mJitsuPlayerVariableInterface.getVariable(self.baseCrewWrapper:get().extend.selfId, varKey)
     end
 
@@ -357,6 +370,7 @@ local function newJitsu(crewmem)
             previousValue = 1 --todo hack to deal with zeros left over, remove later.
         end
         jitsu:setVar(varKey, previousValue)
+        return previousValue
     end
 
     jitsu.destroySelf = function(self)
@@ -366,6 +380,14 @@ local function newJitsu(crewmem)
         iterateParticles(self, destroyFunction)
         print("destroy self")
         mJitsuPlayerVariableInterface.removeObject(self.baseCrewWrapper:get().extend.selfId)
+    end
+
+    ---comment
+    ---@param self table
+    ---@param partType any
+    ---@return table
+    jitsu.getCurrentPart = function(self, partType)
+        return PART_MODELS_BY_TYPE[partType][self:getVar(PART_FILE_NAMES[partType])]
     end
     
     ---comment
@@ -380,26 +402,28 @@ local function newJitsu(crewmem)
     jitsu.swapParticles = function(self, partPath, partName)
         local newParticle = createPersistantParticle(partPath)
         if self[partName] then
+            newParticle.position = self[partName].position
+            newParticle.visible = self[partName].visible
+            newParticle.rotation = self[partName].rotation
             self[partName].destroy()
         end
         self[partName] = newParticle
     end
 
     --Called during init, load, and part swap.  todo maybe change arguments
-    jitsu.equipPart = function(self, partList, modelIndex)
-        local part = partList[modelIndex]
-        local partTypeName = PART_FILE_NAMES[part.type]
-        local partPath = getPartPath(part)
+    jitsu.equipPart = function(self, partType, modelIndex)
+        local newPart = PART_MODELS_BY_TYPE[partType][modelIndex]
+        local partTypeName = PART_FILE_NAMES[partType]
+        local partPath = getPartPath(newPart)
 
-        if #PART_INFO_LIST[part.type].subunits > 0 then
-            for _,subunitName in ipairs(PART_INFO_LIST[part.type].subunits) do
+        if #PART_INFO_LIST[partType].subunits > 0 then
+            for _,subunitName in ipairs(PART_INFO_LIST[partType].subunits) do
                 self:swapParticles(partPath.."/"..subunitName, partTypeName..subunitName)
             end
         else
             self:swapParticles(partPath, partTypeName)
         end
-        --todo also change the statistics.
-
+        --Part stats are baked in, and change immediately.
         self:setVar(partTypeName, modelIndex)
     end
 
@@ -437,7 +461,7 @@ local function newJitsu(crewmem)
     ---Returns the direction this crew should face as a BRIGHTNESS ANGLE
     ---@return number the angle the crew is travelling in degrees, 0 being straight up.
     jitsu.calculateDesiredFacingAngle = function(self)
-        local bodyParticle = self[PART_FILE_NAMES[2]]
+        local bodyParticle = self[PART_FILE_NAMES[PART_BODY]]
         --print("calc angle")
         local crew = self.baseCrewWrapper:get()
         if lwl.goalExists(crew:GetFinalGoal()) then
@@ -454,14 +478,11 @@ local function newJitsu(crewmem)
             --If we are generally pointed the right direction, do some finer navigation.
             return immediateHeadingBrightness
         else
-            --Standing still, don't rotate
             --We want to rotate in combat or manning systems or fighting fires.
-            --print("crew direction", crew.crewAnim.direction, crew.crewAnim.sub_direction, crew.crewAnim.moveDirection, crew.crewAnim.bTyping)
-            --print("manning?", crew.bActiveManning, crew:RepairingFire())
             if crew.bActiveManning or crew:RepairingFire() then
                 return lwl.angleFtlToBrightness(lwl.animationDirectionToFtlAngle(crew.crewAnim.direction))
             end
-            --print("Standing still at ", mBodyParticle.rotation)
+            --Standing still, don't rotate
             return bodyParticle.rotation
         end
     end
@@ -484,13 +505,7 @@ local function newJitsu(crewmem)
                 adjustParticleDirection(self[partTypeName], desiredDirection)
             end
         end
-        --todo do this in the same style as the other stuff, just note that feet might be on the ground and not able to turn.
-        --but also i can save that part for later.
     end
-
-    local FOOT_FORWARD_FACTOR = 2
-    local STEP_DISTANCE = 33
-    local INDEXING_OFFSET = 1 --nonsense for 1 indexing
     
     jitsu.getNextFoot = function(self)
         if not self.activeFootIndex then
@@ -575,24 +590,21 @@ local function newJitsu(crewmem)
     jitsu.onFrame = function(self, ship)
         --for all particles
         --if it doesn't have subparticles, snap it to yourself.
-        --always snap it to your space.
         local crew = self.baseCrewWrapper:get()
         if (not (crew.currentShipId == ship.iShipId)) or (self.isDying or crew.bDead) then return end
 
         --render selection state
-        --print("ship", ship.iShipId, crew.currentShipId, crew.currentShipId == ship.iShipId)
-        local position = crewmem:GetPosition()
+        local position = crew:GetPosition()
         local color
-        if (crewmem.selectionState == 0) then--not selected, do nothing
+        if (crew.selectionState == 0) then--not selected, do nothing
             color = HIGHLIGHT_YELLOW
-        elseif (crewmem.selectionState == 1) then --selected, relative green fill
+        elseif (crew.selectionState == 1) then --selected, relative green fill
             color = HIGHLIGHT_GREEN
-        elseif (crewmem.selectionState == 2) then --hover, green edges
+        elseif (crew.selectionState == 2) then --hover, green edges
             color = HOVER_GREEN
         end
         Graphics.CSurface.GL_DrawCircle(position.x, position.y, SELECT_CIRCLE_RADIUS, color)
 
-        --print("onframe")
         if crew.bDead then return end --don't try to render crew that's not on screen.
         if not crew.crewAnim.sub_direction == crew.crewAnim.moveDirection then
             print("directions differed!", crew.crewAnim.sub_direction, crew.crewAnim.moveDirection)
@@ -601,23 +613,14 @@ local function newJitsu(crewmem)
             local partTypeName = PART_FILE_NAMES[partType]
             if #PART_INFO_LIST[partType].subunits > 0 then
                 for _,subunitName in ipairs(PART_INFO_LIST[partType].subunits) do
-                    self[partTypeName..subunitName].space = self.baseCrewWrapper:get().currentShipId
+                    self[partTypeName..subunitName].space = crew.currentShipId
                 end
             else
-                
-                -- print("wow this printed4") --this is the last thing that printed before the crash.
-                -- print("wow this printed4", self)
-                -- print("wow this printed4", crew)
                 -- print("wow this printed4 current", crew.currentShipId)
                 -- print("wow this printed4 i", crew.iShipId)
                 -- print("wow this printed4 pos", crew:GetPosition())
                 self[partTypeName].position = crew:GetPosition() ---god this is undefined behavior bugs. rippy.
-                self[partTypeName].space = self.baseCrewWrapper:get().currentShipId
-                --self[partTypeName].space = 0--self.baseCrewWrapper:get().currentShipId  --todo these are the lines that break it.
-                --print("did all that and didn't crash", partTypeName, self[partTypeName].space)
-                ----todo it just crashes, it doesn't even get here.  Brightness bug?  HS bug?
-                --Also it snaps the parts onto one of the other crew.
-                --and then after another refresh, forgets their attached to anyone.
+                self[partTypeName].space = crew.currentShipId
             end
         end
 
@@ -633,17 +636,8 @@ local function newJitsu(crewmem)
 
     ---Start all parts at the lowest level if not already set.
     for i,partTypeName in ipairs(PART_FILE_NAMES) do
-        jitsu:initVar(partTypeName, 1)
-        if #PART_INFO_LIST[i].subunits > 0 then
-            jitsu[partTypeName] = {}
-            for _,subunitName in ipairs(PART_INFO_LIST[i].subunits) do
-                local subunitParticle = createPersistantParticle(getBasePathForPart(jitsu, i).."/"..subunitName)
-                jitsu[partTypeName..subunitName] = subunitParticle
-                table.insert(jitsu[partTypeName], subunitParticle)
-            end
-        else
-            jitsu[partTypeName] = createPersistantParticle(getBasePathForPart(jitsu, i))
-        end
+        local partModelIndex = jitsu:initVar(partTypeName, 1)
+        jitsu:equipPart(i, partModelIndex)
     end
     
     jitsu.immediateHeading = 0
@@ -654,6 +648,99 @@ local function newJitsu(crewmem)
     Brightness.send_to_front(jitsu[PART_FILE_NAMES[PART_GUN]])
     Brightness.send_to_front(jitsu[PART_FILE_NAMES[PART_POD]])
     Brightness.send_to_front(jitsu[PART_FILE_NAMES[PART_HEAD]])
+
+    local BAD_VALUE = 50085
+
+    local crewFilterFunction = lwl.generateCrewFilterFunction(crewmem)
+    --NOTE: Values of parts may be empty, and 
+    local healthFunction = function()
+        local body = jitsu:getCurrentPart(PART_BODY)
+        if body.health == nil then error("Body health was nil!"..lwl.dumpObject(body)) end
+        return body.health
+    end
+    local stunFunction = function()
+        local body = jitsu:getCurrentPart(PART_BODY)
+        local head = jitsu:getCurrentPart(PART_HEAD)
+        return lwl.setIfNil(body.stunResist, 1) * lwl.setIfNil(head.stunResist, 1)
+    end
+    local moveSpeedFunction = function()
+        local part = jitsu:getCurrentPart(PART_LEGS)
+        if part.movementSpeed == nil then error("Leg move speed was nil!"..lwl.dumpObject(part)) end
+        return part.movementSpeed
+    end
+    -- local healthFunction = function()
+    --     local body = jitsu:getCurrentPart(PART_BODY)
+    --     return body.health
+    -- end
+
+    --todo this is where all the stuff happens that I control with parts
+    
+    lwsb.addStatBoost(Hyperspace.CrewStat.MAX_HEALTH, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, healthFunction, crewFilterFunction)
+    lwsb.addStatBoost(Hyperspace.CrewStat.STUN_MULTIPLIER, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, stunFunction, crewFilterFunction)
+    lwsb.addStatBoost(Hyperspace.CrewStat.MOVE_SPEED_MULTIPLIER, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.REPAIR_SPEED_MULTIPLIER, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.DAMAGE_MULTIPLIER, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.RANGED_DAMAGE_MULTIPLIER, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.DOOR_DAMAGE_MULTIPLIER, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.FIRE_REPAIR_MULTIPLIER, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.SUFFOCATION_MODIFIER, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.FIRE_DAMAGE_MULTIPLIER, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.OXYGEN_CHANGE_SPEED, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.DAMAGE_TAKEN_MULTIPLIER, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.CLONE_SPEED_MULTIPLIER, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.PASSIVE_HEAL_AMOUNT, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.TRUE_PASSIVE_HEAL_AMOUNT, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.TRUE_HEAL_AMOUNT, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.PASSIVE_HEAL_DELAY, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.ACTIVE_HEAL_AMOUNT, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.SABOTAGE_SPEED_MULTIPLIER, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.ALL_DAMAGE_TAKEN_MULTIPLIER, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.HEAL_SPEED_MULTIPLIER, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.HEAL_CREW_AMOUNT, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.DAMAGE_ENEMIES_AMOUNT, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.BONUS_POWER, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.POWER_DRAIN,  lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.ESSENTIAL, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.CAN_FIGHT, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.CAN_REPAIR, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.CAN_SABOTAGE, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    --weird head thing that means you can't man systems.  Hyperspecific war head.
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.CAN_MAN, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.CAN_TELEPORT, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.CAN_SUFFOCATE, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.CONTROLLABLE, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.CAN_BURN, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.IS_TELEPATHIC, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.RESISTS_MIND_CONTROL, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.IS_ANAEROBIC, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.CAN_PHASE_THROUGH_DOORS, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.DETECTS_LIFEFORMS, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.CLONE_LOSE_SKILLS, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.POWER_DRAIN_FRIENDLY, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.DEFAULT_SKILL_LEVEL, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.POWER_RECHARGE_MULTIPLIER, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.HACK_DOORS, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.NO_CLONE, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.NO_SLOT, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.NO_AI, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.VALID_TARGET, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    --Several legs things
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.CAN_MOVE, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.TELEPORT_MOVE, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.TELEPORT_MOVE_OTHER_SHIP, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.SILENCED, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+        --Head can give immunity
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.LOW_HEALTH_THRESHOLD, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.NO_WARNING, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.CREW_SLOTS, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.ACTIVATE_WHEN_READY, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.STAT_BOOST, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.DEATH_EFFECT, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.POWER_EFFECT, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.POWER_MAX_CHARGES, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.POWER_CHARGES_PER_JUMP, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.POWER_COOLDOWN, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
+    -- lwsb.addStatBoost(Hyperspace.CrewStat.TRANSFORM_RACE, lwsb.TYPE_NUMERIC, lwsb.ACTION_SET, moveSpeedFunction, crewFilterFunction)
     return jitsu
 end
 
@@ -736,7 +823,7 @@ script.on_internal_event(Defines.InternalEvents.ON_TICK, function()
     
     --todo put stuff that should happen while paused here.
     if lwl.isPaused() then return end
-    mScaledLocalTime = mScaledLocalTime + (Hyperspace.FPS.SpeedFactor * 16 / 10)
+    mScaledLocalTime = mScaledLocalTime + (Hyperspace.FPS.SpeedFactor * 16 / 10) --todo make timing classes for onTick that calls functions registered to it based on time elapsed.
     if (mScaledLocalTime > 1) then
         mScaledLocalTime = 0
         for _,crewId in ipairs(mJitsuObserver.getAddedCrew()) do
@@ -749,6 +836,10 @@ script.on_internal_event(Defines.InternalEvents.ON_TICK, function()
     end
 end)
 
+script.on_init(function(newGame)
+    print("Loaded, is new game?", newGame)
+end)
+--when swapping parts, make sure to carry over attributes of particles that get set.  position, facing, visibility, etc.
 
 
 -----------------------------------------------------------
@@ -759,11 +850,6 @@ This crashes when you quit to menu and try to continue.  I think because the bri
 I don't have this issue with gexpy, or at least not since I last checked.
 It's likely the brightness particles that I have lying around which I expect to be there and aren't.
 Time to comment out large blocks of code and see what happens.
-
-Ok I changed nothing and now the particles don't show up.
-
-Buffer works fine, but the old particles stick around.  There should be something in Brightness to deal with particles that you lose track of.
-I wonder if old versions of this crash also, or if that's more of a complex interaction.
 
 Restarting also breaks it.  But only with brightness particles?
 --]]
