@@ -95,8 +95,7 @@ local function shoot(crewmem)
             local target = enemyCrewOnSameShip[math.random(1, #enemyCrewOnSameShip)]
             local targetPos = target:GetPosition()
             local crewPos = crewmem:GetPosition()
-            
-            heading = ((math.atan((targetPos.x - crewPos.x), (crewPos.y - targetPos.y)) * (180/math.pi))) % 360 --degrees
+            heading = lwl.angleFtlToBrightness(lwl.getAngle(crewPos, targetPos))
             --print("Targeting ", target:GetLongName(), " at ", targetPos.x, targetPos.y, " heading ", heading)
         else
             heading = math.random() * 360
@@ -203,7 +202,7 @@ end
 local function fireParticle(crewmem, bufferParticles)
     local particle = bufferParticles[1]
     if (particle == nil) then
-        print("fired nil!")
+        error("fired nil!")
     end
     local commandDelay = executeCommand(particle.fff_buffer_id, crewmem)
     --pull the stack down
@@ -298,7 +297,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
                 end
             end
         end
-        
+
         --this is modified in the loop, so we have to load it here.
         local shotHeadings = crewTable.shotHeadings
         if (shotHeadings == nil) then
@@ -316,8 +315,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
         end
 
         --print("manning", crewmem.bActiveManning, "repair", crewmem:Repairing(), "sabot", crewmem:Sabotaging(), "tele", crewmem.extend.customTele.teleporting,  "dead", crewmem.bDead, crewmem:GetPosition().x, crewmem:GetPosition().y)--asdf
-        
-    
+
         repositionBufferStack(crewmem, bufferParticles, brownianTime)
         brownianTime = brownianTime + 1 --could be less
         --Finally write back to table
@@ -348,13 +346,12 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
             --handle shots
             for i = #shotsFired, 1, -1 do
                 local particle = shotsFired[i]
-                if (lwl.damageFoesAtSpace(crewmem, particle.position, 0, 0, SHOT_DAMAGE)) then
+                if (lwl.damageFoesAtSpace(crewmem.iShipId, crewmem.currentShipId, particle.position, 0, 0, SHOT_DAMAGE)) then
                     Brightness.destroy_particle(particle)
                     table.remove(shotsFired, i)
                 end
                 --print("shots fired", lwl.dumpObject(shotsFired))todo
                 --draw triangle
-                local particleRadius = 2
                 local deltaX = particle.position.x - crewmem:GetPosition().x
                 local deltaY = particle.position.y - crewmem:GetPosition().y
                 local innerAngle = math.atan(deltaY, deltaX)
