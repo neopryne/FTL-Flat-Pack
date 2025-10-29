@@ -140,7 +140,7 @@ local BASIC_BULLET =  {model=MODEL_BASIC, damage=3, movementSpeed=2, frames=1}
 local BASIC_HEAD = {model=MODEL_BASIC, type=PART_HEAD, frames=1, compute=30} --targeting? Processing power?
 local BASIC_BODY = {model=MODEL_BASIC, type=PART_BODY, frames=1, health=95, compute=10} --todo make powers for all of the equips I can't assign.
 local BASIC_LEGS = {model=MODEL_BASIC, type=PART_LEGS, frames=1, traverseSpeed=1, movementSpeed=.8}
-local BASIC_GUN = {model=MODEL_BASIC, type=PART_GUN, frames=1, projectile=BASIC_BULLET, shots=3, shotDelay=5, cooldown=50, fireCondition=fightingCondition}
+local BASIC_GUN = {model=MODEL_BASIC, type=PART_GUN, frames=1, projectile=BASIC_BULLET, shots=3, shotsPerCluster=1, clusterAngle=0, shotDelay=5, cooldown=50, fireCondition=fightingCondition}
 local BASIC_BOMB = {model=MODEL_BASIC, type=PART_BOMB, frames=1, bombImage="", explosionPath=""} --todo remove the basic pod and bomb from default.  You have to buy them.
 local BASIC_POD = {model=MODEL_BASIC, type=PART_POD, frames=1, podImage=""}
 local NONE_BOMB = {type=PART_BOMB} --todo see what I need to stub.  Also I need an id-indexed list of jitsus?  Maybe not?
@@ -293,9 +293,17 @@ firePod = function (jitsu, podPart)
     local podProjectilePart = podPart.projectile
     local crew = jitsu.crewWrapper:get()
     local bodyPart = jitsu[PART_FILE_NAMES[PART_BODY]]
-    local podParticle = Brightness.create_particle(getPodProjectilePath(podPart), podPart.frames, lwl.setIfNil(podPart.loopSeconds, .25))
-    ---TODO from here out it differs by projectile.
-    podParticle.heading = bodyPart.rotation - 180 + (math.random(-)) --todo pod spread, this is fancy stuff that only applies to like... pods and bombs that are being too fancy for their own good?
+    local shots = lwl.setIfNil(podPart.shotsPerCluster, 1)
+    local spread = shots * podPart.clusterAngle
+    local shotHeading = bodyPart.rotation - (spread / 2) - 180 --The 180 is from the pod, they come out the back
+    
+    for i=1,shots do
+        local podParticle = Brightness.create_particle(getPodProjectilePath(podPart), podPart.frames, lwl.setIfNil(podPart.loopSeconds, .25), getPodChutePosition(jitsu), )
+        podParticle.heading = shotHeading
+        podParticle.movementSpeed = podProjectilePart.movementSpeed
+        lwp.createProjectile(podParticle, lwp.createPodOnTickFunction(), crew.iShipId)
+        shotHeading = shotHeading + (spread / shots)
+    end
 end
 
 local function firePartBurst(jitsu, part)
