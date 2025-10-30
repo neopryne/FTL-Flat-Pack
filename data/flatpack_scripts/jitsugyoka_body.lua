@@ -125,6 +125,11 @@ end
 local MODEL_BASIC = "basic"
 
 --Conditions for when you weapons are armed and firing
+--Instead of these conditions, it should just be whether any valid targeting algorithms are working.
+--So I guess that pods will also have sameShipEnemyTargetingFunction, in case you have pods and no bombs.
+--Ok, that means that, actually, each part can just worry about its own targeting function.
+--Both for if it should be firing, and for where to turn to.
+--long term I should maybe make guns only start firing once they're pointed in approximately the right direction.
 
 local function fightingCondition(crewmem)
     return crewmem.bFighting
@@ -135,14 +140,26 @@ local function enemyCrewOnSameShipCondition(crewmem)
     return #enemyCrewOnSameShip > 0
 end
 
-local BASIC_BULLET =  {model=MODEL_BASIC, damage=3, movementSpeed=2, frames=1}
+
+---Targeting functions return nil if they can't find a valid target.
+
+--Return the position of a random enemy crew in the same room if any exists, or nil otherwise.
+local function sameRoomFoesTargetingFunction()
+    
+end
+
+local BASIC_EXPLOSION = {path="", frames=9, lifetimeSeconds=.9}
+---All projectiles need these attributes. loopSeconds is optional, and used if you have multiple frames.
+local BASIC_BULLET = {model=MODEL_BASIC, damage=3, movementSpeed=2, frames=1, despawn=lwp.despawnOutsideRooms, lifetimeSeconds=3}
+local BASIC_BOMB_SHOT = {model=MODEL_BASIC, damage=3, movementSpeed=2, frames=1, lifetimeSeconds=30, explosion=BASIC_EXPLOSION}
+local BASIC_POD_SHOT = {model=MODEL_BASIC, damage=3, movementSpeed=2, frames=1, lifetimeSeconds=9}
 --todo I can have animated parts!
 local BASIC_HEAD = {model=MODEL_BASIC, type=PART_HEAD, frames=1, compute=30} --targeting? Processing power?
 local BASIC_BODY = {model=MODEL_BASIC, type=PART_BODY, frames=1, health=95, compute=10} --todo make powers for all of the equips I can't assign.
 local BASIC_LEGS = {model=MODEL_BASIC, type=PART_LEGS, frames=1, traverseSpeed=1, movementSpeed=.8}
-local BASIC_GUN = {model=MODEL_BASIC, type=PART_GUN, frames=1, projectile=BASIC_BULLET, shots=3, shotsPerCluster=1, clusterAngle=0, shotDelay=5, cooldown=50, fireCondition=fightingCondition}
-local BASIC_BOMB = {model=MODEL_BASIC, type=PART_BOMB, frames=1, bombImage="", explosionPath=""} --todo remove the basic pod and bomb from default.  You have to buy them.
-local BASIC_POD = {model=MODEL_BASIC, type=PART_POD, frames=1, podImage=""}
+local BASIC_GUN = {model=MODEL_BASIC, type=PART_GUN, frames=1, projectile=BASIC_BULLET, shots=3, shotsPerCluster=1, clusterAngle=0, shotDelay=5, cooldown=50, fireCondition=fightingCondition, sound=""}
+local BASIC_BOMB = {model=MODEL_BASIC, type=PART_BOMB, frames=1, projectile=BASIC_BOMB_SHOT, arcHeight=20, sound=""} --todo remove the basic pod and bomb from default.  You have to buy them.
+local BASIC_POD = {model=MODEL_BASIC, type=PART_POD, frames=1, projectile=BASIC_POD_SHOT, sound=""}
 local NONE_BOMB = {type=PART_BOMB} --todo see what I need to stub.  Also I need an id-indexed list of jitsus?  Maybe not?
 local NONE_POD = {type=PART_POD}
 
@@ -170,6 +187,28 @@ local mJitsuList = {}
 local mInitialized = false
 local mJitsuObserver
 local mScaledLocalTime = 0 --todo make a time ticker.
+
+local function getPartPath(part)
+    --print("Getting path for", lwl.dumpObject(part))
+    if not part.model then
+        return "" --todo if this doesn't create a particle, might return a path to an empty image. --nah it should work.
+    end
+    return "particles/jitsugyoka/"..PART_FILE_NAMES[part.type] .."/"..part.model
+end
+
+--To be used 
+Brightness.createParticleByLifetime = function(folder, frameCount, loopSeconds, lifetimeSeconds, location, degrees, spaceValue, layer)
+    local numLoops = lifetimeSeconds / loopSeconds
+    local particle = Brightness.create_particle(folder, frameCount, loopSeconds, location, degrees, spaceValue, layer)
+    particle.loops = particle.loops + numLoops
+    return particle
+end
+
+local function createPersistantParticle(path, newPart)--No need to create persistant particles by lifetime.
+    local particle = Brightness.create_particle(path, newPart.frames, lwl.setIfNil(newPart.loopSeconds, 5), Hyperspace.Pointf(0,0), 0, 0, RENDER_LAYER)
+    particle.persists = true
+    return particle
+end
 --[[
 legs: speed, rotation
 body: health, DR
@@ -228,11 +267,13 @@ local function getPodProjectilePath(model)
 end
 local PROJECTILE_PATH_LOCATIONS = {NOOP, NOOP, NOOP, getGunProjectilePath, getBombProjectilePath, getPodProjectilePath}
 
-
+--todo put these all into one big object where each of these are values of abstract "gun", "bomb", "pod" definitions.
 local PART_TRIGGER_LOOP_FUNCTIONS = {NOOP, NOOP, NOOP, NOOP, NOOP, NOOP}
 local PART_TRIGGER_LOOP_WRAPPER_FUNCTIONS = {}
 local PART_BURST_FIRE_FUNCTIONS = {NOOP, NOOP, NOOP, NOOP, NOOP, NOOP}
 local PART_FIRE_FUNCTIONS = {NOOP, NOOP, NOOP, fireGun, fireBomb, firePod}
+local PART_DEFAULT_FACING_DIRECTIONS = {0, 0, 0, 0, 0, 180}
+local PART_PROJECTILE_SETUP_FUNCTIONS = {NOOP, NOOP, NOOP, setupBullet, setupBomb, setupPod}
 --TODO I'm dumb, most of these need to be internal to a jitsu object.  They're not global.
 for i=PART_HEAD,PART_POD do
     PART_TRIGGER_LOOP_WRAPPER_FUNCTIONS[i] = function()
@@ -266,7 +307,23 @@ local function equipPartpt2(part) --todo handle equipping empty gun parts
 end
 --todo when you equip a new part, this registers the fireGunInternal method to be a new thing:
 ---Check if the part has a fireCondition.  If it does,
-
+---
+---
+---#$(&, targeting on the odd parts is going to be a massive pain.  I have to change the desired facing angle for guns that target outside of the current room.
+---Ok, so when targeting with guns, you need to take over the heading function.
+---When targeting with pods or bombs, you don't.
+---It would super simplify my life if I could get the position of the thing they're trying to shoot at at all times.
+---I can just assign a guy at random who fills the requirements, as it's not actually important that jitsu fights like normal.
+---Cool, done.
+---Pods just... Don't have targeting as currently written.
+---
+---New targeting method:
+---Every step, find the position of the current target for both gun and bomb.
+---Only parts with valid targets will fire.  Bombs can target anywhere on the ship, so are always valid.
+---When a target of any kind exists, jitsu will turn to face it above all else.
+---Target is a position.  This will often, but not always, come from a crew.
+---
+---
 --This is a way to make threads that end themselves.  Very crude parallelization.
 local fireGunProjectilesInternal = NOOP
 local fireGunProjectilesWrapper = function()
@@ -274,35 +331,54 @@ local fireGunProjectilesWrapper = function()
 end
 lwst.registerOnTick(fireGunProjectilesWrapper, false)
 
-fireGun = function(jitsu, gunPart)
-    local bulletPart = gunPart.projectile
-    local crew = jitsu.crewWrapper:get()
+local function setupBullet(jitsu, firingPart, particle, angleDelta)
+    local bulletPart = firingPart.projectile
     local bodyPart = jitsu[PART_FILE_NAMES[PART_BODY]]
-    local bulletParticle = Brightness.create_particle(getGunProjectilePath(bulletPart), bulletPart.frames, lwl.setIfNil(bulletPart.loopSeconds, .25), getGunBarrelPosition(jitsu), bodyPart.rotation, bodyPart.space, RENDER_LAYER)
-    bulletParticle.heading = bodyPart.rotation
-    bulletParticle.movementSpeed = bulletPart.movementSpeed
-    lwp.createProjectile(bulletParticle, lwp.createNormalBullet(bulletPart.damage, bulletPart.stun, bulletPart.directDamage), crew.iShipId)
+    local heading = angleDelta + bodyPart.rotation
+    particle.heading = heading
+    particle.rotation = heading
+    particle.movementSpeed = bulletPart.movementSpeed
+    --todo normal bullet is a thing you should have attached to the bulletPart.
+    --Need to pull this out, making the other parts will probably help clarify how this shouuld work.
+    lwp.createProjectile(particle, lwp.createBulletOnTickFunction(bulletPart.damage, bulletPart.stun, bulletPart.directDamage, bulletPart.despawn), crew.iShipId)
 end
 
-fireBomb = function (jitsu, bombPart)
-    local bombProjectilePart = bombPart.projectile
-    local crew = jitsu.crewWrapper:get()
+--someone
+local function setupBomb(jitsu, firingPart, particle, angleDelta)
+    local bombPart = firingPart.projectile
+    local explosion = bombPart.explosion
+---todo targeting for getting endPos.. 
+
+    lwp.createProjectile(particle, lwp.createBombOnTickFunction(bombPart.damage, bombPart.stun, 
+            bombPart.directDamage, particle.position, jitsu.targetPosition, firingPart.arcHeight, bombPart.movementSpeed, explosion.path, explosion.frames,
+            explosion.lifetimeSeconds), crew.iShipId)
 end
 
-firePod = function (jitsu, podPart)
-    local podProjectilePart = podPart.projectile
+local function setupPod(jitsu, firingPart, particle, angleDelta)
+    local podPart = firingPart.projectile
+    local bodyPart = jitsu[PART_FILE_NAMES[PART_BODY]]
+    local heading = (angleDelta + bodyPart.rotation + 180) % 360 --todo idk if you need the %
+    particle.heading = heading
+    particle.rotation = heading
+    particle.movementSpeed = podPart.movementSpeed
+    lwp.createProjectile(particle, lwp.createPodOnTickFunction(podPart.damage, podPart.stun, podPart.directDamage), crew.iShipId)
+end
+
+local function fireProjectile(jitsu, firingPart)
+    local projectilePart = firingPart.projectile
     local crew = jitsu.crewWrapper:get()
     local bodyPart = jitsu[PART_FILE_NAMES[PART_BODY]]
-    local shots = lwl.setIfNil(podPart.shotsPerCluster, 1)
-    local spread = shots * podPart.clusterAngle
-    local shotHeading = bodyPart.rotation - (spread / 2) - 180 --The 180 is from the pod, they come out the back
-    
-    for i=1,shots do
-        local podParticle = Brightness.create_particle(getPodProjectilePath(podPart), podPart.frames, lwl.setIfNil(podPart.loopSeconds, .25), getPodChutePosition(jitsu), )
-        podParticle.heading = shotHeading
-        podParticle.movementSpeed = podProjectilePart.movementSpeed
-        lwp.createProjectile(podParticle, lwp.createPodOnTickFunction(), crew.iShipId)
-        shotHeading = shotHeading + (spread / shots)
+    local spreadShots = lwl.setIfNil(firingPart.shotsPerCluster, 1)
+    local spread = spreadShots * lwl.setIfNil(firingPart.clusterAngle, 0)
+
+    for i=1,spreadShots do
+        local projectileParticle = Brightness.createParticleByLifetime(PROJECTILE_PATH_LOCATIONS[firingPart.type](firingPart),
+                projectilePart.frames, lwl.setIfNil(projectilePart.loopSeconds, .25), projectilePart.lifetimeSeconds,
+                JITSUGYOKA_PART_OPENINGS[firingPart.type](jitsu), 0, bodyPart.space, RENDER_LAYER)
+        local angleDelta = (spread / spreadShots) - (spread / 2) + PART_DEFAULT_FACING_DIRECTIONS[firingPart.type]
+        --TODO apply type-specific stuff
+        --could do this with an if statement, but injecting functions is much cleaner, for reasons I haven't fully worked out.
+        PART_PROJECTILE_SETUP_FUNCTIONS[firingPart.type](jitsu, firingPart, projectileParticle, angleDelta)
     end
 end
 
@@ -333,19 +409,7 @@ firePartBurst()--todo remove
 
 
 
-local function getPartPath(part)
-    --print("Getting path for", lwl.dumpObject(part))
-    if not part.model then
-        return "" --todo if this doesn't create a particle, might return a path to an empty image. --nah it should work.
-    end
-    return "particles/jitsugyoka/"..PART_FILE_NAMES[part.type] .."/"..part.model
-end
 
-local function createPersistantParticle(path, newPart)
-    local particle = Brightness.create_particle(path, newPart.frames, lwl.setIfNil(newPart.loopSeconds, 5), Hyperspace.Pointf(0,0), 0, 0, RENDER_LAYER)
-    particle.persists = true
-    return particle
-end
 
 --TODO the movement noise will come from the feet, as they move and stop. whiiir bang whiir bang
 local function launchParticle(particle)

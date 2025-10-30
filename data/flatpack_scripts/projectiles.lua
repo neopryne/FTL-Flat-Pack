@@ -137,6 +137,11 @@ lwp.createProjectile = function(particle, onTick, allegiance)
     table.insert(mProjectileList, projectile)
 end
 
+lwp.despawnOutsideRooms = function(projectile)
+    local currentRoom = lwl.getRoomAtLocation(projectile.particle.position)
+    return currentRoom == nil
+end
+
 ---comment
 ---@param damage any
 ---@param stun any
@@ -162,10 +167,7 @@ lwp.createBulletOnTickFunction = function(damage, stun, directDamage, despawnFun
 end
 
 lwp.createNormalBullet = function(damage, stun, directDamage)
-    return lwp.createBulletOnTickFunction(damage, stun, directDamage, function(projectile)
-        local currentRoom = lwl.getRoomAtLocation(projectile.particle.position)
-        return currentRoom == nil
-    end)
+    return lwp.createBulletOnTickFunction(damage, stun, directDamage, lwp.despawnOutsideRooms)
 end
 
 lwp.createPodOnTickFunction = function(damage, stun, directDamage)
