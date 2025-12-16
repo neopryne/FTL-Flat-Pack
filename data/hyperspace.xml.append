@@ -16,6 +16,14 @@
 	</mod:findLike>
 </FTL>
 
+
+<mod:findLike type="customSystems">
+	<mod-append:customSystem id="limrix_adaptive_repair"/>
+	<mod:findWithChildLike type="exclusivityGroup" child-type="cloaking">
+		<mod-append:limrix_adaptive_repair/>
+	</mod:findWithChildLike>
+</mod:findLike>
+
 <FTL> <!-- Crew Abilities and Crew -->
 	<!--Crew Abilities and Crew
 	\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -200,9 +208,84 @@
 				<transformRace>fp_unique_phantom</transformRace>
 			</powerEffect>
 		</mod-append:race>
+
+		<mod-append:race name="unique_henderson">
+			<maxHealth>100</maxHealth>
+			<canSuffocate>true</canSuffocate>
+			<damageMultiplier>1.5</damageMultiplier>
+			<rangedDamageMultiplier>1.5</rangedDamageMultiplier>
+			<sabotageSpeedMultiplier>2</sabotageSpeedMultiplier>
+			<resistsMindControl>true</resistsMindControl>
+			<stunMultiplier>0.24</stunMultiplier>
+			<defaultSkillLevel>2</defaultSkillLevel>
+			<fireDamageMultiplier>0.73</fireDamageMultiplier>
+			<animBase>human</animBase>
+			<shootingSounds>
+				<shootingSound>crewLaser</shootingSound>
+			</shootingSounds>
+			<deathSounds>
+				<deathSound>death1</deathSound>
+				<deathSound>death2</deathSound>
+			</deathSounds>
+			<passiveStatBoosts>
+				<statBoost name="allDamageTakenMultiplier">
+					<boostType>SET</boostType>
+					<amount>1</amount>
+					<shipTarget>CURRENT_ROOM</shipTarget>
+					<crewTarget>ALL</crewTarget>
+					<affectsSelf>false</affectsSelf>
+					<priority>-100</priority>
+					<duration>20</duration>
+					<whiteList>
+						<eldritch_spawn />
+					</whiteList>
+				</statBoost>
+				<statBoost name="validTarget">
+					<boostType>SET</boostType>
+					<value>true</value>
+					<shipTarget>CURRENT_ROOM</shipTarget>
+					<crewTarget>ALL</crewTarget>
+					<affectsSelf>false</affectsSelf>
+					<priority>-100</priority>
+					<duration>20</duration>
+					<whiteList>
+						<eldritch_spawn />
+					</whiteList>
+				</statBoost>
+				<statBoost name="transformRace">
+					<boostType>SET</boostType>
+					<race>eldritch_thing_noclone</race>
+					<shipTarget>CURRENT_ROOM</shipTarget>
+					<crewTarget>ALL</crewTarget>
+					<duration>20</duration>
+					<whiteList>
+						<eldritch_thing />
+					</whiteList>
+				</statBoost>
+				<statBoost name="canBurn">
+					<boostType>SET</boostType>
+					<value>true</value>
+					<shipTarget>CURRENT_ROOM</shipTarget>
+					<crewTarget>ALL</crewTarget>
+					<affectsSelf>false</affectsSelf>
+					<priority>-100</priority>
+					<duration>20</duration>
+				</statBoost>
+				<statBoost name="canSuffocate">
+					<boostType>SET</boostType>
+					<value>true</value>
+					<shipTarget>CURRENT_ROOM</shipTarget>
+					<crewTarget>ALL</crewTarget>
+					<affectsSelf>false</affectsSelf>
+					<priority>-100</priority>
+					<duration>20</duration>
+				</statBoost>
+			</passiveStatBoosts>
+		</mod-append:race>
 	</mod:findLike>
 	
-	<!-- 
+	<!--  power-- fuel bomb that irwins the room and does massive damage to all crew.
+	  neutralizes the gnome.
     If <ship name="MY_SHIP" ... /> already exists, adding another <ship name="MY_SHIP" ... /> will cause ship duplication.
     If we only look for the ship and turn on the slot, then nothing will happen if that <ship> doesn't exist.
 
@@ -280,6 +363,8 @@
 				</statBoost>
 			</statBoosts>
 		</aug>
+		
+		<aug name="UPG_LIMRIX_FIXBOOM_REPAIR"/>
 	</augments>
 
 

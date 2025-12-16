@@ -11,7 +11,7 @@ local function setName(crewmem)
     if name == FALLBACK_NAME or (#lwl.getNewElements({name}, NAMES) == 0) then return end
     if #mRenamedDanielIds < #NAMES then
         mRenamedDanielIds = lwl.setMerge(mRenamedDanielIds, {crewmem.extend.selfId})
-        print("renaming ", name, "to", NAMES[#mRenamedDanielIds])
+        --print("renaming ", name, "to", NAMES[#mRenamedDanielIds])
         lwl.setCrewName(crewmem, NAMES[#mRenamedDanielIds])
     else
         lwl.setCrewName(crewmem, FALLBACK_NAME)

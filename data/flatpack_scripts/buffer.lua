@@ -73,7 +73,7 @@ local function fireShot(crewmem, heading)
     soundControl:PlaySoundMix("fff_buffer_shot", 4, false)
     local shotParticle = Brightness.create_particle("particles/buffer/shot", 1, (OUTPUT_DELAY / CAPPED_FPS), crewmem:GetPosition(), 0, crewmem.currentShipId, "SHIP_MANAGER")
     shotParticle.heading = (heading + math.random(0, SHOT_DISPERSION)) % 360
-    shotParticle.movementSpeed = SHOT_SPEED
+    shotParticle.movementSpeed = SHOT_SPEED --todo this speed seems to change sometimes?
     shotParticle.shotOrigin = crewmem:GetPosition()
     local shotsFired = crewTable.shotsFired
     table.insert(shotsFired, shotParticle)
@@ -239,6 +239,7 @@ local BUFFERS_RESETTING = true --set to false after all buffers reset.
 --on-tick mechanical logic goes here.
 script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
     if (crewmem:GetSpecies() == "fff_buffer") then
+        if (Hyperspace.ships(0).iCustomizeMode == 2) then return end --don't tick in the hangar
         local shipManager = global:GetShipManager(crewmem.iShipId)
         local currentShipManager = global:GetShipManager(crewmem.currentShipId)
         local crewTable = userdata_table(crewmem, TABLE_NAME_BUFFER)
@@ -330,7 +331,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
     end--end buffer
 end)
 
-
+--todo strang behavior where shot stops rendering triangle and looses one direction of movement upon hitting the ship box?
 --rendering logic goes here, this should just be the attack animations.  Actually I can do those with particles, so this is just nothing?
 script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, function(ship)
     local shipManager = global:GetShipManager(ship.iShipId) --Manager for current ship

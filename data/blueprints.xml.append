@@ -1,7 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<FTL> <!--CREW BLUEPRINTS -->
+<FTL> 
+	<systemBlueprint name="limrix_adaptive_repair">
+		<type>cloaking</type>
+		<title>Adaptive Repair Terminal</title>
+		<desc>Allows your ship to repair some of the damage it has recieved this fight. Repairs hull equal to power used, up to a limit of the better of three or 75% of the damage you have taken this fight.
+	</desc>
+		<startPower>1</startPower>
+		<maxPower>3</maxPower>
+		<rarity>3</rarity>
+		<upgradeCost>
+			<level>30</level>
+			<level>55</level>
+		</upgradeCost>
+		<cost>110</cost>
+	</systemBlueprint>
+
+<!--CREW BLUEPRINTS -->
 	<!--CREW
 	\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 	CREW
@@ -94,6 +110,21 @@
 		<powerList>
 			<power>1.2x combat damage and sabotage speed.</power>
 			<power>Active ability: Restore Humanity, transform back to human form.</power>
+		</powerList>
+	</crewBlueprint>
+
+	<crewBlueprint name="unique_henderson">
+		<desc>The half-mad sunofabitch you picked up from a dead space station.  He's not finished yet.</desc>
+		<title>Crazy Bastard</title>
+		<short>Bastard</short>
+		<cost>37</cost>
+		<bp>5</bp>
+		<rarity>0</rarity>
+		<powerList>
+			<power>Really, really fast.</power>
+			<power>1.5x damage, 2x sabotage speed.</power>
+			<power>Moves erratically, may stun itself. Stun increases with damage taken.</power>
+			<power>Damages and stuns enemy crew in the rooms it moves to.</power>
 		</powerList>
 	</crewBlueprint>
 
