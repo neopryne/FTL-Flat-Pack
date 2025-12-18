@@ -1,15 +1,4 @@
 
-
-
-
-
-
-
-
-
-
-
-
 --[[
 
 A board is a 2d array of nodes.  Each node has lots of attributes, the most important of which is its type, used for finding matches.
@@ -33,12 +22,8 @@ This is a feature that lets you clear the stack.  In the return of each function
 ]]
 local lwl = {}
 
-local TYPE_COLORLESS = "colorless"
-
 --7x7
-local ownBoard = {rows=7, columns=7}
-local exampleNode = {type=TYPE_COLORLESS}
-
+---The typeGenerationFunction of each board should use some sort of seeded random generator that I can track so I can preserve state across devices.
 
 local MINIMUM_MATCH_LENGTH = 3
 --This can swap any two nodes, and does not assume they are adjacent.
@@ -47,17 +32,87 @@ local DIRECTION_DOWN = "below"
 local DIRECTION_LEFT = "left"
 local DIRECTION_RIGHT = "right"
 local DIRECTIONS = {DIRECTION_UP, DIRECTION_LEFT, DIRECTION_DOWN, DIRECTION_RIGHT}
+local HORIZONTAL_AXIS = {DIRECTION_RIGHT, DIRECTION_LEFT, name=direction_horizontal}
+local VERTICAL_AXIS = {DIRECTION_DOWN, DIRECTION_UP, name=direction_vertical}
+
+local TYPE_COLORLESS = "colorless"
+
+local ownBoard = {rows=7, columns=7}
+local exampleNode = {type=TYPE_COLORLESS}
+
+
+--#region queue data structure
+lwl.list = {}
+function lwl.list.new()
+    return {first = 1, last = 0, size=0}
+end
+-- queueNode = {next, previous, data}
+-- queue = {first, last}
+
+
+lwl.queue = {}
+function lwl.queue.new()
+    local queue = lwl.list.new()
+    queue.enqueue = function(self, item)
+        self.size = self.size + 1
+        self.last = self.last + 1
+        self[last] = item
+    end
+    queue.dequeue = function(self)
+        if self.size == 0 then return nil end
+        self.size = self.size - 1
+
+        local retval = self[self.first]
+        self[self.first] = nil
+        self.first = self.first + 1
+
+         --Reset values if empty
+        if self.size == 0 then
+            self.first = 0
+            self.last = -1
+        end
+        return retval
+    end
+    return queue
+end
+
+---Empties append into original, resulting in a single queue with all items from both in order.
+---@param original any
+---@param append any
+local function mergeQueues(original, append)
+    while append.size > 0 do
+        original:enqueue(append:dequeue())
+    end
+end
+--#endregion
+
+
+--#region misc functions
+local function getOtherAxis(axis)
+    if axis == HORIZONTAL_AXIS then
+        return VERTICAL_AXIS
+    end
+    if axis == VERTICAL_AXIS then
+        return HORIZONTAL_AXIS
+    end
+    error("Unexpected axis "..axis)
+end
+
+local function isTypeMatch(node1, node2)
+    return node1.type == node2.type
+end
+
+--simple function, expects nodes are in a line.
+local function detectMatch(nodes)
+    return #nodes >= MINIMUM_MATCH_LENGTH
+end
+
 
 local function inverseDirection(direction)
     
 end
+--#endregion
 
-local function refillBoard()
-    --Each row drops down as far as it can.
-end
-
-local checkMatchesVertical
-local checkMatchesHorizontal
 --This would be such a pain without multiple returns.
 --[[
 Needs to return both the total matched nodes as well as the current straight of nodes.
@@ -90,33 +145,15 @@ Then there's the whole animation stack that tracks what items we haven't animate
 Part of future predictions is building the animation stack for if those happen, and keeping that seperate from the main environment.
 Actually, I think that says a lot about what these things need to be.  They should be closures that basically have a copy of everything in the current environment.
 That seems like something that it's hard to do with most programming languages, but I really need that feature.
+
+I don't have enough built now to make the time system, waiting..
 ]]
 
 
-local HORIZONTAL_DIRECTIONS = {DIRECTION_RIGHT, DIRECTION_LEFT, name=direction_horizontal}
-local VERTICAL_DIRECTIONS = {DIRECTION_DOWN, DIRECTION_UP, name=direction_vertical}
-
-local function getOtherAxis(axis)
-    if axis == HORIZONTAL_DIRECTIONS then
-        return VERTICAL_DIRECTIONS
-    end
-    if axis == VERTICAL_DIRECTIONS then
-        return HORIZONTAL_DIRECTIONS
-    end
-    error("Unexpected axis "..axis)
-end
-
-local function isTypeMatch(node1, node2)
-    return node1.type == node2.type
-end
-
---simple function, expects nodes are in a line.
-local function detectMatch(nodes)
-    return #nodes >= 3
-end
 
 
 
+--#region Node methods
 local function getNode(board, i, j)
     if i > board.columns or i < 1 or j > board.rows or j < 1 then
         return nil --todo maybe don't use nil for empty.
@@ -124,20 +161,55 @@ local function getNode(board, i, j)
     return board.nodes[i][j]
 end
 
+--Doesn't change the position of this node???  i and j are just for convenience.
+
 local function newNode(board, i, j, type)
-    local node = {type=type, board=board, i=i, j=j, durability=0,
-    above = function(self)
+    local node = {type=type, board=board, i=i, j=j, durability=0}
+    node[DIRECTION_UP] = function(self)
         return getNode(self.board, self.i, self.j+1)
-    end, below = function(self)
+    end
+    node[DIRECTION_DOWN] = function(self)
         return getNode(self.board, self.i, self.j-1)
-    end, left = function(self)
+    end
+    node[DIRECTION_LEFT] = function(self)
         return getNode(self.board, self.i-1, self.j)
-    end, right = function(self)
+    end
+    node[DIRECTION_RIGHT] = function(self)
         return getNode(self.board, self.i+1, self.j)
-    end}
+    end
     return node
 end
 
+local function generateRandomNode(board, i, j)
+    return newNode(board, i, j, board.typeGenerationFunction())
+end
+
+--TODO see if useful
+local function replaceNode(node)
+    node = generateRandomNode(node.board, node.i, node.j)
+    node.board.nodes[node.i][node.j] = node
+end
+
+local function swapNodes(node1, node2)
+    if not (node1.board == node2.board) then
+        error("Nodes on different boards!")
+    end
+    local board = node1.board
+    --First, swap the board locations.  Then, update the nodes with the locations for their new positions.
+    local intermediary = lwl.deepCopyTable(node1)
+    local savedNode = node1
+    board.nodes[node1.i][node1.j] = node2
+    board.nodes[node2.i][node2.j] = intermediary
+
+    node1.i = node2.i
+    node1.j = node2.j
+    node2.i = intermediary.i
+    node2.j = intermediary.j
+    checkMatches({node1, node2})
+end
+--#endregion
+
+--#region match checking methods
 
 ---Returns all nodes of the same type in a contigious vertical line with this one
 ---@param currentNode table|node
@@ -186,18 +258,65 @@ local checkMatchesAxis = function(currentNode, axis)
     end
 end
 
+--Needs to save each match and its associated animations/resulting computation.  Animations must have everything they need to render contained inside them, because the board state will have changed by the time they execute.
+--TODO this is going to involve making deep copies of A LOT of boards to handle just, so many closures that all have their own idea of the world.
+--This makes for computationally kind of expensive code, but very nice logical seperation/compartmentalization.
+--The thing I need to consider is just how computationally expensive it is to do this.
+--A good game has lots of bits like this that make copies of local state to figure out what they should do, and then they act on the actual big things.
+--In particular, this method is useful for when you have things that are one way causal relations.  Animations will never influence game logic, they are purely cosmetic.
+--Game logic stuff must be done in order lock step.  But what I can do in those cases is generate predictions on what will happen and save those to save on computation later.
+
+--hahahah, do I make this a self-indexed list for nice properties?
+--Basically I actually want this to be a queue.
+local mGlobalAnimationQueue = lwl.queue.new()
+--todo I need a way to mark things as blocking other animations or not blocking.
+--Or something that lets some things happen simultaniously but not others.  This can wait until I get the internals done.
+--uh right, you have channels.  So from the global animation queue, you pop them off into different kinds of things.
+
+local exampleMatch = {nodes={}, animations={"ordered list of animations to play out."}, beforeBoardState, afterBoardState}
+--The last node will always be the first node.
+
+---TODO this needs to call itself recursively whenever it finds a match, because it's entirely possible for it to just go forever if very lucky.
+---Matched nodes with durability or permanence need to recheck even if they didn't change.
+---Basically, you need to recall this function with all of the matched nodes every time a match is made.
+---
+---Just pass board.allNodes() if that's what you mean to do.  Bad to put that logic in this function.  It needs at least one node so it knows what board it's using, and no I'm not having you pass a board unless there are no other options.
+
+--#region board refill methods
+local function fillFromTop(node, number)
+    if number < 1 then return end
+    if node == nil then
+        error("fillFromTop called with"..number.."too many calls!")
+        return
+    end
+    replaceNode(node)
+    fillFromTop(node.below(), number - 1)
+end
+
+--I can make a bunch of things work with just brightness particles that snap to locations, it's very abrupt though.
 --todo this should probably return a list of animations to happen, somehow?
 local function shiftDownInternal(node, quantity)
-    --todo this needs to leave nodes alone if they have more than one durability.
     local above = node.above()
     if above == nil then
         --We've reached the top of the board, refill the next QUANTITY nodes with new fodder from the top of the board.
+        fillFromTop(node, quantity)
     else
-        if node.durability > 1 then
-            node.durability = node.durability - 1
-            --trigger animation todo
+        if (isTypeMatch(node, above)) then
+            if node.permanent then
+                --todo trigger type shift, add animation
+                shiftDownInternal(above, quantity)
+            elseif node.durability > 1 then
+                node.durability = node.durability - 1
+                shiftDownInternal(above, quantity)
+                --trigger animation todo
+            else
+                --trigger animation todo
+                
+                --mark node as destroyed
+                shiftDownInternal(above, quantity + 1)
+            end
         else
-            --trigger animation todo
+            --todo animate
             shiftDownInternal(above, quantity)
         end
     end
@@ -206,23 +325,13 @@ end
 local function shiftDown(node)
     shiftDownInternal(node, 0)
 end
-
+--#endregion
 
 ---comment
 ---@param matchedNodes table
 ---@param fromSwap any
 local function handleMatch(matchedNodes, fromSwap)
 --destroy the nodes, give mana, whatever else.
-    ---Destroying nodes is actually pretty involved.  Let's try to do that.
-    --for now we don't care about fromSwap
-
-    ---Sort the nodes into columns,
-    ---For each column of nodes
-    ---return nothing.
-    ---Find the bottom most node
-    ---Or, uh, actually
-    ---Instead of doing all this, what if I just started from the bottom row and checked every node until I got what I wanted?
-    ---That would work but is not cool and smart.
     ---I need a method that is cool and smart.
     ---
     ---Ok, so we need to recognize that if we want to do this node by node that we need to go up the entire chain each time.
@@ -237,6 +346,8 @@ local function handleMatch(matchedNodes, fromSwap)
     if #matchedNodes < 1 then
         print("Warning: called handleMatch with no match.")
         return
+    elseif #matchedNodes < MINIMUM_MATCH_LENGTH then
+        error("handleMatch called with incomplete match! Expected at least "..MINIMUM_MATCH_LENGTH.." nodes, got "..#matchedNodes..".")
     end
 
     local board = matchedNodes[1].board
@@ -249,44 +360,40 @@ local function handleMatch(matchedNodes, fromSwap)
     end
 
     --todo do these nodes still exist?  Reset them if they do.
+    --todo idk if I actually use this data
     for _,node in ipairs(matchedNodes) do
         node.inMatch = nil
     end
 end
+
+local function checkMatches(changedNodes, fromSwap)
+    if #changedNodes == 0 then return {} end
+    local matches = {}
+    for _,node in ipairs(changedNodes) do
+        local match = checkMatchesAxis(node, HORIZONTAL_AXIS)
+        table.insert(matches, match)
+        handleMatch(match, fromSwap)
+    end
+
+    local matchedNodes = {}
+    --matches will be non-overlapping
+    for _,match in ipairs(matches) do
+        for _,node in match.nodes do
+            table.insert(matchedNodes, node)
+            --reset the markings on all nodes.
+            node[HORIZONTAL_AXIS.name] = nil
+            node[VERTICAL_AXIS.name] = nil
+        end
+    end
+    checkMatches(matchedNodes, false)
+end
+--#endregion
+
+
 --We're still operating in the same physical paradigm as the generation before us, and before us, and before us.  Time to move to new metaphysical space.
 
---The last node will always be the first node.
-local function checkMatches(changedNodes)
-    if not changedNodes then changedNodes = ownBoard.allNodes() end
-    for _,node in ipairs(changedNodes) do
-        checkMatchesAxis()
-        --Find connected blocks of matching type nodes, each of which lie within a line of at least three such nodes.
-        --I should be able to do this recursively.
-        --For each direction, save the one that this call came from, check for matching nodes. Return the direction you came from and the list of matching nodes in that direction.
-        --Once this number hits 3, mark all nodes in that direction as matching. On further hits, mark only the current node.
-        --We never mark things as not matching, only matching.  We may mark things as matching multiple times.
 
-    end
-    --reset the markings on all nodes.
-end
 
-local function swapNodes(node1, node2)
-    if not (node1.board == node2.board) then
-        error("Nodes on different boards!")
-    end
-    local board = node1.board
-    --First, swap the board locations.  Then, update the nodes with the locations for their new positions.
-    local intermediary = lwl.deepCopyTable(node1)
-    local savedNode = node1
-    board.nodes[node1.i][node1.j] = node2
-    board.nodes[node2.i][node2.j] = intermediary
-
-    node1.i = node2.i
-    node1.j = node2.j
-    node2.i = intermediary.i
-    node2.j = intermediary.j
-    checkMatches({node1, node2})
-end
 
 --some way to find the set of matches that do things.
 --Actually, doing this lets us precalculate all of the results of moves the player could make.
@@ -328,12 +435,12 @@ end
 --todo how to decide which types of nodes to use?
 --I want to be able to make boards with whatever configuration I want
 --And then also random ones.
-local function initBoard(board, typeGenerationFunction)
+local function initBoard(board)
     local nodeArray = {}
     for i=1,board.columns do
         table.insert(nodeArray, {})
         for j=1,board.rows do
-            table.insert(nodeArray[i][j], newNode(board, i, j, typeGenerationFunction(i, j)))
+            table.insert(nodeArray[i][j], newNode(board, i, j, board.typeGenerationFunction(i, j)))
         end
     end
     board.nodes = nodeArray
@@ -361,7 +468,9 @@ local function setAllNodes(board, type)
     
 end
 --#endregion
-local testBoard = initBoard({rows=3, columns=3})
+local testBoard = initBoard({rows=3, columns=3, typeGenerationFunction=function()
+    return TYPE_COLORLESS
+end})
 --set all types
 setAllNodes(testBoard, TYPE_COLORLESS)
 local matchedNodes = checkMatches(testBoard[1][2])
