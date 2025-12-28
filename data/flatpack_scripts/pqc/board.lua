@@ -36,9 +36,10 @@ local HORIZONTAL_AXIS = {DIRECTION_RIGHT, DIRECTION_LEFT, name=direction_horizon
 local VERTICAL_AXIS = {DIRECTION_DOWN, DIRECTION_UP, name=direction_vertical}
 
 local TYPE_COLORLESS = "colorless"
+local TYPE_LIST = {TYPE_COLORLESS}
 
 local ownBoard = {rows=7, columns=7}
-local exampleNode = {type=TYPE_COLORLESS}
+local exampleNode = {types={TYPE_COLORLESS}}
 
 
 --#region queue data structure
@@ -98,8 +99,20 @@ local function getOtherAxis(axis)
     error("Unexpected axis "..axis)
 end
 
+local function compareTypes(type1, type2)
+    return type1 == type2
+end
+
 local function isTypeMatch(node1, node2)
-    return node1.type == node2.type
+    local matchFound = false
+    for _,type1 in ipairs(node1.types) do
+        for _,type2 in ipairs(node2.types) do
+            if compareTypes(type1, type2) then
+                matchFound = true
+            end
+        end
+    end
+    return matchFound
 end
 
 --simple function, expects nodes are in a line.
@@ -137,6 +150,7 @@ Basically, horizontal and vertical should be things that the comptuer can genera
 And then we should abstract these properties into things like "2D-board", 3D-continious space, different kinds of spaces and structures that we want to work over.
 This is good for algorithms.
 
+Where is my dorito bird rougelike game?  That's forge, actually, and it's a really cool game.
 
 "I have some properties I want a language to have.  I was writing an algorithm to traverse a 2D board and I ended up writing a vertical and horizontal part with recursive calls.  I realized that what I would really like is a way to describe the mathimatical space that I'm working in, and let the computer generate the algorithm for how this works, likely with a lookup table of some kind for how to do things like this."
 The deckbuilding screen is one of the best parts of MTGPQ, but it could still use some work.  For instance, caching searches you expect the user to try.
@@ -255,6 +269,10 @@ end
 
 --#region match checking methods
 
+--Each node can be part of one match for each type.  For nodes that only have one type, this is that type.
+--Multiple type nodes can be part of multiple matches.  A row of 2-type nodes is a match of both types.
+--How to properly handle this is a new mapping challenge.
+--types is an array of all types the node has.
 ---Returns all nodes of the same type in a contigious vertical line with this one
 ---@param currentNode table|node
 ---@return table list of nodes in a vertical line
@@ -264,6 +282,15 @@ local function collectNodes(currentNode, axis)
     currentNode[axis.name] = true --means it was checked on this axis (todo get the better word for this alignment).
     for _,direction in ipairs(axis) do
         local nextNode = currentNode[direction]()
+        --TODO ok this actually isn't ok.  I had been assuming there would only be one color checked the entire time.
+        --But this means that instead of one check, and just comparing neighboring nodes, I need to have a type associated with each check function running.
+        --Otherwise red red/green green would be a match, which it isn't.  RR R/G GG is also not a five-match, but two three-matches.
+        --This also means I need to change how I start the search, because multiple type nodes can return multiple matches.
+        --Return a table instead of a single match?
+        --This also lets me stop using nil.
+        --So, one of the ways that I can do this is to order the types the same way every time.
+        --And then do each type one after the other.  This prevents... does this actually prevent anything?
+        ---
         if nextNode and (not nextNode[axis.name]) and isTypeMatch(currentNode, nextNode) then
             matchingNodes = lwl.setMerge(matchingNodes, collectNodes(nextNode))
         end
@@ -371,15 +398,21 @@ local function shiftDown(node)
 end
 --#endregion
 
+
+---I'm redefining what a match is.  Now that I'm doing that, I realize how freeing it is to not have methods and classes, and instead have everything be a single data type.
+---Everything is a table, and so methods just work.
+---A match is now {type=TYPE, nodes={}, fromSwap=boolean}
 --TODO improve if I want wildcard types, or multi type matching.
-local function getMatchType(matchedNodes)
-    return matchedNodes[1].type
+--YEAH a match needs to store its type inside itself.
+--TODO this must change NOW.
+local function getMatchType(match)
+    return match.type
 end
 
 ---comment
 ---@param matchedNodes table
 ---@param fromSwap any
-local function handleMatch(matchedNodes, fromSwap)
+local function handleMatch(match)
 --destroy the nodes, give mana, whatever else.
     ---If I actually want to improve performance, I need to sort those as I add them, and then go from the bottom node of each column.
     ---I think the gains are minimal from this.
@@ -401,6 +434,9 @@ local function handleMatch(matchedNodes, fromSwap)
     giveMana(mActivePlayer, matchedNodes, type)
 
     --Destroy the nodes and shift them down.
+    ---TODO no, shifting down comes after node checking.  Multiple matches can happen at the same time, with all of them needing to fall at the same time.
+    ---This doesn't account for that as currently written.
+    ---todo fix this after I finish my current work.
     for i=1,board.columns do
         shiftDown(board.nodes[i][1])
     end
@@ -411,13 +447,24 @@ local function handleMatch(matchedNodes, fromSwap)
     end
 end
 
+local function createEmptyMatchSet()
+    local matcheSet = {}
+    for _,type in ipairs(TYPE_LIST) do
+        matcheSet[type] = {}
+    end
+    return matcheSet
+end
+
 local function checkMatches(changedNodes, fromSwap)
     if #changedNodes == 0 then return {} end
-    local matches = {}
+    local matches = createEmptyMatchSet()
     for _,node in ipairs(changedNodes) do
-        local match = checkMatchesAxis(node, HORIZONTAL_AXIS)
-        table.insert(matches, match)
-        handleMatch(match, fromSwap)
+        local currentMatches = checkMatchesAxis(node, HORIZONTAL_AXIS)
+        for type,match in pairs(currentMatches) do
+            match.fromSwap = fromSwap
+            table.insert(matches, match)
+        end
+        handleMatch(match)
     end
 
     local matchedNodes = {}
