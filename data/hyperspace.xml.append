@@ -13,6 +13,7 @@
 		<mod-append:script>data/flatpack_scripts/jitsugyoka_body.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/danny.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/registerEvents.lua</mod-append:script>
+		<mod-append:script>data/flatpack_scripts/show_room_numbers.lua</mod-append:script>
 	</mod:findLike>
 </FTL>
 

@@ -139,7 +139,8 @@ This is good for algorithms.
 
 
 "I have some properties I want a language to have.  I was writing an algorithm to traverse a 2D board and I ended up writing a vertical and horizontal part with recursive calls.  I realized that what I would really like is a way to describe the mathimatical space that I'm working in, and let the computer generate the algorithm for how this works, likely with a lookup table of some kind for how to do things like this."
-
+The deckbuilding screen is one of the best parts of MTGPQ, but it could still use some work.  For instance, caching searches you expect the user to try.
+This can be a silly thing you should not do very easilly.
 
 Then there's the whole animation stack that tracks what items we haven't animated yet that we need to.
 Part of future predictions is building the animation stack for if those happen, and keeping that seperate from the main environment.
@@ -149,8 +150,51 @@ That seems like something that it's hard to do with most programming languages, 
 I don't have enough built now to make the time system, waiting..
 ]]
 
+--#region gameController
+---Creates a GC, which will set up the board and help players talk to each other.  More of a matchController really, but that doesn't flow as well.
+local function gameControllerNew()
+    --initBoard
+end
+
+--#endregion
+
+--#region Character
+
+--[[
+Characters, like other objects, have a long list of configurable properties.
+This includes: decks, their level, and any dodads that I might choose to let people put on them
+It also includes their abilities that affect the game.
+Most characters do not have passive abilities, because those are bs.
+
+{abilities={first={}, second={}, third={}, passive=nil}, images={portait, full}, manaBonuses={}}
+]]
+
+--#endregion
+
+--#region player object
+
+local function playerNew(character, gameController)
+    
+end
 
 
+--#endregion
+
+--Can't be negative.  To remove mana, do other things.
+--Draining mana will mostly be done as a shield that you have to break through, but which decays with some scaling each turn.
+--Different characters have different scaling for applying and breaking through mana drain.
+---Actually, the main issue I had here was the lack of interction in this model of gameplay.
+---There's no way to respond to a card that another player is playing.  I need to do that, with a proper priority system.
+---It should be smart about it, knowing the timing restrictions on the cards in your hand that have full mana.
+---You can set your spells to autocast if they are able to be cast, and you can do this on a card by card basis, and on a deck-by-deck basis.
+---This will override any prompts that the card may have had.
+---     There are some other behaviors you can modify for cards, like what they do in selection dialogs, but I'm not going to automate those because I think that's not fun.
+---     I will still make AI for this, a dumb one that always picks the first card, and other AI that do things like take the cheapest card they don't have, or that "knows" what cards do.  The AI here I am not going to try to optimize for now.
+---Very neat, very cool.  
+local function giveMana(player, matchedNodes, type)
+    local bonusMana = player.manaBonuses[type]
+    player:addMana(math.max(0, bonusMana + #matchedNodes))
+end
 
 
 --#region Node methods
@@ -301,7 +345,7 @@ local function shiftDownInternal(node, quantity)
         --We've reached the top of the board, refill the next QUANTITY nodes with new fodder from the top of the board.
         fillFromTop(node, quantity)
     else
-        if (isTypeMatch(node, above)) then
+        if (node.inMatch) then
             if node.permanent then
                 --todo trigger type shift, add animation
                 shiftDownInternal(above, quantity)
@@ -327,22 +371,18 @@ local function shiftDown(node)
 end
 --#endregion
 
+--TODO improve if I want wildcard types, or multi type matching.
+local function getMatchType(matchedNodes)
+    return matchedNodes[1].type
+end
+
 ---comment
 ---@param matchedNodes table
 ---@param fromSwap any
 local function handleMatch(matchedNodes, fromSwap)
 --destroy the nodes, give mana, whatever else.
-    ---I need a method that is cool and smart.
-    ---
-    ---Ok, so we need to recognize that if we want to do this node by node that we need to go up the entire chain each time.
-    ---But doing this is slow and boring, and ends up with double looking at lots of nodes.
-    ---Because of how nodes are set up, I do have to visit each node in each affected column at least once
-    ---But in order to not to n^2 steps, we need to only make one pass over each node.
-    ---
-    ---Eh ok, I'm actually fine with going from all nodes on the board instead of sorting the ones we get.
     ---If I actually want to improve performance, I need to sort those as I add them, and then go from the bottom node of each column.
     ---I think the gains are minimal from this.
-    
     if #matchedNodes < 1 then
         print("Warning: called handleMatch with no match.")
         return
@@ -350,17 +390,22 @@ local function handleMatch(matchedNodes, fromSwap)
         error("handleMatch called with incomplete match! Expected at least "..MINIMUM_MATCH_LENGTH.." nodes, got "..#matchedNodes..".")
     end
 
-    local board = matchedNodes[1].board
+    local sampleNode = matchedNodes[1]
+    local board = sampleNode.board
+    local type = getMatchType(matchedNodes)
     for _,node in ipairs(matchedNodes) do
         node.inMatch = true
     end
 
+    --Give mana
+    giveMana(mActivePlayer, matchedNodes, type)
+
+    --Destroy the nodes and shift them down.
     for i=1,board.columns do
         shiftDown(board.nodes[i][1])
     end
 
     --todo do these nodes still exist?  Reset them if they do.
-    --todo idk if I actually use this data
     for _,node in ipairs(matchedNodes) do
         node.inMatch = nil
     end
@@ -454,6 +499,7 @@ end
 
 
 --#region Tests
+
 --#region Test Helpers
 local function checkResults(actual, expected, message)
     if not (actual == expected) then
@@ -475,8 +521,6 @@ end})
 setAllNodes(testBoard, TYPE_COLORLESS)
 local matchedNodes = checkMatches(testBoard[1][2])
 --#endregion
-
-
 
 
 
