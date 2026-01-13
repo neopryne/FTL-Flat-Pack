@@ -6,8 +6,6 @@ Adds a number of characters from [Flat Form Fighter](https://flatformfighter.com
 ## Requirements
 [Multiverse](https://ftlmultiverse.boards.net/)
 
-[VertexUtils](https://github.com/ChronoVortex/FTL-HS-Vertex)
-
 [Lightweight Lua](https://github.com/neopryne/lightweight-lua)
 
 [Brightness Particles](https://ftlmultiverse.boards.net/thread/109/library-brightness-particles)
