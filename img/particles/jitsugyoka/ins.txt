@@ -1,0 +1,3 @@
+ok you just need left and right as reflections
+because I have no idea how to do facing directions.
+But i can probably do velocity checks to get l/r

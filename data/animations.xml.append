@@ -490,7 +490,7 @@
 	</anim>
 	<anim name="fff_buffer_death_right">
 		<sheet>fff_buffer</sheet>
-		<desc length="15" x="0" y="2" />
+		<desc length="14" x="0" y="2" />
 		<time>2.5</time>
 	</anim>
 	<anim name="fff_buffer_death_left">
@@ -509,6 +509,371 @@
 		<time>1</time>
 	</anim>
 
+	<animSheet name="gol_nier" w="490" h="805" fw="35" fh="35">people/gol_nier_base.png</animSheet>
+	<anim name="gol_nier_walk_down">
+		<sheet>gol_nier</sheet>
+		<desc length="4" x="0" y="22" />
+		<time>1</time>
+	</anim>
+	<anim name="gol_nier_walk_left">
+		<sheet>gol_nier</sheet>
+		<desc length="4" x="0" y="21" />
+		<time>1</time>
+	</anim>
+	<anim name="gol_nier_walk_right">
+		<sheet>gol_nier</sheet>
+		<desc length="4" x="0" y="20" />
+		<time>1</time>
+	</anim>
+	<anim name="gol_nier_walk_up">
+		<sheet>gol_nier</sheet>
+		<desc length="4" x="0" y="19" />
+		<time>1</time>
+	</anim>
+	<anim name="gol_nier_repair">
+		<sheet>gol_nier</sheet>
+		<desc length="1" x="0" y="18" />
+		<time>2</time>
+	</anim>
+	<anim name="gol_nier_type_down">
+		<sheet>gol_nier</sheet>
+		<desc length="4" x="0" y="17" />
+		<time>1</time>
+	</anim>
+	<anim name="gol_nier_type_left">
+		<sheet>gol_nier</sheet>
+		<desc length="4" x="0" y="14" />
+		<time>1</time>
+	</anim>
+	<anim name="gol_nier_type_right">
+		<sheet>gol_nier</sheet>
+		<desc length="4" x="0" y="15" />
+		<time>1</time>
+	</anim>
+	<anim name="gol_nier_type_up">
+		<sheet>gol_nier</sheet>
+		<desc length="4" x="0" y="16" />
+		<time>1</time>
+	</anim>
+	<anim name="gol_nier_fire_down">
+		<sheet>gol_nier</sheet>
+		<desc length="1" x="0" y="13" />
+		<time>1</time>
+	</anim>
+	<anim name="gol_nier_fire_left">
+		<sheet>gol_nier</sheet>
+		<desc length="1" x="0" y="10" />
+		<time>1</time>
+	</anim>
+	<anim name="gol_nier_fire_right">
+		<sheet>gol_nier</sheet>
+		<desc length="1" x="0" y="11" />
+		<time>1</time>
+	</anim>
+	<anim name="gol_nier_fire_up">
+		<sheet>gol_nier</sheet>
+		<desc length="1" x="0" y="12" />
+		<time>1</time>
+	</anim>
+	<anim name="gol_nier_punch_down">
+		<sheet>gol_nier</sheet>
+		<desc length="1" x="0" y="22" />
+		<time>2</time>
+	</anim>
+	<anim name="gol_nier_punch_up">
+		<sheet>gol_nier</sheet>
+		<desc length="1" x="0" y="21" />
+		<time>2</time>
+	</anim>
+	<anim name="gol_nier_shoot_down">
+		<sheet>gol_nier</sheet>
+		<desc length="1" x="0" y="22" />
+		<time>1</time>
+	</anim>
+	<anim name="gol_nier_shoot_left">
+		<sheet>gol_nier</sheet>
+		<desc length="1" x="0" y="21" />
+		<time>1</time>
+	</anim>
+	<anim name="gol_nier_shoot_right">
+		<sheet>gol_nier</sheet>
+		<desc length="1" x="0" y="20" />
+		<time>1</time>
+	</anim>
+	<anim name="gol_nier_shoot_up">
+		<sheet>gol_nier</sheet>
+		<desc length="1" x="0" y="19" />
+		<time>1</time>
+	</anim>
+	<anim name="gol_nier_teleport">
+		<sheet>gol_nier</sheet>
+		<desc length="11" x="0" y="3" />
+		<time>0.5</time>
+	</anim>
+	<anim name="gol_nier_death_right">
+		<sheet>gol_nier</sheet>
+		<desc length="14" x="0" y="2" />
+		<time>2.5</time>
+	</anim>
+	<anim name="gol_nier_death_left">
+		<sheet>gol_nier</sheet>
+		<desc length="1" x="0" y="2" />
+		<time>2</time>
+	</anim>
+	<anim name="gol_nier_clone">
+		<sheet>gol_nier</sheet>
+		<desc length="11" x="0" y="1" />
+		<time>0.75</time>
+	</anim>
+	<anim name="gol_nier_portrait">
+		<sheet>gol_nier</sheet>
+		<desc length="4" x="0" y="0" />
+		<time>1</time>
+	</anim>
+
+	<animSheet name="nightfall_child" w="490" h="805" fw="35" fh="35">people/nightfall_child_base.png</animSheet>
+	<anim name="nightfall_child_walk_down">
+		<sheet>nightfall_child</sheet>
+		<desc length="4" x="0" y="22" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_child_walk_left">
+		<sheet>nightfall_child</sheet>
+		<desc length="4" x="0" y="21" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_child_walk_right">
+		<sheet>nightfall_child</sheet>
+		<desc length="4" x="0" y="20" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_child_walk_up">
+		<sheet>nightfall_child</sheet>
+		<desc length="4" x="0" y="19" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_child_repair">
+		<sheet>nightfall_child</sheet>
+		<desc length="1" x="0" y="18" />
+		<time>2</time>
+	</anim>
+	<anim name="nightfall_child_type_down">
+		<sheet>nightfall_child</sheet>
+		<desc length="4" x="0" y="17" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_child_type_left">
+		<sheet>nightfall_child</sheet>
+		<desc length="4" x="0" y="14" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_child_type_right">
+		<sheet>nightfall_child</sheet>
+		<desc length="4" x="0" y="15" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_child_type_up">
+		<sheet>nightfall_child</sheet>
+		<desc length="4" x="0" y="16" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_child_fire_down">
+		<sheet>nightfall_child</sheet>
+		<desc length="1" x="0" y="13" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_child_fire_left">
+		<sheet>nightfall_child</sheet>
+		<desc length="1" x="0" y="10" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_child_fire_right">
+		<sheet>nightfall_child</sheet>
+		<desc length="1" x="0" y="11" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_child_fire_up">
+		<sheet>nightfall_child</sheet>
+		<desc length="1" x="0" y="12" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_child_punch_down">
+		<sheet>nightfall_child</sheet>
+		<desc length="1" x="0" y="22" />
+		<time>2</time>
+	</anim>
+	<anim name="nightfall_child_punch_up">
+		<sheet>nightfall_child</sheet>
+		<desc length="1" x="0" y="21" />
+		<time>2</time>
+	</anim>
+	<anim name="nightfall_child_shoot_down">
+		<sheet>nightfall_child</sheet>
+		<desc length="1" x="0" y="22" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_child_shoot_left">
+		<sheet>nightfall_child</sheet>
+		<desc length="1" x="0" y="21" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_child_shoot_right">
+		<sheet>nightfall_child</sheet>
+		<desc length="1" x="0" y="20" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_child_shoot_up">
+		<sheet>nightfall_child</sheet>
+		<desc length="1" x="0" y="19" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_child_teleport">
+		<sheet>nightfall_child</sheet>
+		<desc length="11" x="0" y="3" />
+		<time>0.5</time>
+	</anim>
+	<anim name="nightfall_child_death_right">
+		<sheet>nightfall_child</sheet>
+		<desc length="14" x="0" y="2" />
+		<time>2.5</time>
+	</anim>
+	<anim name="nightfall_child_death_left">
+		<sheet>nightfall_child</sheet>
+		<desc length="1" x="0" y="2" />
+		<time>2</time>
+	</anim>
+	<anim name="nightfall_child_clone">
+		<sheet>nightfall_child</sheet>
+		<desc length="11" x="0" y="1" />
+		<time>0.75</time>
+	</anim>
+	<anim name="nightfall_child_portrait">
+		<sheet>nightfall_child</sheet>
+		<desc length="1" x="0" y="0" />
+		<time>1</time>
+	</anim>
+
+	<animSheet name="nightfall_hack" w="490" h="805" fw="35" fh="35">people/nightfall_hack_base.png</animSheet>
+	<anim name="nightfall_hack_walk_down">
+		<sheet>nightfall_hack</sheet>
+		<desc length="4" x="0" y="22" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_hack_walk_left">
+		<sheet>nightfall_hack</sheet>
+		<desc length="4" x="0" y="21" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_hack_walk_right">
+		<sheet>nightfall_hack</sheet>
+		<desc length="4" x="0" y="20" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_hack_walk_up">
+		<sheet>nightfall_hack</sheet>
+		<desc length="4" x="0" y="19" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_hack_repair">
+		<sheet>nightfall_hack</sheet>
+		<desc length="1" x="0" y="18" />
+		<time>2</time>
+	</anim>
+	<anim name="nightfall_hack_type_down">
+		<sheet>nightfall_hack</sheet>
+		<desc length="4" x="0" y="17" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_hack_type_left">
+		<sheet>nightfall_hack</sheet>
+		<desc length="4" x="0" y="14" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_hack_type_right">
+		<sheet>nightfall_hack</sheet>
+		<desc length="4" x="0" y="15" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_hack_type_up">
+		<sheet>nightfall_hack</sheet>
+		<desc length="4" x="0" y="16" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_hack_fire_down">
+		<sheet>nightfall_hack</sheet>
+		<desc length="1" x="0" y="13" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_hack_fire_left">
+		<sheet>nightfall_hack</sheet>
+		<desc length="1" x="0" y="10" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_hack_fire_right">
+		<sheet>nightfall_hack</sheet>
+		<desc length="1" x="0" y="11" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_hack_fire_up">
+		<sheet>nightfall_hack</sheet>
+		<desc length="1" x="0" y="12" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_hack_punch_down">
+		<sheet>nightfall_hack</sheet>
+		<desc length="1" x="0" y="22" />
+		<time>2</time>
+	</anim>
+	<anim name="nightfall_hack_punch_up">
+		<sheet>nightfall_hack</sheet>
+		<desc length="1" x="0" y="21" />
+		<time>2</time>
+	</anim>
+	<anim name="nightfall_hack_shoot_down">
+		<sheet>nightfall_hack</sheet>
+		<desc length="1" x="0" y="22" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_hack_shoot_left">
+		<sheet>nightfall_hack</sheet>
+		<desc length="1" x="0" y="21" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_hack_shoot_right">
+		<sheet>nightfall_hack</sheet>
+		<desc length="1" x="0" y="20" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_hack_shoot_up">
+		<sheet>nightfall_hack</sheet>
+		<desc length="1" x="0" y="19" />
+		<time>1</time>
+	</anim>
+	<anim name="nightfall_hack_teleport">
+		<sheet>nightfall_hack</sheet>
+		<desc length="11" x="0" y="3" />
+		<time>0.5</time>
+	</anim>
+	<anim name="nightfall_hack_death_right">
+		<sheet>nightfall_hack</sheet>
+		<desc length="14" x="0" y="2" />
+		<time>2.5</time>
+	</anim>
+	<anim name="nightfall_hack_death_left">
+		<sheet>nightfall_hack</sheet>
+		<desc length="1" x="0" y="2" />
+		<time>2</time>
+	</anim>
+	<anim name="nightfall_hack_clone">
+		<sheet>nightfall_hack</sheet>
+		<desc length="11" x="0" y="1" />
+		<time>0.75</time>
+	</anim>
+	<anim name="nightfall_hack_portrait">
+		<sheet>nightfall_hack</sheet>
+		<desc length="1" x="0" y="0" />
+		<time>1</time>
+	</anim>
 	
 	<animSheet name="fff_ufo_thruster_sheet" w="580" h="472" fw="580" fh="472">thrusters/ufo_cruiser_thruster_glow.png</animSheet>
 	<anim name="fff_ufo_thruster">

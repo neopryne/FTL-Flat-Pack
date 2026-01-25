@@ -279,8 +279,8 @@ for i=PART_HEAD,PART_POD do
     PART_TRIGGER_LOOP_WRAPPER_FUNCTIONS[i] = function()
         PART_TRIGGER_LOOP_FUNCTIONS[i]()
     end
-    lwst.registerOnTick(PART_TRIGGER_LOOP_WRAPPER_FUNCTIONS[i], false)
-    lwst.registerOnTick(PART_BURST_FIRE_FUNCTIONS[i], false)
+    lwst.registerOnTick("part loop replace", PART_TRIGGER_LOOP_WRAPPER_FUNCTIONS[i], false)
+    lwst.registerOnTick("burst fire replace", PART_BURST_FIRE_FUNCTIONS[i], false)
 end
 
 
@@ -288,7 +288,7 @@ local fireGunInternal = NOOP
 local fireGunWrapper = function()
     fireGunInternal()
 end
-lwst.registerOnTick(fireGunWrapper, false)
+lwst.registerOnTick("fire gun replace", fireGunWrapper, false)
 
 local function equipPartpt2(part) --todo handle equipping empty gun parts
     if not part.model then
@@ -329,7 +329,7 @@ local fireGunProjectilesInternal = NOOP
 local fireGunProjectilesWrapper = function()
     fireGunProjectilesInternal()
 end
-lwst.registerOnTick(fireGunProjectilesWrapper, false)
+lwst.registerOnTick("gun projectiles replace", fireGunProjectilesWrapper, false)
 
 local function setupBullet(jitsu, firingPart, particle, angleDelta)
     local bulletPart = firingPart.projectile
@@ -404,7 +404,7 @@ local function firePartBurst(jitsu, part)
     end
     PART_BURST_FIRE_FUNCTIONS[part.type] = burstFire
 end
-firePartBurst()--todo remove
+
 
 
 
@@ -927,10 +927,10 @@ script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, functi
     renderJitsus(ship)
 end)
 
+
+mJitsuObserver = lwcco.createCrewChangeObserver(jitsuFilter)
+
 local function onTick() --make another one if I need things while paused.
-    if not mJitsuObserver then
-        mJitsuObserver = lwcco.createCrewChangeObserver(jitsuFilter)
-    end
     if not mJitsuObserver.isInitialized() then return end
     
     for _,crewId in ipairs(mJitsuObserver.getAddedCrew()) do
@@ -941,7 +941,7 @@ local function onTick() --make another one if I need things while paused.
     end
     mJitsuObserver.saveLastSeenState()
 end
-lwst.registerOnTick(onTick, false)
+lwst.registerOnTick("main loop replace", onTick, false)
 
 
 local function clearJitsus()
@@ -952,7 +952,6 @@ local function clearJitsus()
 end
 
 script.on_init(function(newGame)
-    print("Loaded, is new game?", newGame)
     if newGame then
         clearJitsus()
     else

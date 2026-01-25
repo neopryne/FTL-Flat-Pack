@@ -113,6 +113,45 @@
 		</powerList>
 	</crewBlueprint>
 
+	<crewBlueprint name="nightfall_hack">
+		<desc>Gains health as it moves around.</desc>
+		<title>Warez: Hack</title>
+		<short>Hack</short>
+		<cost>37</cost>
+		<bp>5</bp>
+		<rarity>5</rarity>
+		<powerList>
+			<power>Low health, but gains segments as it moves.</power>
+			<power>Damage only affects the newest segment.</power>
+		</powerList>
+	</crewBlueprint>
+
+	<crewBlueprint name="nightfall_child">
+		<desc>A link in the chain.</desc>
+		<title>Child Node</title>
+		<short>Node</short>
+		<cost>1</cost>
+		<bp>5</bp>
+		<rarity>0</rarity>
+		<powerList>
+			<power>One segment of a parent program.</power>
+			<power>Absorbs damage before the main body.</power>
+		</powerList>
+	</crewBlueprint>
+
+	<crewBlueprint name="gol_nier">
+		<desc>Emergant complexity organism.</desc>
+		<title>Nier</title>
+		<short>Nier</short>
+		<cost>42</cost>
+		<bp>2</bp>
+		<rarity>5</rarity>
+		<powerList>
+			<power>Immune to suffocation and mind control.</power>
+			<power>Moves at .7x speed.</power>
+		</powerList>
+	</crewBlueprint>
+
 	<crewBlueprint name="unique_henderson">
 		<desc>The half-mad sunofabitch you picked up from a dead space station.  He's not finished yet.</desc>
 		<title>Crazy Bastard</title>

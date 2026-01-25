@@ -2,15 +2,13 @@
 
 <FTL>
 
-	<mod:findName type="blueprintList" name="SHOP_ITEM_SYSTEMS_ESSENTIAL">
-		<mod-append:name>limrix_adaptive_repair</mod-append:name>
-	</mod:findName>
-
-
 	<blueprintList name="LIST_CREW_FFFTL"> 
 		<name>fff_f22</name>
 		<name>fff_omen</name>
 		<name>fff_buffer</name>
+	</blueprintList>
+	<blueprintList name="LIST_CREW_NIGHTFALL"> 
+		<name>nightfall_hack</name>
 	</blueprintList>
 	<blueprintList name="LIST_CREW_FFF_F22"> 
 		<name>fff_f22</name>
@@ -58,6 +56,7 @@
 		<mod-append:name>fff_f22</mod-append:name>
 		<mod-append:name>fff_omen</mod-append:name>
 		<mod-append:name>fff_buffer</mod-append:name>
+		<mod-append:name>nightfall_hack</mod-append:name>
 	</mod:findName>
 	<mod:findName type="blueprintList" name="LIST_CREW_METAL">
 		<mod-append:name>fff_f22</mod-append:name>

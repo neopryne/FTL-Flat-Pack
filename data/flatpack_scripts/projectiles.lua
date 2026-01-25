@@ -116,7 +116,7 @@ local function onTick()
         return not (Brightness.isDestroyed(table[index]))
     end)
 end
-lwst.registerOnTick(onTick, false)
+lwst.registerOnTick("fff_projectiles_main", onTick, false)
 
 
 --Bullet stuff

@@ -13,7 +13,9 @@
 		<mod-append:script>data/flatpack_scripts/jitsugyoka_body.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/danny.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/registerEvents.lua</mod-append:script>
-		<mod-append:script>data/flatpack_scripts/show_room_numbers.lua</mod-append:script>
+		<mod-append:script>data/flatpack_scripts/game_of_life/auto_cell.lua</mod-append:script>
+		<mod-append:script>data/flatpack_scripts/game_of_life/life.lua</mod-append:script>
+		<mod-append:script>data/flatpack_scripts/game_of_life/nier.lua</mod-append:script>
 	</mod:findLike>
 </FTL>
 
@@ -75,7 +77,7 @@
 			<canPhaseThroughDoors>false</canPhaseThroughDoors>
 			<moveSpeedMultiplier>1</moveSpeedMultiplier>
 			<sabotageSpeedMultiplier>1</sabotageSpeedMultiplier>
-			<animBase>mantis</animBase>
+			<animBase>rock</animBase>
 			<deathSounds>
 				<deathSound>fff_omen_death</deathSound>
 			</deathSounds>
@@ -208,6 +210,69 @@
 				<cooldownColor r="133" g="252" b="255" />
 				<transformRace>fp_unique_phantom</transformRace>
 			</powerEffect>
+		</mod-append:race>
+
+		<mod-append:race name="gol_nier">
+			<maxHealth>101</maxHealth>
+			<repairSpeed>1</repairSpeed>
+			<canFight>true</canFight>
+			<moveSpeedMultiplier>.7</moveSpeedMultiplier>
+			<animBase>rock</animBase>
+			<deathSounds>
+				<deathSound>crewLaser</deathSound>
+			</deathSounds>
+			<shootingSounds>
+				<shootingSound>crewLaser</shootingSound>
+			</shootingSounds>
+			<repairSounds animSoundFrame="2">
+				<repairSound>crewLaser</repairSound>
+			</repairSounds>
+		</mod-append:race>
+
+		<mod-append:race name="nightfall_hack">
+			<maxHealth>25</maxHealth>
+			<moveSpeedMultiplier>.000001</moveSpeedMultiplier>
+			<animBase>rock</animBase>
+			<deathSounds>
+				<deathSound>fff_omen_death</deathSound>
+			</deathSounds>
+			<shootingSounds>
+				<shootingSound>crewLaser</shootingSound>
+			</shootingSounds>
+			<repairSounds animSoundFrame="2">
+				<repairSound>fff_omen_repair</repairSound>
+			</repairSounds>
+		</mod-append:race>
+
+		<mod-append:race name="nightfall_child">
+			<essential>1</essential>
+			<noWarning>true</noWarning>
+			<snapToSlot>true</snapToSlot>
+			<maxHealth>25</maxHealth>
+			<repairSpeed>1</repairSpeed>
+			<canFight>false</canFight>
+			<canRepair>false</canRepair>
+			<canSabotage>false</canSabotage>
+			<canSuffocate>false</canSuffocate>
+			<resistsMindControl>true</resistsMindControl>
+			<damageMultiplier>0</damageMultiplier>
+			<rangedDamageMultiplier>0</rangedDamageMultiplier>
+			<stunMultiplier>1</stunMultiplier>
+			<fireRepairMultiplier>1</fireRepairMultiplier>
+			<canMan>false</canMan>
+			<noClone>true</noClone>
+			<noSlot>true</noSlot>
+			<moveSpeedMultiplier>.000001</moveSpeedMultiplier>
+			<animBase>human</animBase>
+			<deathSounds>
+				<deathSound>nothing</deathSound>
+			</deathSounds>
+			<shootingSounds>
+				<shootingSound>nothing</shootingSound>
+			</shootingSounds>
+			<repairSounds animSoundFrame="2">
+				<repairSound>nothing</repairSound>
+			</repairSounds>
 		</mod-append:race>
 
 		<mod-append:race name="unique_henderson">
