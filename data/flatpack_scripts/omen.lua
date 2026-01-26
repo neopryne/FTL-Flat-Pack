@@ -4,11 +4,13 @@ local get_room_at_location = mods.multiverse.get_room_at_location
 local Brightness = mods.brightness
 local lwl = mods.lightweight_lua
 local lw3 = mods.lightweight_3d
+
+local TAG = "FFF_OMEN"
 if not lwl then
-    error("Lightweight Lua was not patched, or was patched after FFFTL.  Install it properly or things will probably break badly when you get FFFTL crew.")
+    lwl.logError(TAG, "Lightweight Lua was not patched, or was patched after FFFTL.  Install it properly or things will probably break badly when you get FFFTL crew.")
 end
 if not mods.Forgemaster then
-    error("Forgemaster was not patched, or was patched after FFFTL.  Install it properly or the mind clouder won't show up on the saucer.")
+    lwl.logError(TAG, "Forgemaster was not patched, or was patched after FFFTL.  Install it properly or the mind clouder won't show up on the saucer.")
 end
 
 --[[next:
@@ -16,6 +18,7 @@ end
         better dying animation
         blast particles
 --]]
+--#region defines
 local ENEMY_SHIP = 1
 local global = Hyperspace.Global.GetInstance()
 local soundControl = global:GetSoundControl()
@@ -112,7 +115,7 @@ local beam_faces = {
     {15, 16, 10, 12, fill_color = WHITE, filled = true}, -- faces
     {13, 16, 10, 11, fill_color = WHITE, filled = true}, -- faces
 }
-
+--#endregion
 
 --you have to pass in the rotated matrix
 --which means I have to move things around some
@@ -165,7 +168,7 @@ local function randomRotation()
 end
 
 script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
-    local shipManager = global:GetShipManager(crewmem.iShipId)
+    local shipManager = Hyperspace.ships(crewmem.iShipId)
         if (crewmem:GetSpecies() == "fff_omen") then
             local crewShipManager = global:GetShipManager(1 - crewmem.iShipId) --Manager for enemy crew
             local crewTable = userdata_table(crewmem, "mods.flatpack.fatespinner")
@@ -175,23 +178,13 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
             --print("current_room: ", current_room, " position ", crewmem:GetPosition().x, " ", crewmem:GetPosition().y, "  crw: ", current_room_crewmember)
             
             --VARIABLE DEFINITIONS
-            local prism_model = crewTable.prism_model
-            if (not prism_model) then
-                prism_model = INITIAL_PRISM
-            end
+            local prism_model = lwl.setIfNil(crewTable.prism_model, INITIAL_PRISM)
             local rotations = crewTable.rotations
             if not (rotations) then
                 rotations = randomRotation()
             end
-            local beam_render_time = crewTable.beam_render_time
-            if not (crewTable.beam_render_time) then --if undefined
-                beam_render_time = -1
-            end
-            local omen_power = crewTable.omen_power
-            if not (crewTable.omen_power) then --if undefined
-                omen_power = 1
-            end
-            --VARIABLE DEFINITIONS END
+            local beam_render_time = lwl.setIfNil(crewTable.beam_render_time, -1)
+            local omen_power = lwl.setIfNil(crewTable.omen_power, 1)
             --always render prism faces
             local is_combat = crewmem.bFighting
             

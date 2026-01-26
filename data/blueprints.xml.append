@@ -140,14 +140,14 @@
 	</crewBlueprint>
 
 	<crewBlueprint name="gol_nier">
-		<desc>Emergant complexity organism.</desc>
+		<desc>Emergant complexity organism spwaned from a decaying superintellegence.</desc>
 		<title>Nier</title>
 		<short>Nier</short>
 		<cost>42</cost>
 		<bp>2</bp>
 		<rarity>5</rarity>
 		<powerList>
-			<power>Immune to suffocation and mind control.</power>
+			<power>Immune to suffocation.</power>
 			<power>Moves at .7x speed.</power>
 		</powerList>
 	</crewBlueprint>

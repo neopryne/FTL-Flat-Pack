@@ -216,6 +216,7 @@
 			<maxHealth>101</maxHealth>
 			<repairSpeed>1</repairSpeed>
 			<canFight>true</canFight>
+			<canSuffocate>false</canSuffocate>
 			<moveSpeedMultiplier>.7</moveSpeedMultiplier>
 			<animBase>rock</animBase>
 			<deathSounds>

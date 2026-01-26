@@ -92,6 +92,7 @@ function Cell:setEnabled(enabled)
     else
         self._particle = Brightness.create_particle("particles/game_of_life/1", 1, 1, Hyperspace.Pointf(0,0), 0, 0, RENDER_LAYER)
         self._particle.persists = true
+        self._particle.visible = self._alive
     end
 end
 
