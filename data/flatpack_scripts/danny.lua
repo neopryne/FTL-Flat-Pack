@@ -42,56 +42,39 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
     end)
 
 
+local LASER_FORGE_BLUEPRINTS = {"FM_LASER_ANOMALY_1", "FM_CHAINGUN_FIRE", "FM_FLAMETHROWER", "FM_PHASER_SUFFOCATION",
+         "FM_LASER_PHOTON", "FM_LASER_PHOTON_2", "FM_LASER_HUMAN", "FM_LASER_ION_MEGA", "FM_SURGE_LASER", "FM_GATLING_ANCIENT"}
+local ION_FORGE_BLUEPRINTS = {"FM_ENERGY_DISC", "FM_ION_TRI_FIRE", "FM_CHAINGUN_ION", "FM_SHOTGUN_ENERGY",
+         "FM_PULSE_1", "FM_PULSE_2", "FM_PULSE_3", "FM_PULSEDEEP"}
+local BEAMPOINT_FORGE_BLUEPRINTS = {"FM_BEAM_MINING_2", "FM_BEAM_MINING_3", "FM_BEAM_PARTICLE_PIERCE", "FM_BEAM_GUILLOTINE_CHAIN",
+        "FM_BEAM_EXPLOSION", "FM_FOCUS_FUELED_1", "FM_FOCUS_ENERGY_1", "FM_FOCUS_ENERGY_2", "FM_FOCUS_ENERGY_3",
+        "FM_FOCUS_ENERGY_CONS", "FM_FOCUS_VIRUS", "FM_FOCUS_ADAPT", "FM_BEAM_ION_PIERCE", "FM_BEAM_ETERNITY",
+        "BEAM_PRISM_SCATTER", }
 local FLAK_FORGE_BLUEPRINTS = {"FM_SHOTGUN_ANOMALY", "FM_SHOTGUN_BRONZE", "FM_SHOTGUN_AETHER", "FM_SHOTGUN_CURSED", "FM_ENERGY_RAILBLENDER"}
 
 local function processBlueprints(choiceBox, event, blueprintNames)
 	local i = 2
 	for choice in vter(choiceBox:GetChoices()) do
         local index = i - 1
-        if index <= #FLAK_FORGE_BLUEPRINTS then
-            print("adding", FLAK_FORGE_BLUEPRINTS[index], "to", choice.text)
-            choice.rewards.weapon = Hyperspace.Blueprints:GetWeaponBlueprint(FLAK_FORGE_BLUEPRINTS[index])
+        if index <= #blueprintNames then
+            print("adding", blueprintNames[index], "to", choice.text)
+            choice.rewards.weapon = Hyperspace.Blueprints:GetWeaponBlueprint(blueprintNames[index])
         end
 		i = i + 1
 	end
 end
 
-local function processFlakBlueprints(choiceBox, event)
-	local i = 1
-	for choice in vter(choiceBox:GetChoices()) do
-        local index = i
-        if index <= #FLAK_FORGE_BLUEPRINTS then
-            print("adding", FLAK_FORGE_BLUEPRINTS[index], "to", choice.text)
-            choice.rewards.weapon = Hyperspace.Blueprints:GetWeaponBlueprint(FLAK_FORGE_BLUEPRINTS[index])
-        end
-		i = i + 1
-	end
-end
+
 
 script.on_internal_event(Defines.InternalEvents.POST_CREATE_CHOICEBOX, function(choiceBox, event)
 	print(event.eventName)
 	if event.eventName == "FM_FORGE_WEAPON_FLAK" then
-		processFlakBlueprints(choiceBox, event)
+		processBlueprints(choiceBox, event, FLAK_FORGE_BLUEPRINTS)
+    elseif event.eventName == "FM_FORGE_WEAPON_LASER" then
+		processBlueprints(choiceBox, event, LASER_FORGE_BLUEPRINTS)
+    elseif event.eventName == "FM_FORGE_WEAPON_ION" then
+		processBlueprints(choiceBox, event, ION_FORGE_BLUEPRINTS)
+    elseif event.eventName == "FM_FORGE_WEAPON_BEAM" then
+		processBlueprints(choiceBox, event, BEAMPOINT_FORGE_BLUEPRINTS)
 	end
-	-- 	
-	-- 	
-	-- elseif string.sub(event.eventName, 1, 15) == "OG_CRAFT_CRAFT_" then
-	-- 	local weapon = string.sub(event.eventName, 16, string.len(event.eventName))
-	-- 	local i = 1
-	-- 	for choice in vter(choiceBox:GetChoices()) do
-	-- 		if i == 2 then
-	-- 			choice.rewards.weapon = Hyperspace.Blueprints:GetWeaponBlueprint(weapon)
-	-- 		end
-	-- 		i = i + 1
-	-- 	end
-	-- elseif string.sub(event.eventName, 1, 16) == "OG_CRAFT_HIDDEN_" then
-	-- 	local weapon = string.sub(event.eventName, 17, string.len(event.eventName))
-	-- 	local i = 1
-	-- 	for choice in vter(choiceBox:GetChoices()) do
-	-- 		if i == 2 then
-	-- 			choice.rewards.weapon = Hyperspace.Blueprints:GetWeaponBlueprint("OG_TURRET_UNKNOWN")
-	-- 		end
-	-- 		i = i + 1
-	-- 	end
-	-- end
 end)
