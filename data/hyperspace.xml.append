@@ -16,6 +16,7 @@
 		<mod-append:script>data/flatpack_scripts/game_of_life/auto_cell.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/game_of_life/life.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/game_of_life/nier.lua</mod-append:script>
+		<mod-append:script>data/flatpack_scripts/forgemaster_show_blueprints.lua</mod-append:script>
 	</mod:findLike>
 </FTL>
 
@@ -363,6 +364,7 @@
     The code looks this way to cover all edge cases and ensure it works no matter the existing state of hyperspace.xml.
     Use it as a single chunk and don't mix with other Slipstream tags code, otherwise it may not work correctly.
 -->
+
 <!-- start of chunk -->
 
 <mod:findLike type="ships" limit="1">
@@ -374,125 +376,135 @@
 </mod:findLike>
 
 <!-- end of chunk -->
+
+<augments limit="1">
+	<aug name="LAB_FFF_F22_THERMAL_IMAGING">
+		<statBoosts>
+			<statBoost name="detectsLifeforms">
+				<boostType>SET</boostType>
+				<value>true</value>
+				<shipTarget>ALL</shipTarget>
+				<crewTarget>ALLIES</crewTarget>
+				<priority>999</priority>
+				<whiteList load="LIST_CREW_FFF_F22" />
+			</statBoost>
+		</statBoosts>
+	</aug>
+	<aug name="LAB_FFF_F22_SUPERSONIC_AIRBAGS">
+		<!-- Lua only -->
+	</aug>
+	<aug name="LAB_FFF_F22_FREEDOM_BOOSTERS">
+		<statBoosts>
+			<statBoost name="moveSpeedMultiplier">
+				<boostType>MULT</boostType>
+				<amount>1.3</amount>
+				<shipTarget>ALL</shipTarget>
+				<crewTarget>ALLIES</crewTarget>
+				<priority>999</priority>
+				<whiteList load="LIST_CREW_FFF_F22" />
+			</statBoost>
+		</statBoosts>
+	</aug>
+	<aug name="LAB_FFF_F22_ARMORED_NOSECONES">
+		<statBoosts>
+			<statBoost name="canPhaseThroughDoors">
+				<boostType>SET</boostType>
+				<value>true</value>
+				<shipTarget>ALL</shipTarget>
+				<crewTarget>ALLIES</crewTarget>
+				<priority>999</priority>
+				<whiteList load="LIST_CREW_FFF_F22" />
+			</statBoost>
+		</statBoosts>
+	</aug>
+	<aug name="LAB_FFF_BUFFER_EXTENDED_MEMORY">
+		<!-- Lua only -->
+	</aug>
+	<aug name="LAB_FFF_BUFFER_OVERCLOCK">
+		<statBoosts>
+			<statBoost name="maxHealth">
+				<boostType>FLAT</boostType>
+				<amount>-40</amount>
+				<shipTarget>ALL</shipTarget>
+				<crewTarget>ALLIES</crewTarget>
+				<priority>999</priority>
+				<whiteList load="LIST_CREW_FFF_BUFFER" />
+			</statBoost>
+		</statBoosts>
+	</aug>
 	
-	<augments limit="1">
-		<aug name="LAB_FFF_F22_THERMAL_IMAGING">
-			<statBoosts>
-				<statBoost name="detectsLifeforms">
-					<boostType>SET</boostType>
-					<value>true</value>
-					<shipTarget>ALL</shipTarget>
-					<crewTarget>ALLIES</crewTarget>
-					<priority>999</priority>
-					<whiteList load="LIST_CREW_FFF_F22" />
-				</statBoost>
-			</statBoosts>
-		</aug>
-		<aug name="LAB_FFF_F22_SUPERSONIC_AIRBAGS">
-			<!-- Lua only -->
-		</aug>
-		<aug name="LAB_FFF_F22_FREEDOM_BOOSTERS">
-			<statBoosts>
-				<statBoost name="moveSpeedMultiplier">
-					<boostType>MULT</boostType>
-					<amount>1.3</amount>
-					<shipTarget>ALL</shipTarget>
-					<crewTarget>ALLIES</crewTarget>
-					<priority>999</priority>
-					<whiteList load="LIST_CREW_FFF_F22" />
-				</statBoost>
-			</statBoosts>
-		</aug>
-		<aug name="LAB_FFF_F22_ARMORED_NOSECONES">
-			<statBoosts>
-				<statBoost name="canPhaseThroughDoors">
-					<boostType>SET</boostType>
-					<value>true</value>
-					<shipTarget>ALL</shipTarget>
-					<crewTarget>ALLIES</crewTarget>
-					<priority>999</priority>
-					<whiteList load="LIST_CREW_FFF_F22" />
-				</statBoost>
-			</statBoosts>
-		</aug>
-		<aug name="LAB_FFF_BUFFER_EXTENDED_MEMORY">
-			<!-- Lua only -->
-		</aug>
-		<aug name="LAB_FFF_BUFFER_OVERCLOCK">
-			<statBoosts>
-				<statBoost name="maxHealth">
-					<boostType>FLAT</boostType>
-					<amount>-40</amount>
-					<shipTarget>ALL</shipTarget>
-					<crewTarget>ALLIES</crewTarget>
-					<priority>999</priority>
-					<whiteList load="LIST_CREW_FFF_BUFFER" />
-				</statBoost>
-			</statBoosts>
-		</aug>
-		
-		<aug name="UPG_LIMRIX_FIXBOOM_REPAIR"/>
-	</augments>
+	<aug name="UPG_LIMRIX_FIXBOOM_REPAIR"/>
+</augments>
 
 
-	<mod:findLike type="events" limit="1">
-		<mod:findName type="req" name="LIST_CHECK_ANY_CREW">
-			<mod-append:name>LIST_CREW_FFFTL</mod-append:name>
-		</mod:findName>
-		<mod:findName type="req" name="LIST_LAB_ALL">
-			<mod-append:name>LAB_FFF_F22_THERMAL_IMAGING</mod-append:name>
-			<mod-append:name>LAB_FFF_F22_SUPERSONIC_AIRBAGS</mod-append:name>
-			<mod-append:name>LAB_FFF_F22_FREEDOM_BOOSTERS</mod-append:name>
-			<mod-append:name>LAB_FFF_BUFFER_EXTENDED_MEMORY</mod-append:name>
-			<mod-append:name>LAB_FFF_BUFFER_OVERCLOCK</mod-append:name>
-		</mod:findName>
-		<mod:findName type="req" name="BLUELIST_CREW_NO2">
-			<mod-append:name>fff_omen</mod-append:name>
-		</mod:findName>
+<mod:findLike type="events" limit="1">
+	<mod:findName type="req" name="LIST_CHECK_ANY_CREW">
+		<mod-append:name>LIST_CREW_FFFTL</mod-append:name>
+	</mod:findName>
+	<mod:findName type="req" name="LIST_LAB_ALL">
+		<mod-append:name>LAB_FFF_F22_THERMAL_IMAGING</mod-append:name>
+		<mod-append:name>LAB_FFF_F22_SUPERSONIC_AIRBAGS</mod-append:name>
+		<mod-append:name>LAB_FFF_F22_FREEDOM_BOOSTERS</mod-append:name>
+		<mod-append:name>LAB_FFF_F22_ARMORED_NOSECONES</mod-append:name>
+		<mod-append:name>LAB_FFF_BUFFER_EXTENDED_MEMORY</mod-append:name>
+		<mod-append:name>LAB_FFF_BUFFER_OVERCLOCK</mod-append:name>
+	</mod:findName>
+	<mod:findName type="req" name="BLUELIST_CREW_NO2">
+		<mod-append:name>fff_omen</mod-append:name>
+		<mod-append:name>gol_nier</mod-append:name>
+	</mod:findName>
+	<mod:findName type="req" name="BLUELIST_CREW_NO2_CONSTANT">
+		<mod-append:name>fff_omen</mod-append:name>
+		<mod-append:name>gol_nier</mod-append:name>
+	</mod:findName>
 
-		<mod:findName type="req" name="BLUELIST_CREW_NODOORS">
-		</mod:findName>
+	<mod:findName type="req" name="BLUELIST_CREW_NODOORS">
+	</mod:findName>
 
-		<mod:findName type="req" name="BLUELIST_CREW_NOFIRE">
-		</mod:findName>
+	<mod:findName type="req" name="BLUELIST_CREW_NOFIRE">
+	</mod:findName>
+	
+	<mod:findName type="req" name="BLUELIST_CREW_STRONG">
+		<mod-append:name>fff_buffer</mod-append:name>
+	</mod:findName>
+</mod:findLike>
+
+<!-- WALLACE BEACON -->
+<mod:findLike type="store" limit="1">
+	<mod:findLike type="customStore">
+		<mod:selector id="STORE_ULTIMATE_SYLVAN"/>
+		<mod-append:category type="CREW">
+			<customTitle>Flat Crew (1/3)</customTitle>
+			<item>
+				<blueprint>fff_f22</blueprint>
+			</item>
+			<item>
+				<blueprint>fff_f22</blueprint>
+			</item>
+			<item>
+				<blueprint>fff_f22</blueprint>
+			</item>
+			<customTitle>Flat Crew (2/3)</customTitle>
+			<item>
+				<blueprint>fff_buffer</blueprint>
+			</item>
+			<item>
+				<blueprint>fff_buffer</blueprint>
+			</item>
+			<item>
+				<blueprint>fff_buffer</blueprint>
+			</item>
+			<customTitle>Flat Crew (3/3)</customTitle>
+			<item>
+				<blueprint>fff_omen</blueprint>
+			</item>
+			<item>
+				<blueprint>fff_omen</blueprint>
+			</item>
+			<item>
+				<blueprint>fff_omen</blueprint>
+			</item>
+		</mod-append:category>
 	</mod:findLike>
-
-	<!-- WALLACE BEACON -->
-	<mod:findLike type="store" limit="1">
-		<mod:findLike type="customStore">
-			<mod:selector id="STORE_ULTIMATE_SYLVAN"/>
-			<mod-append:category type="CREW">
-				<customTitle>Flat Crew (1/3)</customTitle>
-				<item>
-					<blueprint>fff_f22</blueprint>
-				</item>
-				<item>
-					<blueprint>fff_f22</blueprint>
-				</item>
-				<item>
-					<blueprint>fff_f22</blueprint>
-				</item>
-				<customTitle>Flat Crew (2/3)</customTitle>
-				<item>
-					<blueprint>fff_buffer</blueprint>
-				</item>
-				<item>
-					<blueprint>fff_buffer</blueprint>
-				</item>
-				<item>
-					<blueprint>fff_buffer</blueprint>
-				</item>
-				<customTitle>Flat Crew (3/3)</customTitle>
-				<item>
-					<blueprint>fff_omen</blueprint>
-				</item>
-				<item>
-					<blueprint>fff_omen</blueprint>
-				</item>
-				<item>
-					<blueprint>fff_omen</blueprint>
-				</item>
-			</mod-append:category>
-		</mod:findLike>
-	</mod:findLike>
+</mod:findLike>
 </FTL>
