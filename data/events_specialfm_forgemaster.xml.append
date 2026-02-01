@@ -162,107 +162,60 @@
 
 		<text>Which weapon would you like to craft?</text>
 		<checkCargo/>
+		<!--Back to main craft menu-->
+		<choice req="pilot" lvl="1" blue="false">
+			<text>Nevermind, back to main menu.</text>
+			<event load="FM_FORGE_WEAPON_LOAD"/>
+		</choice>
 
-
-		<choice req="FM_LASER_ANOMALY_1_LIST" lvl="1" blue="false" hidden="true">
-			<text>Install the Irradiation Laser core in the Frost I chassis to forge the 'TLALOC' Anomaly Laser. [Cost: 40~]</text>
+		<choice>
+			<text>Install an Irradiation Laser core in a Frost I chassis to forge the 'TLALOC' Anomaly Laser. [Cost: 40~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_LASER_ANOMALY_1"/>
 		</choice>
 
-		<choice req="FM_LASER_ANOMALY_1_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Frost I and Irradiation Laser to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_CHAINGUN_FIRE_LIST" lvl="1" blue="false" hidden="true">
-			<text>Replace the barrels of the Vulcan with the Fire-Starter's heat sinks to forge the 'Hellflash' Gatling Gun. [Cost: 30~]</text>
+		<choice>
+			<text>Replace the barrels of a Vulcan with a Fire-Starter's heat sinks to forge the 'Hellflash' Gatling Gun. [Cost: 30~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_CHAINGUN_FIRE"/>
 		</choice>
 
-		<choice req="FM_CHAINGUN_FIRE_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Vulcan and a Fire-Starter to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_FLAMETHROWER_FORGE_LIST" lvl="1" blue="false" hidden="true">
-			<text>Use a gaseous form for fuel and ignite it with the Fire-Starter to forge the Dazhbog Flamethrower[Cost: 50~].</text>
+		<choice>
+			<text>Use a gaseous form for fuel and ignite it with the Fire-Starter to forge the Dazhbog Flamethrower. [Cost: 50~].</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_FLAMETHROWER"/>
 		</choice>
 
-		<choice req="FM_FLAMETHROWER_FORGE_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Fire-Starter laser and gaseous form to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_PHASER_SUFFOCATION_LIST" lvl="1" blue="false" hidden="true">
+		<choice>
 			<text>Dissolve a Lanius in a Phaser II's energy field to forge the 'Decayser'. [Cost: 55~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_PHASER_SUFFOCATION"/>
 		</choice>
 
-		<choice req="FM_PHASER_SUFFOCATION_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Lanius and Phaser II weapon to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_LASER_PHOTON_LIST" lvl="1" blue="false" hidden="true">
-			<text>Use the Particle Accelerator I and a Light Laser I to forge the Photon Laser I.[Cost: 25~]</text>
+		<choice>
+			<text>Use a Particle Accelerator I and Light Laser I to forge the Photon Laser I. [Cost: 25~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_LASER_PHOTON"/>
 		</choice>
 
-		<choice req="FM_LASER_PHOTON_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Particle Accelerator I and a Light Laser I to forge the Photon Laser I.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_LASER_PHOTON_2_LIST" lvl="1" blue="false" hidden="true">
-			<text>Use the Particle Accelerator II and a Light Laser II to forge the Photon Laser II.[Cost: 50~]</text>
+		<choice>
+			<text>Use a Particle Accelerator II and Light Laser II to forge the Photon Laser II. [Cost: 50~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_LASER_PHOTON_2"/>
 		</choice>
 
-		<choice req="FM_LASER_PHOTON_2_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Particle Accelerator II and a Light Laser II to forge the Photon Laser II.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_LASER_HUMAN_LIST" lvl="1" blue="false" hidden="true">
-			<text>Install the Irradiation Laser core in the Heavy I chassis to forge the 'Rebel Ripper' Laser. [Cost: 50~]</text>
+		<choice>
+			<text>Install an Irradiation Laser core in a Heavy I chassis to forge the 'Rebel Ripper' Laser. [Cost: 50~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_LASER_HUMAN"/>
 		</choice>
 
-		<choice req="FM_LASER_HUMAN_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Irradiation Laser and a Heavy Laser I to forge the 'Rebel Ripper' Laser.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_LASER_ION_MEGA_LIST" lvl="1" blue="false" hidden="true">
-			<text>Forge the Absolution.[Cost: 100~, 15}]</text>
+		<choice>
+			<text>Forge the Absolution with Ion Bomb teleportation tech, the core of a Piercing Laser II, and a hefty amount of scrap. [Cost: 100~, 15}]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_LASER_ION_MEGA"/>
 		</choice>
-
-		<choice req="FM_LASER_ION_MEGA_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a hefty amount of scrap, Ion Bomb teleportation tech, and the core of a Piercing Laser II to craft this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
 		
-		<choice req="FM_SURGE_LASER_LIST" lvl="1" blue="false" hidden="true">
-			<text>Install the Burst Laser with the Flak 4's power core. [Cost: 80~]</text>
+		<choice>
+			<text>Jack a Flak 4's power core into a Burst Laser III. [Cost: 80~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_SURGE_LASER"/>
 		</choice>
 
-		<choice req="FM_SURGE_LASER_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Burst 3 and Flak 4 to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="GATLING_ANCIENT" lvl="1" blue="true" hidden="true" max_group="19">
-			<text>Have Alastair tweak the Godkiller.[Cost: 10~]</text>
+		<choice req="GATLING_ANCIENT" lvl="1" blue="true" hidden="true">
+			<text>Have Alastair tweak the Godkiller. [Cost: 10~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_GODKILLER"/>
-		</choice>
-
-		<!--Back to main craft menu-->
-		<choice req="pilot" lvl="1" max_group="20" hidden="true" blue="false">
-			<text>Nevermind, back to main menu.</text>
-			<event load="FM_FORGE_WEAPON_LOAD"/>
 		</choice>
 	</event>
 
@@ -277,90 +230,50 @@
 		<text>Which weapon would you like to craft?</text>
 		<checkCargo/>
 
-		<choice req="FM_DISC_LAUNCHER_FORGE_LIST" lvl="1" blue="false" hidden="true">
-			<text>Load scrap into a minelauncher and energize it with the Hullbuster Energy weapon to forge the TARANIS Energized Disc.[Cost: 50~]</text>
+		<!--Back to main craft menu-->
+		<choice req="pilot" lvl="1" blue="false">
+			<text>Nevermind, back to main menu.</text>
+			<event load="FM_FORGE_WEAPON_LOAD"/>
+		</choice>
+
+		<choice>
+			<text>Load scrap into a basic minelauncher and energize it with a Hullbuster Energy weapon to forge the TARANIS Energized Disc. [Cost: 50~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_ENERGY_DISC"/>
 		</choice>
 
-		<choice req="FM_DISC_LAUNCHER_FORGE_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a basic minelauncher and Hullbuster Energy weapon to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_ION_TRI_FIRE_LIST" lvl="1" blue="false" hidden="true">
-			<text>Use a Tri-ion and Fire Ion weapon to forge the 'Cerberus' Ion.[Cost: 35~]</text>
+		<choice>
+			<text>Combine a Tri-ion and Fire Ion to forge the 'Cerberus' Ion. [Cost: 35~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_ION_TRI_FIRE"/>
 		</choice>
 
-		<choice req="FM_ION_TRI_FIRE_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Tri-ion and Fire Ion weapon to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_CHAINGUN_ION_FORGE_LIST" lvl="1" blue="false" hidden="true">
-			<text>Replace the barrels of the Vulcan with the Charge Ion's energized coils to forge the 'Vesta' Gatling Ion.[Cost: 30-60~]</text>
+		<choice>
+			<text>Replace the barrels of a Vulcan with a Charge Ion's energized coils to forge the 'Vesta' Gatling Ion. [Cost: 30-60~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_CHAINGUN_ION"/>
 		</choice>
 
-		<choice req="FM_CHAINGUN_ION_FORGE_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Vulcan and Charge Ion weapon to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_SHOTGUN_ENERGY_FORGE_LIST" lvl="1" blue="false" hidden="true">
-			<text>Combine Flak III and Energy Charger to forge the 'Exidia' Energy Diffuser. [Cost: 80~]</text>
+		<choice>
+			<text>Combine a Flak III and Energy Charger to forge the 'Exidia' Energy Diffuser. [Cost: 80~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_SHOTGUN_ENERGY"/>
 		</choice>
 
-		<choice req="FM_SHOTGUN_ENERGY_FORGE_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Flak III and Energy Charger to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_PULSE_1_LIST" lvl="1" blue="false" hidden="true">
-			<text>Combine the Burst Laser I and Energy I to forge the Pulse Laser I. [Cost: 40~]</text>
+		<choice>
+			<text>Combine a Burst Laser I and Energy I to forge the Pulse Laser I. [Cost: 40~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_PULSE"/>
 		</choice>
 
-		<choice req="FM_PULSE_1_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Burst Laser I and Energy I to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_PULSE_2_FORGE_LIST" lvl="1" blue="false" hidden="true">
-			<text>Combine the Burst Laser II and Energy II to forge the Pulse Laser II. [Cost: 50~]</text>
+		<choice>
+			<text>Combine a Burst Laser II and Energy II to forge the Pulse Laser II. [Cost: 50~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_PULSE_2"/>
 		</choice>
 
-		<choice req="FM_PULSE_2_FORGE_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Burst Laser II and Energy II to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_PULSE_3_LIST" lvl="1" blue="false" hidden="true">
-			<text>Combine the Burst Laser III and Energy III to forge the Pulse Laser III. [Cost: 60~]</text>
+		<choice>
+			<text>Combine a Burst Laser III and Energy III to forge the Pulse Laser III. [Cost: 60~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_PULSE_3"/>
 		</choice>
 
-		<choice req="FM_PULSE_3_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Burst Laser III and Energy III to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_PULSEDEEP_LIST" lvl="1" blue="false" hidden="true">
-			<text>Combine the Heavy Energy and Heavy Ion to forge the Pulsedeep Cannon. [Cost: 50~]</text>
+		<choice>
+			<text>Combine a Heavy Energy and Heavy Ion to forge the Pulsedeep Cannon. [Cost: 50~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_PULSEDEEP"/>
-		</choice>
-
-		<choice req="FM_PULSEDEEP_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Heavy Energy and Heavy Ion to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<!--Back to main craft menu-->
-		<choice req="pilot" lvl="1" max_group="20" hidden="true" blue="false">
-			<text>Nevermind, back to main menu.</text>
-			<event load="FM_FORGE_WEAPON_LOAD"/>
 		</choice>
 	</event>
 
@@ -373,79 +286,44 @@
 		<text>Which weapon would you like to craft?</text>
 		<checkCargo/>
 
-		<choice req="FM_BEAM_MINING_2_LIST" lvl="1" blue="false" hidden="true">
-			<text>Dissassemble and combine the 'Sarissa' Beam and Mining beams to forge the Ishimura Beam.[Cost: 120~]</text>
+		<choice>
+			<text>Nevermind.</text>
+			<event load="FM_FORGE_WEAPON_LOAD"/>
+		</choice>
+
+		<choice>
+			<text>Dissassemble and combine a 'Sarissa' Beam and Mining beam to forge the Ishimura Beam. [Cost: 120~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_BEAM_MINING_2"/>
 		</choice>
 
-		<choice req="FM_BEAM_MINING_2_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a 'Sarissa' Beam and Mining beam to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_BEAM_PARTICLE_PIERCE_LIST" lvl="1" blue="false" hidden="true">
-			<text>Install the Particle Beam technology in the Guisarme's frame to forge the 'Earspoon' Beam.[Cost: 35~]</text>
+		<choice>
+			<text>Install Particle Beam technology in a Guisarme's frame to forge the 'Earspoon' Beam. [Cost: 35~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_BEAM_PARTICLE_PIERCE"/>
 		</choice>
 
-		<choice req="FM_BEAM_PARTICLE_PIERCE_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Particle and Guisarme beam to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_BEAM_GUILLOTINE_CHAIN_FORGE_LIST" lvl="1" blue="false" hidden="true">
-			<text>Provide the Murder-Bots with scrap to reconfigure the Fauchard to their hearts' content.[Cost: 110~, 2}, 5|]</text>
+		<choice>
+			<text>Provide some Murder-Bots a Fauchard and some scrap to reconfigure to their hearts' content. [Cost: 110~, 2}, 5|]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_BEAM_GUILLOTINE_CHAIN"/>
 		</choice>
 
-		<choice req="FM_BEAM_GUILLOTINE_CHAIN_FORGE_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Fauchard beam and something truly murderous to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_BEAM_EXPLOSION_FORGE_LIST" lvl="1" blue="false" hidden="true">
-			<text>Rewire the Halberd beam to use its length as a teleportation lock-on for the Small Bomb to forge the 'Valefor' beam.[Cost: 75~]</text>
+		<choice>
+			<text>Rewire a Halberd beam to use its length as a teleportation lock-on for Small Bombs to forge the 'Valefor' beam. [Cost: 75~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_BEAM_EXPLOSION"/>
 		</choice>
 
-		<choice req="FM_BEAM_EXPLOSION_FORGE_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Small Bomb and Halberd beam to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_BEAM_ION_PIERCE_FORGE_LIST" lvl="1" blue="false" hidden="true">
-			<text>Combine the 'Ranseur' with a Basic Ion or Ion Barrage Mark I to forge this weapon. [Cost: 60-100~]</text>
+		<choice>
+			<text>Combine a 'Ranseur' with a Basic Ion or Ion Barrage Mark I to forge this weapon. [Cost: 60-100~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_BEAM_ION_PIERCE"/>
 		</choice>
 
-		<choice req="FM_BEAM_ION_PIERCE_FORGE_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>Need a Ranseur plus either a Basic Ion or Ion Barrage Mark I to create.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_BEAM_ETERNITY_LIST" lvl="1" blue="false" hidden="true">
-			<text>Combine the 'Pike' beam and 'Scythe' beam to forge the 'Eternity' Beam. [Cost: 40~]</text>
+		<choice>
+			<text>Combine a 'Pike' beam and a 'Scythe' beam to forge the 'Eternity' Beam. [Cost: 40~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_BEAM_ETERNITY"/>
 		</choice>
-
-		<choice req="FM_BEAM_ETERNITY_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a 'Pike' beam and 'Scythe' beam to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
 		
-		<choice req="BEAM_PRISM_SCATTER_LIST" lvl="1" blue="false" hidden="true">
-			<text>[CNC + AA] Combine the Prism Cannon and Prismatic Ion Barrage to forge the Prismatic Scatter Beam. [Cost: 60~]</text>
+		<choice>
+			<text>[CNC + AA] Combine a Prism Cannon and Prismatic Ion Barrage to forge the Prismatic Scatter Beam. [Cost: 60~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_BEAM_PRISM_SCATTER"/>
-		</choice>
-
-		<choice req="BEAM_PRISM_SCATTER_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>[CNC + AA] You must have a Prism Cannon and Prismatic Ion Barrage to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="pilot" lvl="1" max_group="20" hidden="true" blue="false">
-			<text>Nevermind.</text>
-			<event load="FM_FORGE_WEAPON_LOAD"/>
 		</choice>
 	</event>
 
@@ -457,90 +335,50 @@
 		<text>Which weapon would you like to craft?</text>
 		<checkCargo/>
 
+		<choice req="pilot" lvl="1"  blue="false">
+			<text>Nevermind.</text>
+			<event load="FM_FORGE_WEAPON_LOAD"/>
+		</choice>
 
-		<choice req="FM_FOCUS_FUELED_1_LIST" lvl="1" blue="false" hidden="true">
-			<text>Finagle the Cinquedea Pinpoint into the Hermes missile shell to forge the 'Parazonium' Pinpoint.[Cost: 70~]</text>
+
+		<choice>
+			<text>Finagle a Cinquedea Pinpoint into a Hermes missile shell to forge the 'Parazonium' Pinpoint. [Cost: 70~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_FOCUS_FUELED_1"/>
 		</choice>
 
-		<choice req="FM_FOCUS_FUELED_1_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Cinquedea pinpoint and Hermes missile to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_FOCUS_ENERGY_1_LIST" lvl="1" blue="false" hidden="true">
-			<text>Replace the Dirk's power source with an Energy I core to forge the 'Ebony' Pinpoint.[Cost: 40~]</text>
+		<choice>
+			<text>Replace Dirk's power source with an Energy I core to forge the 'Ebony' Pinpoint. [Cost: 40~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_FOCUS_ENERGY_1"/>
 		</choice>
 
-		<choice req="FM_FOCUS_ENERGY_1_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Dirk pinpoint and Energy I weapon to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_FOCUS_ENERGY_2_FORGE_LIST" lvl="1" blue="false" hidden="true">
-			<text>Replace the Misericorde's power source with an Energy II core to forge the 'Hemlock' Pinpoint.[Cost: 50~]</text>
+		<choice>
+			<text>Replace the Misericorde's power source with an Energy II core to forge the 'Hemlock' Pinpoint. [Cost: 50~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_FOCUS_ENERGY_2"/>
 		</choice>
 
-		<choice req="FM_FOCUS_ENERGY_2_FORGE_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Misericorde pinpoint and Energy II weapon to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="FM_FOCUS_ENERGY_3_LIST" lvl="1" blue="false" hidden="true">
-			<text>Replace the Stiletto's power source with an Energy III core to forge the 'Greenheart' Pinpoint.[Cost: 60~]</text>
+		<choice>
+			<text>Replace a Stiletto's power source with an Energy III core to forge the 'Greenheart' Pinpoint. [Cost: 60~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_FOCUS_ENERGY_3"/>
 		</choice>
 
-		<choice req="FM_FOCUS_ENERGY_3_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Stiletto pinpoint and Energy III weapon to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
+		<choice>
+			<text>Replace Dirk's power source with a Conservative Energy core to forge the 'Maple' Pinpoint. [Cost: 50~]</text>
+			<event load="NPC_STORAGE_CHECK_CREATE_FM_FOCUS_ENERGY_CONS"/>
 		</choice>
-
-		<choice req="FM_FOCUS_ENERGY_CONS_LIST" lvl="1" blue="false" hidden="true">
-	<text>Replace the Dirk's power source with a Conservative Energy core to forge the 'Maple' Pinpoint.[Cost: 50~]</text>
-	<event load="NPC_STORAGE_CHECK_CREATE_FM_FOCUS_ENERGY_CONS"/>
-	</choice>
-
-	<choice req="FM_FOCUS_ENERGY_CONS_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-	<text>You must have a Dirk pinpoint and Conservative Energy to forge this weapon.</text>
-	<event load="OPTION_INVALID"/>
-	</choice>
-		
-	<choice req="FM_FOCUS_VIRUS_FORGE_LIST" lvl="1" blue="false" hidden="true">
-			<text>Enhance the Anelace's focusing lens with the Corrosive Laser's deadly chemicals.[Cost: 50~]</text>
+			
+		<choice>
+			<text>Enhance the Anelace's focusing lens with a Corrosive Laser II's deadly chemicals. [Cost: 50~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_FOCUS_VIRUS"/>
 		</choice>
 
-	<choice req="FM_FOCUS_VIRUS_FORGE_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Corrosive Laser 2 and an 'Anelace' Rad Pinpoint to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
+		<choice>
+			<text>Combine a Suyari beam and Cinquedea pinpoint to forge the Omiyari focus. [Cost: 50~]</text>
+			<event load="NPC_STORAGE_CHECK_CREATE_FM_FOCUS_ADAPT"/>
 		</choice>
-
-	<choice req="FM_FOCUS_ADAPT_LIST" lvl="1" blue="false" hidden="true">
-	<text>Combine the Suyari beam and Cinquedea pinpoint to forge the Omiyari focus.[Cost: 50~]</text>
-	<event load="NPC_STORAGE_CHECK_CREATE_FM_FOCUS_ADAPT"/>
-	</choice>
-	
-	<choice req="FM_FOCUS_ADAPT_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-	<text>You must have a Suyari beam and Cinquedea pinpoint to forge this weapon.</text>
-	<event load="OPTION_INVALID"/>
-	</choice>
 
 		<choice req="FM_BEAM_MINING_3_FORGE_LIST" lvl="1" blue="false" hidden="true">
-			<text>Combine the Misericorde/Stiletto and Ishimura Beam to forge the Terra Nova 'ShipCracker'.[Cost: 50-70~]</text>
+			<text>Combine a Misericorde or Stiletto and Ishimura Beam to forge the Terra Nova 'ShipCracker'. [Cost: 50-70~]</text>
 			<event load="NPC_STORAGE_CHECK_CREATE_FM_BEAM_MINING_3"/>
-		</choice>
-
-		<choice req="FM_BEAM_MINING_3_FORGE_LIST" lvl="0" max_lvl="0" blue="false" hidden="true">
-			<text>You must have a Misericorde (or Stiletto) and Ishimura Beam to forge this weapon.</text>
-			<event load="OPTION_INVALID"/>
-		</choice>
-
-		<choice req="pilot" lvl="1" max_group="20" hidden="true" blue="false">
-			<text>Nevermind.</text>
-			<event load="FM_FORGE_WEAPON_LOAD"/>
 		</choice>
 	</event>
 
@@ -594,6 +432,12 @@
 	<event name="FM_FORGE_WEAPON_EXPLOSIVES">
 		<text>Which weapon would you like to craft?</text>
 		<checkCargo/>
+
+		<!--Back to main craft menu-->
+		<choice req="pilot" lvl="1" max_group="20" hidden="true" blue="false">
+			<text>Nevermind, back to main menu.</text>
+			<event load="FM_FORGE_WEAPON_LOAD"/>
+		</choice>
 
 		<choice req="FM_MISSILES_BURST_FIRE_FORGE_LIST" lvl="1" blue="false" hidden="true">
 			<text>Dissassemble and combine the Ares and Hades missiles to forge the 'Hellfire' Burst Missile.[Cost: 90~]</text>
@@ -698,12 +542,6 @@
 			<text>[GO BALLISTIC + CNC] You must have two Autocannon 2s and V5 Missiles to forge this weapon.</text>
 			<event load="OPTION_INVALID"/>
 		</choice>
-
-		<!--Back to main craft menu-->
-		<choice req="pilot" lvl="1" max_group="20" hidden="true" blue="false">
-			<text>Nevermind, back to main menu.</text>
-			<event load="FM_FORGE_WEAPON_LOAD"/>
-		</choice>
 	</event>
 
 
@@ -739,6 +577,10 @@
 	<event name="FM_FORGE_WEAPON_UPGRADE">
 		<text>Which weapon would you like to craft?</text>
 		<checkCargo/>
+		<choice req="pilot" lvl="1" blue="false">
+			<text>Nevermind.</text>
+			<event load="FM_FORGE_WEAPON_LOAD"/>
+		</choice>
 
 		<choice req="FM_SHOTGUN_BRONZE_LIST_UPGRADE" lvl="1" blue="false" hidden="true" max_group="1">
 			<text>Upgrade the Metal Flak Line</text>
@@ -748,12 +590,6 @@
 		<choice req="FM_SHOTGUN_BRONZE_LIST_UPGRADE" lvl="0" max_lvl="0" blue="false" hidden="true" max_group="1">
 			<text>You require a Bronze Flak-Line weapon Tier 1--->Tier 9 to proceed</text>
 			<event load="OPTION_INVALID"/>
-		</choice>
-
-
-		<choice req="pilot" lvl="1" max_group="7" hidden="true" blue="false">
-			<text>Nevermind.</text>
-			<event load="FM_FORGE_WEAPON_LOAD"/>
 		</choice>
 	</event>
 
