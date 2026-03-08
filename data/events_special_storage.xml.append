@@ -89,6 +89,9 @@
 	</choice>
 </event>
 
+<event name="STORAGE_CHECK_LAB_F22_LOAD">
+	<loadEvent>STORAGE_CHECK_LAB_FFF_F22</loadEvent>
+</event>
 <!-- Begin generated lab events for F-22-->
 <event name="STORAGE_CHECK_LAB_FFF_F22">
 	<text>You are viewing the lab menu for: [F-22]</text>
@@ -176,7 +179,7 @@
 	</choice>
 	<choice req="pilot" lvl="1" max_group="1" blue="false" hidden="true">
 		<text>Nevermind.</text>
-		<event load="STORAGE_CHECK_LAB_LOAD"/>
+		<event load="STORAGE_CHECK_LAB_F22_LOAD"/>
 	</choice>
 </event>
 
@@ -207,7 +210,7 @@
 	</choice>
 	<choice req="pilot" lvl="1" max_group="1" blue="false" hidden="true">
 		<text>Nevermind.</text>
-		<event load="STORAGE_CHECK_LAB_LOAD"/>
+		<event load="STORAGE_CHECK_LAB_F22_LOAD"/>
 	</choice>
 </event>
 
@@ -238,7 +241,7 @@
 	</choice>
 	<choice req="pilot" lvl="1" max_group="1" blue="false" hidden="true">
 		<text>Nevermind.</text>
-		<event load="STORAGE_CHECK_LAB_LOAD"/>
+		<event load="STORAGE_CHECK_LAB_F22_LOAD"/>
 	</choice>
 </event>
 
@@ -269,7 +272,7 @@
 	</choice>
 	<choice req="pilot" lvl="1" max_group="1" blue="false" hidden="true">
 		<text>Nevermind.</text>
-		<event load="STORAGE_CHECK_LAB_LOAD"/>
+		<event load="STORAGE_CHECK_LAB_F22_LOAD"/>
 	</choice>
 </event>
 
@@ -280,6 +283,10 @@
 	<loadEvent>STORAGE_CHECK_LAB_FFF_F22</loadEvent>
 </event>
 
+
+<event name="STORAGE_CHECK_LAB_BUFFER_LOAD">
+	<loadEvent>STORAGE_CHECK_LAB_FFF_BUFFER</loadEvent>
+</event>
 <!-- Begin generated lab events for Buffer-->
 <event name="STORAGE_CHECK_LAB_FFF_BUFFER">
 	<text>You are viewing the lab menu for: [Buffer]</text>
@@ -341,7 +348,7 @@
 	</choice>
 	<choice req="pilot" lvl="1" max_group="1" blue="false" hidden="true">
 		<text>Nevermind.</text>
-		<event load="STORAGE_CHECK_LAB_LOAD"/>
+		<event load="STORAGE_CHECK_LAB_BUFFER_LOAD"/>
 	</choice>
 </event>
 
@@ -372,7 +379,7 @@
 	</choice>
 	<choice req="pilot" lvl="1" max_group="1" blue="false" hidden="true">
 		<text>Nevermind.</text>
-		<event load="STORAGE_CHECK_LAB_LOAD"/>
+		<event load="STORAGE_CHECK_LAB_BUFFER_LOAD"/>
 	</choice>
 </event>
 

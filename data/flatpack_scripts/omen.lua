@@ -17,11 +17,18 @@ end
         stretch goal:
         better dying animation
         blast particles
+
+        rotation isn't capping with frame rate correctly.
+        Probably need to use lwst for this instead, and decouple rendering with anim.
+        Also, speeding the game doesn't make it rotate faster, which is probably a glitch with 
+        Game seems to tick maybe faster than I thought it did overall.
 --]]
 --#region defines
 local ENEMY_SHIP = 1
 local global = Hyperspace.Global.GetInstance()
 local soundControl = global:GetSoundControl()
+
+print("is it nil?", Hyperspace.metaVariables["asdfsadfsadfasdfasdf"])
 
 local MAX_POWER = 100
 local BASE_BEAM_DAMAGE = 22
@@ -33,6 +40,7 @@ local OMEN_DEPTH = 20
 local OUTER_SQUARE_SIZE = 30
 local TOP_POINT_X = OUTER_SQUARE_SIZE / 2 --top point of equilateral triangle
 local TOP_POINT_Y = TOP_POINT_X * math.tan(math.pi/3) --60 degrees
+local MIN_POWER = 1 --Slowest rotation speed is based on this.
 
 local EYE_ANGLE = math.pi/6
 local IRIS_ANGLE = math.pi/3
@@ -236,7 +244,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
                         end
                     end
                 else
-                    omen_power = math.max(omen_power - .05, 1)
+                    omen_power = math.max(omen_power - .05, MIN_POWER)
                 end
                 
                 prism_model = lw3.rotateAround(prism_model, CENTER_POINT.x, CENTER_POINT.y, CENTER_POINT.z, rotations.x * omen_power, rotations.y * omen_power, rotations.z * omen_power)

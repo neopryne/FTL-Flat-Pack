@@ -24,7 +24,7 @@
             <text>"Neat!"</text>
             <crewMember amount="1" class="fp_unique_phantom_ghost"/>
         </event>
-        <text>I'll have to pass.</text>
+        <text>We'll have to pass.</text>
         <event>
             <text>"No worries."</text>
         </event>

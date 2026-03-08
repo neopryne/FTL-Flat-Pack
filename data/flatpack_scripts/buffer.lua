@@ -2,8 +2,8 @@ local userdata_table = mods.multiverse.userdata_table
 local vter = mods.multiverse.vter
 local get_room_at_location = mods.multiverse.get_room_at_location
 local Brightness = mods.brightness
+local lwcco = mods.lightweight_crew_change_observer
 local lwl = mods.lightweight_lua
-
 
 local ENEMY_SHIP = 1
 local global = Hyperspace.Global.GetInstance()
@@ -31,15 +31,8 @@ local PUNCH_STUN= 1
 local BLITZ_DAMAGE = 7
 local BLITZ_STUN= .01
 local CAPPED_FPS = 60
-local BLACK = Graphics.GL_Color(0, 0, 0, 1) 
-
---[[
-    buffer
-    
-    try giving ability really long cooldown and then force-ending it when the stack is empty, that would let me use the attribute modifiers there for immutable stuff
-    --I can prepare and cancel powers, so I can do this there.
-    --speed 0, immune to stun, not controllable
---]]
+local BLACK = Graphics.GL_Color(0, 0, 0, 1)
+local SPECIES_BUFFER = "fff_buffer"
 
 local ID_PUNCH = 0
 local ID_BLITZ = 1
@@ -47,6 +40,18 @@ local ID_SHOOT = 2
 local TYPE_PUNCH = {name="punch", id=ID_PUNCH}
 local TYPE_BLITZ = {name="blitz", id=ID_BLITZ}
 local TYPE_SHOOT = {name="shoot", id=ID_SHOOT}
+
+--[[
+List of all current buffers.  I basically only need this for resetting active powers, so I query it almost never.
+]]
+local mBufferObserver
+
+local function bufferFilter(crewmem)
+    return crewmem:GetSpecies() == SPECIES_BUFFER
+end
+
+mBufferObserver = lwcco.createCrewChangeObserver(bufferFilter)
+
 
 local function blitz(crewmem)
     local currentShipManager = global:GetShipManager(crewmem.currentShipId)
@@ -108,7 +113,7 @@ local function shoot(crewmem)
     --print(lwl.dumpObject(crewTable))
 end
 
-local function punch(crewmem) 
+local function punch(crewmem)
     soundControl:PlaySoundMix("fff_buffer_punch", 4, false)
     lwl.damageFoesInSameSpace(crewmem, 0, PUNCH_STUN, PUNCH_DAMAGE)
     local particle = Brightness.create_particle("particles/buffer/fist", 1, (OUTPUT_DELAY / (CAPPED_FPS * 2)), crewmem:GetPosition(), 0, crewmem.currentShipId, "SHIP_MANAGER")
@@ -172,6 +177,7 @@ local function clear_particles(bufferParticles)
     for i = 1, #bufferParticles do
         Brightness.destroy_particle(bufferParticles[i])
     end
+    return {}
 end
 
 local function addParticleInner(particleType, crewmem, bufferParticles)
@@ -223,9 +229,9 @@ local function resetActivePower(crewmem)
     end
 end
 
-script.on_internal_event(Defines.InternalEvents.ACTIVATE_POWER, function(power, ship)
+lwl.safe_script.on_internal_event("fff_buffer_power", Defines.InternalEvents.ACTIVATE_POWER, function(power, ship)
     --print("Power used!")
-    if power.crew:GetSpecies() == "fff_buffer" then
+    if power.crew:GetSpecies() == SPECIES_BUFFER then
         --print("Was buffer!")
         if (power.crew.fStunTime <= 0) then --can't act if stunned
             userdata_table(power.crew, TABLE_NAME_BUFFER).goingOff = true
@@ -234,11 +240,11 @@ script.on_internal_event(Defines.InternalEvents.ACTIVATE_POWER, function(power, 
     end
 end)
 
-local BUFFERS_RESETTING = true --set to false after all buffers reset.
+local mBuffersResetting = true --set to false after all buffers reset.
 
 --on-tick mechanical logic goes here.
-script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
-    if (crewmem:GetSpecies() == "fff_buffer") then
+lwl.safe_script.on_internal_event("fff_buffer_crew_loop", Defines.InternalEvents.CREW_LOOP, function(crewmem)
+    if (crewmem:GetSpecies() == SPECIES_BUFFER) then
         if (Hyperspace.ships(0).iCustomizeMode == 2) then return end --don't tick in the hangar
         local shipManager = global:GetShipManager(crewmem.iShipId)
         local currentShipManager = global:GetShipManager(crewmem.currentShipId)
@@ -253,14 +259,16 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
         local hasBeenReset = lwl.setIfNil(crewTable.hasBeenReset, false)
         --end load vars
         --reset active powers on load.
-        if (BUFFERS_RESETTING) then
+        if (mBuffersResetting) then
             if (hasBeenReset) then
                 --It's the second time around, we don't need to do this anymore.
-                BUFFERS_RESETTING = false
+                mBuffersResetting = false
             else
                 resetActivePower(crewmem)
                 hasBeenReset = true
             end
+        else
+            hasBeenReset = false
         end
         
         if (goingOff) then
@@ -286,8 +294,7 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
             if ((crewmem.bActiveManning or crewmem.bDead or (crewmem:Repairing() and not crewmem:Sabotaging()))) then
                 if (Hyperspace.ships(0).ship:HasAugmentation("LAB_FFF_BUFFER_EXTENDED_MEMORY") == 0) then
                     --if doing stuff clear the buffer
-                    clear_particles(bufferParticles)
-                    bufferParticles = {}
+                    bufferParticles = clear_particles(bufferParticles)
                     inputTimer = 0
                 end
             else
@@ -331,12 +338,25 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
     end--end buffer
 end)
 
+-- local function onJumpArrive(shipManager)
+--     for _,crewId in ipairs(mBufferObserver.getAddedCrew()) do
+--         local crewmem = lwl.getCrewById(crewId)
+--         local crewTable = userdata_table(crewmem, TABLE_NAME_BUFFER)
+--         local bufferParticles = lwl.setIfNil(crewTable.bufferParticles, {})
+--         bufferParticles = clear_particles(bufferParticles)
+--         crewTable.bufferParticles = bufferParticles
+--     end
+--     print("buffer jump arrived")
+-- end
+
+-- lwl.safe_script.on_internal_event("fff_buffer_onjump", Defines.InternalEvents.JUMP_ARRIVE, onJumpArrive)
+
 --todo strang behavior where shot stops rendering triangle and looses one direction of movement upon hitting the ship box?
 --rendering logic goes here, this should just be the attack animations.  Actually I can do those with particles, so this is just nothing?
-script.on_render_event(Defines.RenderEvents.SHIP_MANAGER, function() end, function(ship)
+lwl.safe_script.on_render_event("fff_buffer_render", Defines.RenderEvents.SHIP_MANAGER, function() end, function(ship)
     local shipManager = global:GetShipManager(ship.iShipId) --Manager for current ship
     for crewmem in vter(shipManager.vCrewList) do
-        if (crewmem:GetSpecies() == "fff_buffer") then
+        if (crewmem:GetSpecies() == SPECIES_BUFFER) then
             local crewTable = userdata_table(crewmem, TABLE_NAME_BUFFER)
             
             local shotsFired = crewTable.shotsFired

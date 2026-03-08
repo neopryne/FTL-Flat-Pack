@@ -219,6 +219,11 @@ local function getNode(board, i, j)
     return board.nodes[i][j]
 end
 
+---how do you cross-encode a bunch of information?
+---It's ok if it's messy, but 
+
+
+
 --Doesn't change the position of this node???  i and j are just for convenience.
 
 local function newNode(board, i, j, type)

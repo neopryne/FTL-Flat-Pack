@@ -33,7 +33,7 @@
 		<powerList>
 			<power>Really, really fast.</power>
 			<power>1.5x damage and sabotage speed.</power>
-			<power>Moves erratically, may stun itself. Stun increases with damage taken.</power>
+			<power>Moves erratically, may stun and damage itself. Stun increases as hp decreases.</power>
 			<power>Damages and stuns enemy crew in the rooms it moves to.</power>
 		</powerList>
 	</crewBlueprint>
@@ -79,7 +79,7 @@
 		<short>Jitsugyoka</short>
 		<cost>65</cost>
 		<bp>2</bp>
-		<rarity>5</rarity>
+		<rarity>0</rarity>
 		<powerList>
 			<power>Upgradable through premium currency.</power>
 			<power>The power of THE ECONOMY at your fingertips.</power>
@@ -119,7 +119,7 @@
 		<short>Hack</short>
 		<cost>37</cost>
 		<bp>5</bp>
-		<rarity>5</rarity>
+		<rarity>0</rarity>
 		<powerList>
 			<power>Low health, but gains segments as it moves.</power>
 			<power>Damage only affects the newest segment.</power>
@@ -145,7 +145,7 @@
 		<short>Nier</short>
 		<cost>42</cost>
 		<bp>2</bp>
-		<rarity>5</rarity>
+		<rarity>0</rarity>
 		<powerList>
 			<power>Immune to suffocation.</power>
 			<power>Moves at .7x speed.</power>
@@ -162,7 +162,7 @@
 		<powerList>
 			<power>Really, really fast.</power>
 			<power>1.5x damage, 2x sabotage speed.</power>
-			<power>Moves erratically, may stun itself. Stun increases with damage taken.</power>
+			<power></power>
 			<power>Damages and stuns enemy crew in the rooms it moves to.</power>
 		</powerList>
 	</crewBlueprint>
@@ -212,7 +212,7 @@
 	<shipBlueprint name="PLAYER_SHIP_FFF_UFO_1" layout="fff_ufo_1" img="fff_ufo_1">
 		<class>X-23 Saucer</class>
 		<name>The Waveguide</name>
-		<desc>They've decided to beat up other people for a change.</desc>
+		<desc>They've decided to beat up other people for a change.  Comes pre-installed with an internal lab, for all your Mad needs.</desc>
 		<systemList>
 			<battery power="1" room="9" start="true" img="fff_room_battery_1_1" />
 			<cloaking power="1" room="12" start="false" img="fff_room_cloaking_1_1" />

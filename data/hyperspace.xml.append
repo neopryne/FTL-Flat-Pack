@@ -16,7 +16,6 @@
 		<mod-append:script>data/flatpack_scripts/game_of_life/auto_cell.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/game_of_life/life.lua</mod-append:script>
 		<mod-append:script>data/flatpack_scripts/game_of_life/nier.lua</mod-append:script>
-		<mod-append:script>data/flatpack_scripts/forgemaster_show_blueprints.lua</mod-append:script>
 	</mod:findLike>
 </FTL>
 
@@ -372,6 +371,7 @@
 	<mod-append:customShip name="PLAYER_SHIP_FFF_UFO_1">
 		<crewLimit>8</crewLimit>
 		<hiddenAug>FOR_MULTIVERSE</hiddenAug>
+		<hiddenAug>LAB_INSTALLED</hiddenAug>
 	</mod-append:customShip>
 </mod:findLike>
 
