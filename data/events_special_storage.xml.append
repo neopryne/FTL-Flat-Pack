@@ -78,14 +78,15 @@
 
 <event name="STORAGE_CHECK_LAB_FFF_OMEN">
 	<text>You are viewing the lab menu for: [OMEN]</text>
-	<choice req="pilot" lvl="1" max_group="0" blue="false" hidden="true">
-		<text>Can't improve perfection.</text>
-		<event load="OPTION_INVALID"/>
-	</choice>
 
-	<choice req="pilot" lvl="1" max_group="999" blue="false" hidden="true">
+	<choice req="pilot" lvl="1" max_group="0" blue="false" hidden="true">
 		<text>Go back.</text>
 		<event load="STORAGE_CHECK_LAB_LOAD"/>
+	</choice>
+
+	<choice req="pilot" lvl="1" max_group="11" blue="false" hidden="true">
+		<text>Can't improve perfection.</text>
+		<event load="OPTION_INVALID"/>
 	</choice>
 </event>
 
@@ -95,67 +96,57 @@
 <!-- Begin generated lab events for F-22-->
 <event name="STORAGE_CHECK_LAB_FFF_F22">
 	<text>You are viewing the lab menu for: [F-22]</text>
-	<choice req="LAB_FFF_F22_THERMAL_IMAGING" lvl="1" max_group="0" blue="false" hidden="true">
-		<text>Currently Installed Passive: Thermal Imaging.
+
+	<choice req="pilot" lvl="1" max_group="0" blue="false" hidden="true">
+		<text>Go back.</text>
+		<event load="STORAGE_CHECK_LAB_LOAD"/>
+	</choice>
+
+	<choice req="LAB_FFF_F22_THERMAL_IMAGING" lvl="1" max_group="1" blue="false" hidden="true">
+		<text>Currently Installed Primary: Thermal Imaging.
 		[See crew locations even without sensors.]</text>
 		<event load="OPTION_INVALID"/>
 	</choice>
-	<choice req="LAB_FFF_F22_SUPERSONIC_AIRBAGS" lvl="1" max_group="0" blue="false" hidden="true">
-		<text>Currently Installed Passive: Supersonic Airbags.
+	<choice req="LAB_FFF_F22_SUPERSONIC_AIRBAGS" lvl="1" max_group="1" blue="false" hidden="true">
+		<text>Currently Installed Primary: Supersonic Airbags.
 		[Extra padding reduces damage to autopilots.]</text>
 		<event load="OPTION_INVALID"/>
 	</choice>
-	<choice req="LAB_FFF_F22_FREEDOM_BOOSTERS" lvl="1" max_group="0" blue="false" hidden="true">
-		<text>Currently Installed Passive: Freedom Boosters.
+	<choice req="LAB_FFF_F22_FREEDOM_BOOSTERS" lvl="1" max_group="1" blue="false" hidden="true">
+		<text>Currently Installed Primary: Freedom Boosters.
 		[Let your F-22's excercise their god-given right to reckless endangerment in pursuit of going really fast.]</text>
 		<event load="OPTION_INVALID"/>
 	</choice>
-	<choice req="LAB_FFF_F22_ARMORED_NOSECONES" lvl="1" max_group="0" blue="false" hidden="true">
-		<text>Currently Installed Passive: Armored Nosecones.
+	<choice req="pilot" lvl="1" max_group="1" blue="false" hidden="true">
+		<text>Currently Installed Primary: None</text>
+		<event load="OPTION_INVALID"/>
+	</choice>
+
+	<choice req="LAB_FFF_F22_ARMORED_NOSECONES" lvl="1" max_group="2" blue="false" hidden="true">
+		<text>Currently Installed Secondary: Armored Nosecones.
 		[No door can stand in your way.]</text>
 		<event load="OPTION_INVALID"/>
 	</choice>
-	<choice req="pilot" lvl="1" max_group="0" blue="false" hidden="true">
-		<text>Currently Installed Passive: None</text>
+	<choice req="pilot" lvl="1" max_group="2" blue="false" hidden="true">
+		<text>Currently Installed Secondary: None</text>
 		<event load="OPTION_INVALID"/>
 	</choice>
 
-	<choice req="LAB_FFF_F22_INSTALLED" lvl="1" max_group="1" blue="false" hidden="true">
-		<text>Pas: Thermal Imaging. [An upgrade is already installed]</text>
-		<event load="OPTION_INVALID"/>
-	</choice>
-	<choice req="LAB_FFF_F22_INSTALLED" lvl="0" max_group="1" blue="false" hidden="true">
-		<text>Pas: Thermal Imaging. [Cost: 40~]</text>
+	<choice req="LAB_FFF_F22_INSTALLED_PRIMARY" lvl="0" max_lvl="0" max_group="10" blue="false" hidden="true">
+		<text>Passive Primary: Thermal Imaging. [Cost: 40~]</text>
 		<event load="STORAGE_CHECK_LAB_FFF_F22_THERMAL_IMAGING"/>
 	</choice>
-	<choice req="LAB_FFF_F22_INSTALLED" lvl="1" max_group="2" blue="false" hidden="true">
-		<text>Pas: Supersonic Airbags. [An upgrade is already installed]</text>
-		<event load="OPTION_INVALID"/>
-	</choice>
-	<choice req="LAB_FFF_F22_INSTALLED" lvl="0" max_group="2" blue="false" hidden="true">
-		<text>Pas: Supersonic Airbags. [Cost: 22~]</text>
+	<choice req="LAB_FFF_F22_INSTALLED_PRIMARY" lvl="0" max_lvl="0" max_group="20" blue="false" hidden="true">
+		<text>Passive Primary: Supersonic Airbags. [Cost: 22~]</text>
 		<event load="STORAGE_CHECK_LAB_FFF_F22_SUPERSONIC_AIRBAGS"/>
 	</choice>
-	<choice req="LAB_FFF_F22_INSTALLED" lvl="1" max_group="3" blue="false" hidden="true">
-		<text>Pas: Freedom Boosters. [An upgrade is already installed]</text>
-		<event load="OPTION_INVALID"/>
-	</choice>
-	<choice req="LAB_FFF_F22_INSTALLED" lvl="0" max_group="3" blue="false" hidden="true">
-		<text>Pas: Freedom Boosters. [Cost: 32~]</text>
+	<choice req="LAB_FFF_F22_INSTALLED_PRIMARY" lvl="0" max_lvl="0" max_group="30" blue="false" hidden="true">
+		<text>Passive Primary: Freedom Boosters. [Cost: 32~]</text>
 		<event load="STORAGE_CHECK_LAB_FFF_F22_FREEDOM_BOOSTERS"/>
 	</choice>
-	<choice req="LAB_FFF_F22_INSTALLED" lvl="1" max_group="4" blue="false" hidden="true">
-		<text>Pas: Armored Nosecones. [An upgrade is already installed]</text>
-		<event load="OPTION_INVALID"/>
-	</choice>
-	<choice req="LAB_FFF_F22_INSTALLED" lvl="0" max_group="4" blue="false" hidden="true">
-		<text>Pas: Armored Nosecones. [Cost: 20~]</text>
+	<choice req="LAB_FFF_F22_INSTALLED_SECONDARY" lvl="0" max_lvl="0" max_group="40" blue="false" hidden="true">
+		<text>Passive Secondary: Armored Nosecones. [Cost: 20~]</text>
 		<event load="STORAGE_CHECK_LAB_FFF_F22_ARMORED_NOSECONES"/>
-	</choice>
-
-	<choice req="pilot" lvl="1" max_group="999" blue="false" hidden="true">
-		<text>Go back.</text>
-		<event load="STORAGE_CHECK_LAB_LOAD"/>
 	</choice>
 </event>
 
@@ -186,7 +177,7 @@
 <event name="INSTALL_LAB_FFF_F22_THERMAL_IMAGING">
 	<variable name="loc_lab_upgrades" op="add" val="1"/>
 	<hiddenAug>LAB_FFF_F22_THERMAL_IMAGING</hiddenAug>
-	<hiddenAug>LAB_FFF_F22_INSTALLED</hiddenAug>
+	<hiddenAug>LAB_FFF_F22_INSTALLED_PRIMARY</hiddenAug>
 	<loadEvent>STORAGE_CHECK_LAB_FFF_F22</loadEvent>
 </event>
 
@@ -217,7 +208,7 @@
 <event name="INSTALL_LAB_FFF_F22_SUPERSONIC_AIRBAGS">
 	<variable name="loc_lab_upgrades" op="add" val="1"/>
 	<hiddenAug>LAB_FFF_F22_SUPERSONIC_AIRBAGS</hiddenAug>
-	<hiddenAug>LAB_FFF_F22_INSTALLED</hiddenAug>
+	<hiddenAug>LAB_FFF_F22_INSTALLED_PRIMARY</hiddenAug>
 	<loadEvent>STORAGE_CHECK_LAB_FFF_F22</loadEvent>
 </event>
 
@@ -248,7 +239,7 @@
 <event name="INSTALL_LAB_FFF_F22_FREEDOM_BOOSTERS">
 	<variable name="loc_lab_upgrades" op="add" val="1"/>
 	<hiddenAug>LAB_FFF_F22_FREEDOM_BOOSTERS</hiddenAug>
-	<hiddenAug>LAB_FFF_F22_INSTALLED</hiddenAug>
+	<hiddenAug>LAB_FFF_F22_INSTALLED_PRIMARY</hiddenAug>
 	<loadEvent>STORAGE_CHECK_LAB_FFF_F22</loadEvent>
 </event>
 
@@ -279,7 +270,7 @@
 <event name="INSTALL_LAB_FFF_F22_ARMORED_NOSECONES">
 	<variable name="loc_lab_upgrades" op="add" val="1"/>
 	<hiddenAug>LAB_FFF_F22_ARMORED_NOSECONES</hiddenAug>
-	<hiddenAug>LAB_FFF_F22_INSTALLED</hiddenAug>
+	<hiddenAug>LAB_FFF_F22_INSTALLED_SECONDARY</hiddenAug>
 	<loadEvent>STORAGE_CHECK_LAB_FFF_F22</loadEvent>
 </event>
 
@@ -290,41 +281,34 @@
 <!-- Begin generated lab events for Buffer-->
 <event name="STORAGE_CHECK_LAB_FFF_BUFFER">
 	<text>You are viewing the lab menu for: [Buffer]</text>
-	<choice req="LAB_FFF_BUFFER_EXTENDED_MEMORY" lvl="1" max_group="0" blue="false" hidden="true">
+
+	<choice req="pilot" lvl="1" max_group="0" blue="false" hidden="true">
+		<text>Go back.</text>
+		<event load="STORAGE_CHECK_LAB_LOAD"/>
+	</choice>
+
+	<choice req="LAB_FFF_BUFFER_EXTENDED_MEMORY" lvl="1" max_group="10" blue="false" hidden="true">
 		<text>Currently Installed Passive: Extended Memory.
 		[Keep track of what you were doing.]</text>
 		<event load="OPTION_INVALID"/>
 	</choice>
-	<choice req="LAB_FFF_BUFFER_OVERCLOCK" lvl="1" max_group="0" blue="false" hidden="true">
+	<choice req="LAB_FFF_BUFFER_OVERCLOCK" lvl="1" max_group="10" blue="false" hidden="true">
 		<text>Currently Installed Passive: Overclock.
 		[Buffers execute commands twice as fast but have 40 less health.]</text>
 		<event load="OPTION_INVALID"/>
 	</choice>
-	<choice req="pilot" lvl="1" max_group="0" blue="false" hidden="true">
+	<choice req="pilot" lvl="1" max_group="10" blue="false" hidden="true">
 		<text>Currently Installed Passive: None</text>
 		<event load="OPTION_INVALID"/>
 	</choice>
 
-	<choice req="LAB_FFF_BUFFER_INSTALLED" lvl="1" max_group="1" blue="false" hidden="true">
-		<text>Pas: Extended Memory. [An upgrade is already installed]</text>
-		<event load="OPTION_INVALID"/>
-	</choice>
-	<choice req="LAB_FFF_BUFFER_INSTALLED" lvl="0" max_group="1" blue="false" hidden="true">
+	<choice req="LAB_FFF_BUFFER_INSTALLED" lvl="0" max_lvl="0" max_group="11" blue="false" hidden="true">
 		<text>Pas: Extended Memory. [Cost: 40~]</text>
 		<event load="STORAGE_CHECK_LAB_FFF_BUFFER_EXTENDED_MEMORY"/>
 	</choice>
-	<choice req="LAB_FFF_BUFFER_INSTALLED" lvl="1" max_group="2" blue="false" hidden="true">
-		<text>Pas: Overclock. [An upgrade is already installed]</text>
-		<event load="OPTION_INVALID"/>
-	</choice>
-	<choice req="LAB_FFF_BUFFER_INSTALLED" lvl="0" max_group="2" blue="false" hidden="true">
+	<choice req="LAB_FFF_BUFFER_INSTALLED" lvl="0" max_lvl="0" max_group="12" blue="false" hidden="true">
 		<text>Pas: Overclock. [Cost: 50~]</text>
 		<event load="STORAGE_CHECK_LAB_FFF_BUFFER_OVERCLOCK"/>
-	</choice>
-
-	<choice req="pilot" lvl="1" max_group="999" blue="false" hidden="true">
-		<text>Go back.</text>
-		<event load="STORAGE_CHECK_LAB_LOAD"/>
 	</choice>
 </event>
 

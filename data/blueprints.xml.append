@@ -48,7 +48,7 @@
 		<bp>2</bp>
 		<rarity>5</rarity>
 		<powerList>
-			<power>Takes less damage, does no* damage.</power>
+			<power>Takes 60% combat damage, does no* damage.</power>
 			<power>Immune to suffocation and mind control.</power>
 			<power>Portent of massive power.</power>
 			<power>Beyond your comprehension.</power>

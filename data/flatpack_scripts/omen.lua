@@ -28,8 +28,6 @@ local ENEMY_SHIP = 1
 local global = Hyperspace.Global.GetInstance()
 local soundControl = global:GetSoundControl()
 
-print("is it nil?", Hyperspace.metaVariables["asdfsadfsadfasdfasdf"])
-
 local MAX_POWER = 100
 local BASE_BEAM_DAMAGE = 22
 local BASE_BLAST_DAMAGE = 20
