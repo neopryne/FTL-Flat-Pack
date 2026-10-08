@@ -11,6 +11,7 @@ The unique crew member of this ship is a smaller (1or2x) game of life, with a ce
 So they end up shooting off bits of themselves.
 This, of course, means I have to put those objects in a container.  So the game of life will be objects in a container.
 This class will be dedicated to just the code for the life board.
+The Conway
 
 Uses brightness particles for the cells, which makes it easy to change stuff about it.
 Internally the state updates based on which cells are enabled + alive.  Disabled cells don't have particles and aren't calculated.

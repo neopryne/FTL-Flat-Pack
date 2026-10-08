@@ -160,10 +160,9 @@
 		<bp>5</bp>
 		<rarity>0</rarity>
 		<powerList>
-			<power>Really, really fast.</power>
-			<power>1.5x damage, 2x sabotage speed.</power>
-			<power></power>
-			<power>Damages and stuns enemy crew in the rooms it moves to.</power>
+			<power>Helicopter License.</power>
+			<power>Fought in 'Nam.</power>
+			<power>Command of eldritch beings.</power>
 		</powerList>
 	</crewBlueprint>
 

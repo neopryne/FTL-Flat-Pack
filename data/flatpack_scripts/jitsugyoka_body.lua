@@ -49,6 +49,8 @@ local NOOP = function() end
         In particular, deltaTime should always be one frame for the new mode.
     https://github.com/genxium/DelayNoMoreUnity
 
+    There's a buy and sell button floating nearby.  They only render when not paused and in combat.
+
 --]]
 
 --The names here are used to find files, so you have to update those if you change this.

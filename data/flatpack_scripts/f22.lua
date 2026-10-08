@@ -67,7 +67,11 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
         
         --redirect crew to location.  Random slot for now due to limitations, will make it actually use the real position soon.
         crewmem:MoveToRoom(new_room, lwl.randomSlotRoom(new_room, crewmem.currentShipId), false)
-        soundControl:PlaySoundMix("fff_f22_dash", 3, false)
+        if Hyperspace.metaVariables["fff_play_f22_sounds"] == 0 then
+            soundControl:PlaySoundMix("fff_f22_dash", 3, false)
+        elseif Hyperspace.metaVariables["fff_play_f22_sounds"] == 1 then
+            soundControl:PlaySoundMix("fff_f22_dash", .1, false)
+        end
         
         crewTable.previousDestination = {roomId = new_room, slotId = new_slot}
     else
@@ -79,7 +83,11 @@ script.on_internal_event(Defines.InternalEvents.CREW_LOOP, function(crewmem)
     --print("moving to ", crewmem.currentSlot.roomId, " new? ", crewTable.moving_to_new_dest)
     if (crewTable.moving_to_new_dest and current_room == crewmem.currentSlot.roomId) then
         crewTable.moving_to_new_dest = false
-        soundControl:PlaySoundMix("fff_f22_boom", 3, false)
+        if Hyperspace.metaVariables["fff_play_f22_sounds"] == 0 then
+            soundControl:PlaySoundMix("fff_f22_boom", 3, false)
+        elseif Hyperspace.metaVariables["fff_play_f22_sounds"] == 1 then
+            soundControl:PlaySoundMix("fff_f22_boom", .1, false)
+        end
         local multFactor = 1
         multFactor = multFactor + (.3 * Hyperspace.ships(0).ship:HasAugmentation("LAB_FFF_F22_FREEDOM_BOOSTERS"))
         lwl.damageEnemyCrewInSameRoom(crewmem, DASH_DAMAGE * multFactor, DASH_STUN * multFactor)--todo freedom boosters

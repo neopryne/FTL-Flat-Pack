@@ -19,6 +19,9 @@
 	</mod:findLike>
 </FTL>
 
+<events>
+    <metaVariable name="fff_play_f22_sounds" op="set" val="1"/>
+</events>
 
 <mod:findLike type="customSystems">
 	<mod-append:customSystem id="limrix_adaptive_repair"/>

@@ -434,3 +434,45 @@
     <loadEvent>STORAGE_CHECK_SYSTEM</loadEvent>
 </event>
 <!-- END Custom Adaptive Repair System -->
+
+
+<!-- Settings -->
+    <event name="FFF_TOGGLE_OPTIONS">
+        <text>Flat Pack Options:</text>
+        <choice blue="false">
+			<text>Back.</text>
+            <event>
+                <loadEvent>COMBAT_CHECK_TOGGLE</loadEvent>
+            </event>
+        </choice>
+        
+        <choice req="fff_play_f22_sounds" lvl="0" max_lvl="0" blue="false">
+			<text>Soft dash sounds for F22.</text>
+            <event>
+                <metaVariable name="fff_play_f22_sounds" op="set" value="1"/>
+                <loadEvent>FFF_TOGGLE_OPTIONS</loadEvent>
+            </event>
+        </choice>
+        <choice req="fff_play_f22_sounds" lvl="1"  max_lvl="1" blue="false">
+			<text>Disable dash sounds for F22.</text>
+            <event>
+                <metaVariable name="fff_play_f22_sounds" op="set" value="2"/>
+                <loadEvent>FFF_TOGGLE_OPTIONS</loadEvent>
+            </event>
+        </choice>
+        <choice req="fff_play_f22_sounds" lvl="2"  max_lvl="2" blue="false">
+			<text>Enable dash sounds for F22.</text>
+            <event>
+                <metaVariable name="fff_play_f22_sounds" op="set" value="0"/>
+                <loadEvent>FFF_TOGGLE_OPTIONS</loadEvent>
+            </event>
+        </choice>
+    </event>
+
+    <mod:findName type="event" name="COMBAT_CHECK_TOGGLE">
+        <mod-append:choice blue="false">
+			<text>Flat Pack Toggles.</text>
+            <event load="FFF_TOGGLE_OPTIONS" />
+        </mod-append:choice>
+    </mod:findName>
+<!-- END Settings -->

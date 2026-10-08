@@ -16,9 +16,17 @@ Nodes can have shield, which takes a hit for a node during one match.
 They can also be durable, which means they cannot be destroyed by match, instead changing to another random type.
 
  
+6 colors, rgbcmy (antis) ascii/text/mostly bw with the listed colors as accent.
+The combat system will be like magic, the mana system will be like magic, but I will need to redo some things to make it different.
+
+
 
 Manual abort:
 This is a feature that lets you clear the stack.  In the return of each function, it checks if it should abort.
+
+Theoretical future states, closures to run them, and things that predict what we should do based on that.
+In time, reduce them to heuristics.  If you only do this though, it gets very black boxy and you can't track why you're doing things.
+So you also have to keep a small tree of why.
 ]]
 local lwl = {}
 
@@ -137,6 +145,25 @@ Check how many there are
 Fire off perpendicular checks on each of them.
 
 Returns the list of matching nodes: empty set if no match.
+Slider for how fast animations should play.
+Things should go automatically at speed of thought until user input is needed, and animations just play out however fast the user wants up to speed of thought/mostly not at all.
+"auto-order triggered abilities"?
+An algorithm for finding matches in a board, o(n) or close
+Iterate through the board, collecting all nodes into groups of matching nodes.  Note that nodes may be in more than one group.
+Save the positions of each of these nodes.  No, it's just that the nodes also know their neighbors and their positions.
+You need to form lines of 3 with one adjacent hole that can be filled.
+
+Lisp of foresight into what happens, and lossy storage of things that can be expanded later.
+Actually you want lossless storage that takes a long time to do right.
+And guessing.  Probably.
+Grim Monolith Woodlot Paradox Zone
+subTypes are broad things here, they are not just things that go on one kind of "card".
+
+God the stupid AI keeps thinking about abilities it has no mana to activate, and is just a moron about ordering blocks.  Like if you're dead to attacks if you don't block,
+you should start by checking if you can survive at all, because if you can't then you can stop thinking and die.
+Give it a timer for pete's sake.
+
+Information needs handles so it can be moved better, put your things where you can move them around easily.
 
 
 Right, because beyond just "if there's a match in the whole section", we also need to mark whether each node is part of a vertical or horizontal match.
